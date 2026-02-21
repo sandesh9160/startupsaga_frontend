@@ -185,7 +185,7 @@ export function HomeContent({
                                         }}
                                     >
                                         <div className="container-wide relative z-10 text-center">
-                                            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif mb-6 max-w-4xl mx-auto leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
+                                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-serif mb-4 max-w-4xl mx-auto leading-[1.2] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
                                                 {section.title || heroData.title}
                                             </h1>
                                             <div
@@ -244,13 +244,13 @@ export function HomeContent({
                                         <div className="container-wide">
                                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                                                 <div className="lg:col-span-8">
-                                                    <div className="flex items-baseline justify-between mb-8 border-b border-zinc-100 pb-4">
-                                                        <h2 className="text-3xl font-bold text-[#0F172A] mb-0">{section.title || "Latest Stories"}</h2>
+                                                    <div className="flex items-baseline justify-between mb-6 border-b border-zinc-100 pb-3">
+                                                        <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-0">{section.title || "Latest Stories"}</h2>
                                                         <Link href="/stories" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
                                                             View all <ArrowRight className="h-4 w-4" />
                                                         </Link>
                                                     </div>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                                         {(items.length > 0 ? items : latestStories).map((story: any) => (
                                                             <StoryCard key={story.slug || story.id || story.title} {...story} />
                                                         ))}
@@ -268,8 +268,8 @@ export function HomeContent({
                                 return (
                                     <section key={section.id || index} className="w-full mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 12, paddingBottom: paddingY !== null ? paddingY : 12 }}>
                                         <div className="container-wide">
-                                            <div className="flex items-baseline justify-between mb-8 border-b border-zinc-100 pb-4">
-                                                <h2 className="text-3xl font-bold text-[#0F172A] mb-0">{section.title || "Trending"}</h2>
+                                            <div className="flex items-baseline justify-between mb-6 border-b border-zinc-100 pb-3">
+                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-0">{section.title || "Trending"}</h2>
                                             </div>
                                             <TrendingStories stories={items.length > 0 ? items : trendingStories} />
                                         </div>
@@ -280,8 +280,8 @@ export function HomeContent({
                                 return (
                                     <section key={section.id || index} className="w-full mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 12, paddingBottom: paddingY !== null ? paddingY : 12 }}>
                                         <div className="container-wide">
-                                            <div className="flex items-baseline justify-between mb-8 border-b border-zinc-100 pb-4">
-                                                <h2 className="text-3xl font-bold text-[#0F172A] mb-0">{section.title || "Featured Stories"}</h2>
+                                            <div className="flex items-baseline justify-between mb-6 border-b border-zinc-100 pb-3">
+                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-0">{section.title || "Featured Stories"}</h2>
                                             </div>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                                                 {(items.length > 0 ? items : trendingStories.slice(0, 3)).map((story: any) => (
@@ -296,8 +296,8 @@ export function HomeContent({
                                 return (
                                     <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 20, paddingBottom: paddingY !== null ? paddingY : 20 }}>
                                         <div className="container-wide">
-                                            <div className="flex items-baseline justify-between mb-10">
-                                                <h2 className="text-3xl font-bold text-[#0F172A]" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>{section.title || "Top Categories"}</h2>
+                                            <div className="flex items-baseline justify-between mb-8">
+                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A]" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>{section.title || "Top Categories"}</h2>
                                                 <Link href="/categories" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
                                                     All categories <ArrowRight className="h-4 w-4" />
                                                 </Link>
@@ -329,7 +329,7 @@ export function HomeContent({
                                                         <MapPin className="h-3 w-3" />
                                                         Regional Ecosystems
                                                     </div>
-                                                    <h2 className="text-3xl md:text-5xl font-bold text-[#0F172A] mb-6 font-serif tracking-tight leading-tight">
+                                                    <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-4 font-serif tracking-tight leading-tight">
                                                         {section.title || "Startup Hubs in India — Bengaluru, Mumbai, Delhi NCR & More"}
                                                     </h2>
                                                     <div className="text-zinc-500 text-lg leading-relaxed max-w-2xl prose prose-zinc" dangerouslySetInnerHTML={{ __html: section.description || "India's startup revolution extends far beyond Bengaluru. Explore thriving entrepreneurial ecosystems in metros, emerging Tier 2 hubs, and ambitious Tier 3 cities building the next wave of innovation." }} />
@@ -383,7 +383,7 @@ export function HomeContent({
                                                         <TrendingUp className="h-3 w-3" />
                                                         Growth Markets
                                                     </div>
-                                                    <h2 className="text-3xl md:text-5xl font-bold text-[#0F172A] mb-6 font-serif tracking-tight leading-tight" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
+                                                    <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-4 font-serif tracking-tight leading-tight" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
                                                         {section.title || "Rising Startup Hubs — India's Tier 2 & 3 Revolution"}
                                                     </h2>
                                                     <div className="text-zinc-500 text-lg leading-relaxed max-w-2xl prose prose-zinc" dangerouslySetInnerHTML={{ __html: section.subtitle || "Beyond the metros, a new wave of innovation is sweeping through cities like Jaipur, Kochi, and Indore. Explore the ecosystems driving India's next decade of growth." }} />
@@ -436,7 +436,7 @@ export function HomeContent({
                                                 <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
                                                 Market Landscape
                                             </div>
-                                            <h2 className="text-3xl md:text-5xl font-bold text-zinc-900 mb-6 font-serif tracking-tight max-w-4xl mx-auto leading-tight">
+                                            <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-zinc-900 mb-4 font-serif tracking-tight max-w-4xl mx-auto leading-tight">
                                                 Indian Startup Categories — Fintech, SaaS, D2C & More
                                             </h2>
                                             <div className="max-w-3xl mx-auto mb-12">
@@ -491,7 +491,7 @@ export function HomeContent({
                                         <section key={section.id || index} className="container-wide mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 16, paddingBottom: paddingY !== null ? paddingY : 16 }}>
                                             <div className="flex items-center gap-3 mb-10">
                                                 <Sparkles className="h-6 w-6 text-orange-600 fill-orange-600" />
-                                                <h2 className="text-3xl font-bold text-[#0F172A]">{section.title || "Featured Startup of the Week"}</h2>
+                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A]">{section.title || "Featured Startup of the Week"}</h2>
                                             </div>
                                             <div className="bg-[#FFFFFF] rounded-[2rem] border border-zinc-100 shadow-xl shadow-zinc-200/50 overflow-hidden group">
                                                 <div className="grid grid-cols-1 lg:grid-cols-12">
@@ -546,7 +546,7 @@ export function HomeContent({
                                     <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 16, paddingBottom: paddingY !== null ? paddingY : 16 }}>
                                         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10">
                                             <div className="max-w-3xl">
-                                                <h2 className="text-3xl font-bold text-[#0F172A]" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Featured Startups"}</h2>
+                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A]" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Featured Startups"}</h2>
                                             </div>
                                             <div className="flex items-center gap-10 border-l border-zinc-100 pl-8 h-fit">
                                                 <div>
@@ -588,7 +588,7 @@ export function HomeContent({
                                     <section key={section.id || index} className="bg-[#0F172A] text-center overflow-hidden relative mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 32, paddingBottom: paddingY !== null ? paddingY : 32 }}>
                                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 via-white/20 to-orange-600" />
                                         <div className="container-wide relative z-10">
-                                            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 font-serif" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
+                                            <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-white mb-4 font-serif" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
                                                 {section.title || "Stay Updated with India's Startup Ecosystem"}
                                             </h2>
                                             <div className="text-lg mb-12 max-w-2xl mx-auto prose prose-lg prose-invert opacity-80" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }} dangerouslySetInnerHTML={{ __html: section.description || section.subtitle || "Get the latest funding news, founder stories, and industry insights delivered to your inbox every week." }} />
@@ -645,7 +645,7 @@ export function HomeContent({
                             case 'text':
                                 return (
                                     <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, textAlign: align as any, paddingTop: paddingY !== null ? paddingY : 20, paddingBottom: paddingY !== null ? paddingY : 20 }}>
-                                        {section.title && <h2 className="text-3xl font-bold mb-4" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title}</h2>}
+                                        {section.title && <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold mb-4" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title}</h2>}
                                         {section.subtitle && <h3 className="text-xl text-zinc-500 mb-4">{section.subtitle}</h3>}
                                         <div className="prose prose-lg max-w-none mx-auto mb-8" dangerouslySetInnerHTML={{ __html: section.content || section.description || "" }} style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }} />
 
@@ -714,7 +714,7 @@ export function HomeContent({
                                     >
                                         {section.title && (
                                             <h2
-                                                className="text-3xl font-bold mb-4 font-serif"
+                                                className="text-xl md:text-3xl font-bold mb-4 font-serif"
                                                 style={{ color: textColor.startsWith('#') ? textColor : '#0F172A', fontFamily: sSettings.fontFamily || undefined }}
                                             >
                                                 {section.title}

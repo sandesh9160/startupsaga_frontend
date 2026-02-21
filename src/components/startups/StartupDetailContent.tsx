@@ -23,11 +23,13 @@ import {
     Edit3,
     Folder,
     FolderKanban,
-    BookOpen
+    BookOpen,
+    List
 } from "lucide-react";
 import { getSafeImageSrc } from "@/lib/images";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
 
 interface StartupDetailContentProps {
     startup: any;
@@ -61,6 +63,42 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
             toast.success("Link copied!");
         }
     };
+
+    const [tableOfContents, setTableOfContents] = useState<Array<{ id: number; title: string; anchor: string }>>([]);
+    const [activeSection, setActiveSection] = useState<string>("");
+
+    useEffect(() => {
+        if (startup.description && typeof startup.description === 'string') {
+            // Attempt to generate TOC based on simple paragraphs or newlines as sections
+            const paras = startup.description.split('\n\n').filter((p: string) => p.trim().length > 0);
+            if (paras.length > 3) {
+                setTableOfContents([
+                    { id: 1, title: 'Introduction', anchor: 'introduction' },
+                    { id: 2, title: 'The Journey', anchor: 'journey' }
+                ]);
+            }
+        }
+    }, [startup.description]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveSection(entry.target.id);
+                    }
+                });
+            },
+            { rootMargin: "-100px 0px -70% 0px" }
+        );
+
+        tableOfContents.forEach((item: any) => {
+            const el = document.getElementById(item.anchor);
+            if (el) observer.observe(el);
+        });
+
+        return () => observer.disconnect();
+    }, [tableOfContents]);
 
     return (
         <div className="bg-[#FAFBFD] min-h-screen font-sans selection:bg-orange-100 selection:text-orange-900 pb-20">
@@ -144,6 +182,10 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                         <p className="font-bold text-zinc-900 leading-none mb-0.5">Founders</p>
                                         <p className="text-zinc-500 leading-none">{founders.map((f: any) => f.name).join(', ')}</p>
                                     </div>
+                                    <div className="ml-4 pl-4 border-l border-zinc-200 text-[11px]">
+                                        <p className="font-bold text-zinc-900 leading-none mb-0.5">Read Time</p>
+                                        <p className="text-zinc-500 leading-none">3 min read</p>
+                                    </div>
                                 </div>
                             )}
 
@@ -179,7 +221,30 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Left Column: About */}
                     <div className="lg:col-span-8 space-y-8">
-                        <div className="bg-white rounded-2xl border border-zinc-100 p-8 md:p-10 shadow-[0_4px_20px_rgb(0,0,0,0.02)] relative overflow-hidden">
+                        {/* In-Body Table of Contents */}
+                        {tableOfContents.length > 0 && (
+                            <section className="bg-white rounded-2xl p-6 md:p-7 border border-zinc-100 shadow-sm mb-8">
+                                <h2 className="text-lg font-serif font-bold text-zinc-900 mb-6 flex items-center gap-2 tracking-tight">
+                                    <List className="h-5 w-5 text-orange-500" />
+                                    Table of Contents
+                                </h2>
+                                <ul className="space-y-4">
+                                    {tableOfContents.map((item: any, idx: number) => (
+                                        <li key={item.id} className="flex items-start gap-3">
+                                            <span className="text-orange-500 font-serif font-bold text-[15px] mt-px">{idx + 1}.</span>
+                                            <a
+                                                href={`#${item.anchor}`}
+                                                className="text-zinc-600 hover:text-orange-600 font-medium font-serif text-[17px] transition-colors"
+                                            >
+                                                {item.title}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        )}
+
+                        <div id="introduction" className="bg-white rounded-2xl border border-zinc-100 p-8 md:p-10 shadow-[0_4px_20px_rgb(0,0,0,0.02)] relative overflow-hidden">
                             {/* Subtle background decoration */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50/20 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none" />
 
@@ -188,14 +253,29 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                     <BookOpen size={16} className="text-orange-600" />
                                 </div>
                                 <h2 className="text-xl font-black text-zinc-900 uppercase tracking-tight">
-                                    About {startup.name}
+                                    Journey Details
                                 </h2>
                             </div>
-                            <div className="prose prose-zinc prose-sm md:prose-base max-w-none text-zinc-600 font-medium leading-relaxed relative z-10">
+                            <div id="journey" className="prose prose-zinc prose-sm md:prose-base max-w-none text-zinc-600 font-medium leading-relaxed relative z-10">
                                 {startup.description?.split('\n\n').map((para: string, idx: number) => (
                                     <p key={idx} className="mb-4">{para}</p>
                                 ))}
                             </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="pt-6 flex flex-wrap items-center gap-3">
+                            <Button variant="outline" size="sm" onClick={handleShare} className="h-10 rounded-xl bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 px-5 font-bold text-[11px] uppercase tracking-widest transition-all">
+                                <Share2 className="h-3.5 w-3.5 mr-2" />
+                                Copy Link
+                            </Button>
+                            <Button
+                                onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}
+                                variant="outline" size="sm" className="h-10 rounded-xl bg-white border-zinc-200 text-[#0077B5] hover:bg-[#0077B5]/5 px-5 font-bold text-[11px] uppercase tracking-widest transition-all"
+                            >
+                                <Linkedin className="h-3.5 w-3.5 mr-2 fill-current" />
+                                Share on LinkedIn
+                            </Button>
                         </div>
 
                         {/* Section: News & Stories */}

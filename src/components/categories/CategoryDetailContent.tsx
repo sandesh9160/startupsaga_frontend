@@ -56,7 +56,7 @@ export function CategoryDetailContent({ category, categoryStartups, categoryStor
                         <div className="space-y-4">
                             <div className="space-y-1">
                                 <div className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">Category</div>
-                                <h1 className="text-4xl md:text-5xl font-bold text-zinc-900 font-serif tracking-tight">
+                                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 font-serif tracking-tight">
                                     {category.name} Startups in India
                                 </h1>
                             </div>
@@ -85,7 +85,7 @@ export function CategoryDetailContent({ category, categoryStartups, categoryStor
             {/* About Card Section */}
             <div className="container-wide py-8 relative z-20">
                 <div className="bg-white rounded-2xl border border-zinc-200/60 shadow-sm p-6 md:p-8 mb-8">
-                    <h2 className="text-2xl font-bold text-zinc-900 font-serif mb-6">About {category.name} Startups in India</h2>
+                    <h2 className="text-xl md:text-2xl font-bold text-zinc-900 font-serif mb-4">About {category.name} Startups in India</h2>
                     <div className="prose prose-zinc prose-sm max-w-none text-zinc-500 leading-relaxed space-y-4">
                         <p>{category.description || `The Indian ${category.name} ecosystem is undergoing a massive transformation, driven by digital adoption, innovative business models, and significant venture capital activity. From early-stage disruptors to established giants, these companies are redefining the landscape of the Indian economy.`}</p>
                         <p>Whether you're an entrepreneur exploring the {category.name} model, an investor scouting opportunities, or a professional considering joining a high-growth startup, StartupSaga's {category.name} category provides comprehensive coverage of funding announcements, founder stories, market analysis, and startup profiles.</p>
@@ -154,7 +154,7 @@ export function CategoryDetailContent({ category, categoryStartups, categoryStor
                                     <div className="h-8 w-8 rounded-lg bg-zinc-900 flex items-center justify-center shadow-lg shadow-zinc-200">
                                         <MapPin className="h-4 w-4 text-white" />
                                     </div>
-                                    <h2 className="text-xl font-bold text-zinc-900 font-serif tracking-tight">Regional Hubs</h2>
+                                    <h2 className="text-xl md:text-2xl font-bold text-zinc-900 font-serif tracking-tight">Regional Hubs</h2>
                                 </div>
                                 <p className="text-sm text-zinc-400 font-medium">Top cities leading the {category.name} innovation.</p>
                             </div>

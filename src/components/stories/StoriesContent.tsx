@@ -116,7 +116,7 @@ export function StoriesContent() {
         <div className="bg-background min-h-screen">
             <section className="container-wide py-12 md:py-16 border-b border-border/60">
                 <div className="max-w-4xl space-y-5">
-                    <h1 className="text-3xl md:text-5xl font-bold text-foreground font-serif tracking-tight">
+                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground font-serif tracking-tight">
                         Latest Indian Startup Stories & Founder Journeys
                     </h1>
                     <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
@@ -246,7 +246,9 @@ export function StoriesContent() {
                             <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent/5 text-accent mb-4">
                                 <X className="h-6 w-6 opacity-20" />
                             </div>
-                            <h3 className="text-xl font-bold mb-1 font-serif tracking-tight">No Results</h3>
+                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 tracking-tight leading-[1.2] font-serif">
+                                No Results
+                            </h1>
                             <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
                                 We couldn't find any stories matching your current filters.
                             </p>

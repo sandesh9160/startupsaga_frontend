@@ -84,7 +84,7 @@ export function StartupsContent() {
                 <div className="container-wide relative z-10">
                     <div className="max-w-4xl mx-auto text-center space-y-8">
                         <div className="space-y-4">
-                            <h1 className="text-4xl md:text-6xl font-bold text-zinc-900 tracking-tight leading-[1.1]">
+                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 tracking-tight leading-[1.2] font-serif">
                                 India Startup Directory - Discover <br />
                                 <span className="text-zinc-900">5,000+ Companies</span>
                             </h1>
@@ -267,7 +267,7 @@ export function StartupsContent() {
                     <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 rounded-full bg-blue-600/10 blur-[100px]" />
 
                     <div className="relative z-10 max-w-3xl mx-auto space-y-8">
-                        <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
+                        <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-white tracking-tight font-serif">
                             Build the next big thing?
                         </h2>
                         <p className="text-zinc-400 text-lg md:text-xl leading-relaxed">

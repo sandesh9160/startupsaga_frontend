@@ -69,7 +69,7 @@ export function Banner({
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 tracking-tight leading-[1.1]"
+                        className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6 tracking-tight leading-[1.2] font-serif"
                     >
                         {title}
                     </motion.h2>

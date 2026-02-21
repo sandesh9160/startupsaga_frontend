@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { StoryCard } from "@/components/cards/StoryCard";
+import { StartupCard } from "@/components/cards/StartupCard";
 import { CompanyInfoSidebar } from "@/components/stories/CompanyInfoSidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,10 +29,10 @@ import { cn } from "@/lib/utils";
 interface StoryDetailContentProps {
     story: any;
     relatedStories: any[];
-    cityStartups: any[];
+    categoryStartups: any[];
 }
 
-export function StoryDetailContent({ story, relatedStories, cityStartups }: StoryDetailContentProps) {
+export function StoryDetailContent({ story, relatedStories, categoryStartups }: StoryDetailContentProps) {
     const [tableOfContents, setTableOfContents] = useState<Array<{ id: number; title: string; anchor: string }>>([]);
     const [activeSection, setActiveSection] = useState<string>("");
 
@@ -80,14 +81,14 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
     }, [tableOfContents]);
 
     return (
-        <article className="bg-[#FAFBFD] min-h-screen font-sans selection:bg-orange-100 selection:text-orange-900 pb-20">
+        <article className="bg-[#FAFBFD] min-h-screen font-sans selection:bg-orange-100 selection:text-orange-900 pb-12">
             {/* Header / Hero Section */}
-            <header className="bg-white pt-16 pb-12">
-                <div className="container max-w-[1400px] mx-auto px-4">
+            <header className="bg-white pt-10 pb-10">
+                <div className="container max-w-[1200px] mx-auto px-4">
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-8 max-w-5xl lg:pl-10"
+                        className="space-y-8 max-w-4xl mx-auto"
                     >
                         {/* Category Label */}
                         <div>
@@ -97,13 +98,13 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
                         </div>
 
                         {/* Story Title */}
-                        <h1 className="text-3xl md:text-5xl lg:text-[3.5rem] font-serif font-bold tracking-tight text-zinc-900 leading-[1.15] text-pretty">
+                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold tracking-tight text-zinc-900 leading-[1.2] text-pretty">
                             {story.title}
                         </h1>
 
                         {/* Excerpt / Subheading */}
                         {story.excerpt && (
-                            <p className="text-xl md:text-2xl text-zinc-500 leading-relaxed font-medium max-w-4xl">
+                            <p className="text-lg md:text-xl text-zinc-500 leading-relaxed font-medium max-w-4xl">
                                 {story.excerpt}
                             </p>
                         )}
@@ -174,13 +175,16 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-14">
 
                     {/* Left Column: Story Content */}
-                    <div className="lg:col-span-8 space-y-8 lg:pl-10">
+                    <div className={cn(
+                        "space-y-8 max-w-4xl mx-auto",
+                        story.related_startup ? "lg:col-span-8" : "lg:col-span-12"
+                    )}>
                         {/* Featured Image */}
                         {(story.thumbnail || story.og_image) && (
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="relative aspect-[16/9] w-full rounded-[2rem] overflow-hidden bg-zinc-100 shadow-xl shadow-zinc-200/50"
+                                className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-zinc-100 shadow-lg shadow-zinc-200/50"
                             >
                                 <img
                                     src={getSafeImageSrc(story.thumbnail || story.og_image)}
@@ -227,15 +231,15 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
                         )}
 
                         {/* Narrative Content */}
-                        <section className="prose prose-zinc prose-lg max-w-none 
+                        <section className="prose prose-zinc prose-sm md:prose-base max-w-none 
                             prose-headings:font-serif prose-headings:font-bold prose-headings:text-zinc-900 prose-headings:tracking-tight
-                            prose-h2:text-3xl md:prose-h2:text-[2.2rem] prose-h2:mt-16 prose-h2:mb-8 prose-h2:scroll-mt-24
-                            prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-6
-                            prose-p:text-zinc-600 prose-p:leading-relaxed prose-p:mb-10 prose-p:font-normal prose-p:text-[1.1rem]
+                            prose-h2:text-2xl md:prose-h2:text-[1.75rem] prose-h2:mt-12 prose-h2:mb-6 prose-h2:scroll-mt-24
+                            prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
+                            prose-p:text-zinc-600 prose-p:leading-relaxed prose-p:mb-8 prose-p:font-normal prose-p:text-[1rem]
                             prose-a:text-orange-600 prose-a:no-underline hover:prose-a:underline
                             prose-strong:text-zinc-900 prose-strong:font-bold
-                            prose-ul:my-10 prose-li:text-zinc-600 prose-li:mb-2
-                            prose-img:rounded-[2rem] prose-img:my-16 prose-img:border prose-img:border-zinc-100 shadow-lg shadow-zinc-200/50"
+                            prose-ul:my-8 prose-li:text-zinc-600 prose-li:mb-2
+                            prose-img:rounded-[1.5rem] prose-img:my-12 prose-img:border prose-img:border-zinc-100 shadow-lg shadow-zinc-200/50"
                         >
                             {story.content ? (
                                 <div dangerouslySetInnerHTML={{
@@ -271,90 +275,109 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
                         </div>
                     </div>
 
-                    {/* Right Column: Sidebar */}
-                    <aside className="lg:col-span-4 space-y-10">
-                        {story.related_startup && (
+                    {/* Right Column: Sidebar (if related startup) */}
+                    {story.related_startup && (
+                        <div className="lg:col-span-4 space-y-8">
                             <div className="sticky top-24">
-                                <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                                    <Building2 className="h-3.5 w-3.5 text-zinc-300" />
-                                    Profile Focus
-                                </h2>
                                 <CompanyInfoSidebar
                                     company={{
-                                        name: story.related_startup?.name || 'Company',
-                                        logo: getSafeImageSrc(story.related_startup?.logo),
-                                        city: story.related_startup?.city || story.city,
-                                        founded: story.related_startup?.founded_year,
-                                        employees: story.related_startup?.team_size,
-                                        founders: story.related_startup?.founders_data?.map((f: any) => f.name),
-                                        categories: story.related_startup?.category ? [story.related_startup.category] : (story.category ? [story.category] : []),
-                                        website: story.related_startup?.website_url,
-                                        slug: story.related_startup?.slug,
+                                        name: story.related_startup.name,
+                                        logo: getSafeImageSrc(story.related_startup.logo),
+                                        city: story.related_startup.city,
+                                        founded: story.related_startup.founded_year,
+                                        employees: story.related_startup.team_size,
+                                        founders: story.related_startup.founders_data?.map((f: any) => f.name) || [],
+                                        categories: [story.related_startup.category].filter(Boolean),
+                                        website: story.related_startup.website_url,
+                                        slug: story.related_startup.slug
                                     }}
                                 />
-                            </div>
-                        )}
 
-                        {/* City Context if no startup focus */}
-                        {!story.related_startup && cityStartups.length > 0 && (
-                            <div className="sticky top-24 space-y-6">
-                                <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Layers className="h-3.5 w-3.5 text-zinc-300" />
-                                    Local Ecosystem
-                                </h2>
-                                <div className="space-y-3">
-                                    {cityStartups.slice(0, 3).map((startup) => (
-                                        <Link
-                                            key={startup.slug}
-                                            href={`/startups/${startup.slug}`}
-                                            className="block p-4 bg-white rounded-2xl border border-zinc-100 hover:shadow-lg hover:shadow-zinc-200/30 transition-all group"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 p-1.5 flex flex-shrink-0 items-center justify-center">
-                                                    {startup.logo ? (
-                                                        <img src={startup.logo} alt={startup.name} className="w-full h-full object-contain" />
-                                                    ) : (
-                                                        <Building2 className="h-4 w-4 text-zinc-200" />
+                                {/* Quick TOC Sidebar for desktop */}
+                                {tableOfContents.length > 0 && (
+                                    <div className="mt-8 p-6 bg-white rounded-2xl border border-zinc-100 shadow-sm hidden lg:block">
+                                        <h3 className="text-xs font-black uppercase tracking-widest text-zinc-400 mb-5 flex items-center gap-2">
+                                            <List className="h-3 w-3" />
+                                            On this page
+                                        </h3>
+                                        <nav className="flex flex-col gap-3">
+                                            {tableOfContents.map((item) => (
+                                                <a
+                                                    key={item.id}
+                                                    href={`#${item.anchor}`}
+                                                    className={cn(
+                                                        "text-[13px] font-medium transition-colors hover:text-orange-600",
+                                                        activeSection === item.anchor ? "text-orange-600" : "text-zinc-500"
                                                     )}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <h4 className="font-bold text-xs text-zinc-900 group-hover:text-orange-600 transition-colors truncate">{startup.name}</h4>
-                                                    <p className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">{startup.category}</p>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            ))}
+                                        </nav>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </aside>
+                        </div>
+                    )}
                 </div>
             </main>
 
             {/* Recommendations Section */}
-            {relatedStories.length > 0 && (
-                <section className="bg-white border-t border-zinc-100 py-24">
-                    <div className="container max-w-7xl mx-auto px-4">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-                            <div className="space-y-4">
-                                <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 tracking-tight">Expand Your Horizon</h2>
-                                <p className="text-zinc-500 font-medium text-lg">More analysis from the {story.category} sector.</p>
-                            </div>
-                            <Button asChild variant="ghost" className="text-[10px] font-bold uppercase tracking-widest gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50">
-                                <Link href="/stories">
-                                    All Stories
-                                    <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
-                                </Link>
-                            </Button>
+            {
+                (relatedStories.length > 0 || categoryStartups.length > 0) && (
+                    <section className="bg-white border-t border-zinc-100 py-16 md:py-20">
+                        <div className="container max-w-7xl mx-auto px-4 space-y-20">
+
+                            {/* Related Stories */}
+                            {relatedStories.length > 0 && (
+                                <div className="space-y-10">
+                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                                        <div className="space-y-2">
+                                            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-zinc-900 tracking-tight font-serif italic">Deep Dive into {story.category} & {story.city}</h2>
+                                            <p className="text-zinc-500 font-medium text-base">More insights from the ecosystem.</p>
+                                        </div>
+                                        <Button asChild variant="ghost" className="text-[9px] font-bold uppercase tracking-widest gap-2 h-10 px-5 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
+                                            <Link href="/stories">
+                                                All Stories
+                                                <ArrowLeft className="h-3 w-3 rotate-180" />
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                        {relatedStories.map((s) => (
+                                            <StoryCard key={s.slug} {...s} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Category Startups */}
+                            {categoryStartups.length > 0 && (
+                                <div className="space-y-10">
+                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-10 border-t border-zinc-50">
+                                        <div className="space-y-2">
+                                            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-zinc-900 tracking-tight font-serif italic">Powering {story.category}</h2>
+                                            <p className="text-zinc-500 font-medium text-base">Explore ventures in this sector.</p>
+                                        </div>
+                                        <Button asChild variant="ghost" className="text-[9px] font-bold uppercase tracking-widest gap-2 h-10 px-5 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
+                                            <Link href="/startups">
+                                                Manage Directory
+                                                <ArrowLeft className="h-3 w-3 rotate-180" />
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                        {categoryStartups.map((s) => (
+                                            <StartupCard key={s.slug} {...s} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                            {relatedStories.map((s) => (
-                                <StoryCard key={s.slug} {...s} />
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
-        </article>
+                    </section>
+                )
+            }
+        </article >
     );
 }
