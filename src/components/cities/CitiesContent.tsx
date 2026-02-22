@@ -23,7 +23,7 @@ export function CitiesContent() {
         setIsLoading(true);
         Promise.all([
             getCities().then(setCities),
-            getStories({ limit: 4 }).then(setStories),
+            getStories({ limit: 8, is_city_focused: true }).then(setStories),
             getPlatformStats().then(setPlatformStats)
         ])
             .catch(err => console.error(err))
@@ -137,15 +137,20 @@ export function CitiesContent() {
             <main className="container-wide pb-12 relative z-20">
                 <div className="max-w-7xl mx-auto">
                     {isLoading ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                             {[...Array(12)].map((_, i) => (
-                                <div key={i} className="h-40 rounded-2xl bg-white border border-zinc-100 animate-pulse" />
+                                <div key={i} className="h-[380px] rounded-2xl bg-white border border-zinc-100 animate-pulse" />
                             ))}
                         </div>
                     ) : filteredCities.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             {filteredCities.map((city) => (
-                                <CityCard key={city.slug} {...city} />
+                                <CityCard
+                                    key={city.slug}
+                                    {...city}
+                                    variant="featured"
+                                    description={city.description?.replace(/<[^>]*>/g, '')}
+                                />
                             ))}
                         </div>
                     ) : (
@@ -162,76 +167,12 @@ export function CitiesContent() {
 
             {/* RELATED SECTIONS START */}
             <div className="bg-[#FDFDFD] border-t border-zinc-100 mt-8">
-                <section className="container-wide py-16 md:py-20 lg:py-24">
-                    {/* City Related Stories */}
-                    <div className="mb-20 max-w-7xl mx-auto">
-                        <div className="flex items-center justify-between mb-10">
-                            <h2 className="text-2xl font-bold font-serif text-zinc-900 leading-tight">Latest City Focused Stories</h2>
-                            <Link href="/stories" className="text-orange-600 font-bold text-xs flex items-center gap-1 hover:underline">
-                                View all stories <ArrowRight className="h-3 w-3" />
-                            </Link>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                            {stories.length > 0 ? stories.slice(0, 4).map((story) => (
-                                <StoryCard
-                                    key={story.id || story.slug}
-                                    slug={story.slug}
-                                    title={story.title}
-                                    excerpt={story.excerpt}
-                                    thumbnail={story.thumbnail}
-                                    og_image={story.og_image}
-                                    category={story.category}
-                                    categorySlug={story.category_slug}
-                                    city={story.city}
-                                    citySlug={story.city_slug}
-                                    publishDate={story.publishDate || story.publish_date}
-                                    author_name={story.author_name || story.author}
-                                    read_time={story.read_time}
-                                    featured={false}
-                                    isFeatured={false}
-                                />
-                            )) : (
-                                [...Array(4)].map((_, i) => (
-                                    <div key={i} className="h-64 rounded-2xl bg-zinc-50 animate-pulse border border-zinc-100/50" />
-                                ))
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Stats Section */}
-                    <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 text-center py-16 border-y border-zinc-100 mb-20 bg-white shadow-sm rounded-3xl">
-                        <div>
-                            <div className="text-3xl font-bold text-orange-600 mb-1 font-serif">
-                                {formattedStartups}+
-                            </div>
-                            <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Verified Startups</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-orange-600 mb-1 font-serif">
-                                {formattedUnicorns}+
-                            </div>
-                            <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Unicorns & Soonicorns</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-orange-600 mb-1 font-serif">
-                                25+
-                            </div>
-                            <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Growth Tiers</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-orange-600 mb-1 font-serif">
-                                1M+
-                            </div>
-                            <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Monthly Readers</div>
-                        </div>
-                    </div>
-
+                <section className="container-wide py-16">
                     {/* Emerging Cities grid */}
-                    <div className="mb-20 max-w-7xl mx-auto">
+                    <div className="max-w-7xl mx-auto">
                         <h2 className="text-2xl font-bold font-serif text-zinc-900 mb-10">Explore Emerging Cities</h2>
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                            {cities.filter(c => String(c.tier) === '2' || c.is_featured).slice(0, 7).map((city) => (
+                            {cities.filter(c => (String(c.tier) === '2' || String(c.tier) === '3') && !filteredCities.some(fc => fc.slug === c.slug)).slice(0, 7).map((city) => (
                                 <Link
                                     key={city.slug}
                                     href={`/cities/${city.slug}`}
@@ -245,28 +186,6 @@ export function CitiesContent() {
                                 </Link>
                             ))}
                         </div>
-                    </div>
-
-                    {/* CTA Banner */}
-                    <div className="max-w-7xl mx-auto bg-[#FFF5F1] rounded-3xl p-8 md:p-12 border border-orange-100/50 relative overflow-hidden">
-                        <div className="relative z-10 max-w-2xl">
-                            <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 font-serif mb-3 tracking-tight">
-                                Launching a Startup in India?
-                            </h2>
-                            <p className="text-zinc-600 text-base md:text-lg mb-8 leading-relaxed">
-                                Get your journey featured on StartupSaga. We help you tell your story to India's largest entrepreneur community.
-                            </p>
-                            <div className="flex flex-col sm:flex-row items-center gap-4">
-                                <Button className="w-full sm:w-auto h-12 px-8 rounded-xl bg-[#0F172A] hover:bg-zinc-800 text-white font-bold transition-all active:scale-95" asChild>
-                                    <Link href="/submit">Submit Your Startup</Link>
-                                </Button>
-                                <Button variant="outline" className="w-full sm:w-auto h-12 px-8 rounded-xl bg-transparent border-zinc-200 font-bold hover:bg-white transition-all active:scale-95" asChild>
-                                    <Link href="/startups">Explore Directory</Link>
-                                </Button>
-                            </div>
-                        </div>
-                        {/* Abstract background shape */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-200/20 -mr-20 -mt-20 rounded-full blur-3xl pointer-events-none" />
                     </div>
                 </section>
             </div>

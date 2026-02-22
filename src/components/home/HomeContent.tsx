@@ -178,8 +178,8 @@ export function HomeContent({
                                         className="relative overflow-hidden mb-0"
                                         style={{
                                             backgroundColor: (bgColor === '#FFFFFF' || bgColor === 'FFFFFF') ? '#0F172A' : bgColor,
-                                            paddingTop: paddingY !== null ? paddingY : 80,
-                                            paddingBottom: paddingY !== null ? paddingY : 100,
+                                            paddingTop: paddingY !== null ? paddingY : 48,
+                                            paddingBottom: paddingY !== null ? paddingY : 64,
                                             paddingLeft: paddingX !== null ? paddingX : 0,
                                             paddingRight: paddingX !== null ? paddingX : 0,
                                         }}
@@ -235,7 +235,7 @@ export function HomeContent({
 
                             case 'latest_stories':
                                 return (
-                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
+                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
                                         <div className="container-wide">
                                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                                                 <div className="lg:col-span-8">
@@ -272,7 +272,7 @@ export function HomeContent({
 
                             case 'trending_stories':
                                 return (
-                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
+                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
                                         <div className="container-wide">
                                             <div className="flex items-baseline justify-between mb-10">
                                                 <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Most Read Across Hubs"}</h2>
@@ -302,7 +302,7 @@ export function HomeContent({
 
                             case 'featured_stories':
                                 return (
-                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
+                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
                                         <div className="container-wide">
                                             <div className="flex items-baseline justify-between mb-10">
                                                 <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Most Read Across Hubs"}</h2>
@@ -332,7 +332,7 @@ export function HomeContent({
 
                             case 'category_grid':
                                 return (
-                                    <section key={section.id || index} className="mb-0 overflow-hidden" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
+                                    <section key={section.id || index} className="mb-0 overflow-hidden" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
                                         <div className="container-wide">
                                             <div className="flex items-baseline justify-between mb-10">
                                                 <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Top Categories"}</h2>
@@ -359,7 +359,7 @@ export function HomeContent({
 
                             case 'city_grid':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0 border-b border-zinc-100/50" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
+                                    <section key={section.id || index} className="w-full mb-0 border-b border-zinc-100/50" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
                                         <div className="container-wide">
                                             <div className="flex items-baseline justify-between mb-10">
                                                 <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Explore by City"}</h2>
@@ -390,7 +390,7 @@ export function HomeContent({
 
                             case 'rising_hubs':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0 bg-[#fdfdfd] border-b border-zinc-100/50" style={{ paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
+                                    <section key={section.id || index} className="w-full mb-0 bg-[#fdfdfd] border-b border-zinc-100/50" style={{ paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
                                         <div className="container-wide">
                                             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10">
                                                 <div className="max-w-3xl">
@@ -430,7 +430,7 @@ export function HomeContent({
                                     if (!fs) return null;
                                     const fsSlug = fs.slug || (fs.title || fs.name || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
                                     return (
-                                        <section key={section.id || index} className="container-wide mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
+                                        <section key={section.id || index} className="container-wide mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
                                             <div className="flex items-center gap-3 mb-10">
                                                 <Sparkles className="h-6 w-6 text-[#D94111] fill-[#D94111]" />
                                                 <h2 className="text-xl md:text-2xl lg:text-[2rem] font-bold text-[#0F172A] font-serif">{section.title || "Featured Startup of the Week"}</h2>
@@ -485,7 +485,7 @@ export function HomeContent({
 
                             case 'startup_cards':
                                 return (
-                                    <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
+                                    <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
                                         <div className="flex items-baseline justify-between mb-10">
                                             <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Featured Startups"}</h2>
                                             <Link href="/startups" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
@@ -510,7 +510,7 @@ export function HomeContent({
                             case 'cta':
                             case 'banner':
                                 return (
-                                    <section key={section.id || index} className="bg-[#0F172A] text-center overflow-hidden relative mb-0 pb-16" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 80, paddingBottom: paddingY !== null ? paddingY : 80 }}>
+                                    <section key={section.id || index} className="bg-[#0F172A] text-center overflow-hidden relative mb-0 pb-16" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
                                         {/* Decorative gradients */}
                                         <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#F2542D]/10 rounded-full blur-[120px]" />
                                         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />

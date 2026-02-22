@@ -20,9 +20,10 @@ interface CityDetailContentProps {
     cityStartups: any[];
     cityStories: any[];
     topCategories: any[];
+    allCities?: any[];
 }
 
-export function CityDetailContent({ city, cityStartups, cityStories, topCategories }: CityDetailContentProps) {
+export function CityDetailContent({ city, cityStartups, cityStories, topCategories, allCities = [] }: CityDetailContentProps) {
     const [selectedStage, setSelectedStage] = useState("all");
     const heroImage = city.image ? getSafeImageSrc(city.image) : "https://images.unsplash.com/photo-1562426620-1e71f9cf3d1c?q=80&w=2600&auto=format&fit=crop";
 
@@ -199,19 +200,19 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
                     </div>
                     <div>
                         <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-1 font-serif">
-                            {(city.unicornCount || 0) > 0 ? city.unicornCount : '10'}+
+                            {city.unicornCount || 0}
                         </div>
-                        <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Unicorns & Soonicorns</div>
+                        <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Unicorns</div>
                     </div>
                     <div>
                         <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-1 font-serif">
-                            $1.2B
+                            {city.fundingAmount || "$1.2B"}
                         </div>
-                        <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Total Funding (2025)</div>
+                        <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Total Funding</div>
                     </div>
                     <div>
                         <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-1 font-serif">
-                            50+
+                            {city.investorCount || "50+"}
                         </div>
                         <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Active Investors</div>
                     </div>
@@ -222,17 +223,17 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
             <section className="container-wide py-8">
                 <h2 className="text-xl font-bold text-zinc-900 font-serif mb-8">Explore Other Startup Hubs</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                    {['Bengaluru', 'Delhi NCR', 'Pune', 'Chennai', 'Jaipur', 'Ahmedabad', 'Kolkata'].map((name) => (
+                    {(allCities.length > 0 ? allCities : []).filter(c => c.slug !== city.slug).slice(0, 7).map((otherCity) => (
                         <Link
-                            key={name}
-                            href={`/cities/${name.toLowerCase().replace(' ', '-')}`}
+                            key={otherCity.slug}
+                            href={`/cities/${otherCity.slug}`}
                             className="bg-zinc-50/50 border border-zinc-100 p-4 rounded-xl text-center group hover:border-orange-200 transition-all"
                         >
                             <div className="w-8 h-8 rounded-lg bg-orange-100/50 flex items-center justify-center mx-auto mb-3 text-orange-600">
                                 <MapPin size={16} />
                             </div>
-                            <h3 className="text-xs font-bold text-zinc-700">{name}</h3>
-                            <p className="text-[9px] text-zinc-400 mt-1 uppercase font-bold tracking-widest">800+ startups</p>
+                            <h3 className="text-xs font-bold text-zinc-700 truncate">{otherCity.name}</h3>
+                            <p className="text-[9px] text-zinc-400 mt-1 uppercase font-bold tracking-widest">{(otherCity.startupCount || 0).toLocaleString()}+ startups</p>
                         </Link>
                     ))}
                 </div>

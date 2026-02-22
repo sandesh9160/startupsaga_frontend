@@ -2,60 +2,167 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { LucideIcon, MapPin } from "lucide-react";
 import { getSafeImageSrc } from "@/lib/images";
-import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+
+// Pastel background palette — cycles through colors per card (used as fallback/overlay text color)
+const CARD_PALETTES = [
+  { bg: "#E8F4FD", icon: "#1E88E5", border: "#BBDEFB" },  // blue
+  { bg: "#FCE4EC", icon: "#E91E63", border: "#F8BBD0" },  // pink
+  { bg: "#E0F2F1", icon: "#00796B", border: "#B2DFDB" },  // teal
+  { bg: "#EDF7ED", icon: "#4CAF50", border: "#D4EDDA" },  // green
+  { bg: "#FFF3E0", icon: "#FF7043", border: "#FFE0B2" },  // orange
+  { bg: "#F3E5F5", icon: "#7B1FA2", border: "#E1BEE7" },  // purple
+  { bg: "#FFFDE7", icon: "#F57F17", border: "#FFF9C4" },  // yellow
+  { bg: "#E8EAF6", icon: "#3949AB", border: "#C5CAE9" },  // indigo
+  { bg: "#FBE9E7", icon: "#BF360C", border: "#FFCCBC" },  // deep orange
+  { bg: "#E0F7FA", icon: "#00838F", border: "#B2EBF2" },  // cyan
+];
 
 interface CityCardProps {
   slug: string;
   name: string;
-  image: string;
-  startupCount: number;
-  storyCount: number;
+  image?: string;
+  startupCount?: number;
+  storyCount?: number;
   unicornCount?: number;
   tier?: string;
+  paletteIndex?: number;
+  className?: string;
+  variant?: 'compact' | 'featured';
+  description?: string;
+  topSectors?: string[];
+  fundingAmount?: string;
 }
 
-export function CityCard({ slug, name, image, startupCount, storyCount, unicornCount, tier }: CityCardProps) {
-  const imageSrc = getSafeImageSrc(image);
-  const [isMounted, setIsMounted] = useState(false);
+export function CityCard({
+  slug,
+  name,
+  image,
+  startupCount = 0,
+  storyCount = 0,
+  unicornCount = 0,
+  tier,
+  paletteIndex = 0,
+  className,
+  variant = 'compact',
+  description,
+  topSectors = [],
+  fundingAmount,
+}: CityCardProps) {
+  // Use sum of char codes to reliably pick a color based on city name
+  const charSum = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const palette = CARD_PALETTES[charSum % CARD_PALETTES.length];
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  if (variant === 'featured') {
+    return (
+      <Link href={`/cities/${slug}`} className={cn("block group h-full", className)}>
+        <article className="bg-white rounded-2xl overflow-hidden border border-zinc-100 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col">
+          {/* Top Image Section */}
+          <div className="relative h-48 md:h-56 w-full overflow-hidden">
+            {image ? (
+              <Image
+                src={getSafeImageSrc(image)}
+                alt={name}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-700"
+              />
+            ) : (
+              <div className="w-full h-full" style={{ backgroundColor: palette.bg }} />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-  const formattedStartupCount = isMounted ? startupCount.toLocaleString('en-IN') : String(startupCount || 0);
+            {/* Tier Badge */}
+            {tier && (
+              <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#F2542D] text-white text-[10px] font-bold tracking-wider uppercase z-20">
+                Tier {tier}
+              </div>
+            )}
+
+            {/* Overlaid Info */}
+            <div className="absolute bottom-6 left-6 right-6 text-white z-20">
+              <div className="flex items-center gap-2 mb-1">
+                <MapPin className="h-5 w-5 text-[#F2542D] fill-[#F2542D]" />
+                <h3 className="text-2xl md:text-3xl font-bold font-serif">{name}</h3>
+              </div>
+              <div className="flex items-center gap-3 text-[12px] font-medium text-white/90">
+                <span>{startupCount.toLocaleString()} startups</span>
+                <span className="opacity-40">•</span>
+                <span>{unicornCount} unicorns</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Content Section */}
+          <div className="p-5 flex flex-col flex-grow">
+            <p className="text-zinc-500 text-sm leading-relaxed mb-4 line-clamp-2 font-medium">
+              {description || `Discover the thriving startup ecosystem of ${name}, home to innovative founders and high-growth companies.`}
+            </p>
+
+            <div className="mt-auto pt-4 border-t border-zinc-50 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">Top sectors:</span>
+                <div className="flex flex-wrap gap-2">
+                  {(topSectors.length > 0 ? topSectors : ["SaaS", "Fintech"]).slice(0, 2).map(sector => (
+                    <span key={sector} className="px-3 py-1 rounded-full bg-zinc-50 text-zinc-600 text-[10px] font-bold border border-zinc-100">
+                      {sector}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="text-[#F2542D] font-black text-sm tracking-tight">
+                {fundingAmount || "$1.2B+"}
+              </div>
+            </div>
+          </div>
+        </article>
+      </Link>
+    );
+  }
 
   return (
-    <Link href={`/cities/${slug}`} className="block group min-w-0">
-      <article className="relative overflow-hidden rounded-[1.5rem] w-full h-[240px] transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-        {/* Background image */}
-        <Image
-          src={imageSrc}
-          alt={name}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          unoptimized={imageSrc.toLowerCase().endsWith(".svg")}
-        />
+    <Link href={`/cities/${slug}`} className={cn("block group h-full", className)}>
+      <article
+        className="relative rounded-2xl h-40 md:h-48 border overflow-hidden flex flex-col justify-end text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+        style={{ borderColor: image ? 'transparent' : palette.border, backgroundColor: palette.bg }}
+      >
+        {/* Full Background Image */}
+        {image && (
+          <Image
+            src={getSafeImageSrc(image)}
+            alt={name}
+            fill
+            unoptimized={getSafeImageSrc(image).endsWith(".svg")}
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        )}
 
-        {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/90 via-[#0F172A]/30 to-transparent" />
+        {/* Gradient Overlay for Text Readability when image is present */}
+        {image && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
+        )}
 
         {/* Tier Badge */}
-        {tier && String(tier) !== '1' && (
-          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white tracking-wide">
+        {tier && (
+          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[10px] font-bold text-white tracking-wider uppercase z-20">
             Tier {tier}
           </div>
         )}
 
-        {/* Text content */}
-        <div className="absolute bottom-0 left-0 right-0 p-5">
-          <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight font-serif mb-1">
+        {/* Text Content */}
+        <div className={cn("relative z-20 p-4 md:p-5 w-full", image ? "" : "h-full flex flex-col justify-center items-center text-center")}>
+          {!image && (
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-white/60 shadow-sm">
+              <MapPin className="h-6 w-6" style={{ color: palette.icon }} strokeWidth={1.8} />
+            </div>
+          )}
+
+          <h3 className={cn("font-bold text-lg md:text-xl leading-tight mb-1", image ? "text-white" : "text-[#0F172A]")}>
             {name}
           </h3>
-          <p className="text-zinc-300 text-xs md:text-sm font-medium">
-            {formattedStartupCount} startups
+          <p className={cn("text-xs font-semibold", image ? "text-white/80" : "text-zinc-500")}>
+            {startupCount} startups
           </p>
         </div>
       </article>
