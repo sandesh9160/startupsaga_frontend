@@ -2,67 +2,100 @@
 
 import Link from "next/link";
 import { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+
+// Pastel background palette — cycles through colors per card
+const CARD_PALETTES = [
+  { bg: "#EDF7ED", icon: "#4CAF50", border: "#D4EDDA" },  // green
+  { bg: "#FFF3E0", icon: "#FF7043", border: "#FFE0B2" },  // orange
+  { bg: "#E8F4FD", icon: "#1E88E5", border: "#BBDEFB" },  // blue
+  { bg: "#F3E5F5", icon: "#7B1FA2", border: "#E1BEE7" },  // purple
+  { bg: "#FCE4EC", icon: "#E91E63", border: "#F8BBD0" },  // pink
+  { bg: "#E0F2F1", icon: "#00796B", border: "#B2DFDB" },  // teal
+  { bg: "#FFFDE7", icon: "#F57F17", border: "#FFF9C4" },  // yellow
+  { bg: "#E8EAF6", icon: "#3949AB", border: "#C5CAE9" },  // indigo
+  { bg: "#FBE9E7", icon: "#BF360C", border: "#FFCCBC" },  // deep orange
+  { bg: "#E0F7FA", icon: "#00838F", border: "#B2EBF2" },  // cyan
+];
 
 interface CategoryCardProps {
   slug: string;
   name: string;
   icon: LucideIcon;
-  startupCount: number;
+  startupCount?: number;
   storyCount?: number;
-  description: string;
+  description?: string;
   variant?: "card" | "banner";
+  paletteIndex?: number;
 }
 
 export function CategoryCard({
   slug,
   name,
   icon: Icon,
-  startupCount,
+  startupCount = 0,
   storyCount = 0,
+  description,
   variant = "card",
+  paletteIndex = 0,
 }: CategoryCardProps) {
-  // Use real story count or default to 0
-  const displayStories = storyCount ?? 0;
+  const palette = CARD_PALETTES[paletteIndex % CARD_PALETTES.length];
 
+  // Banner variant — used on /categories page
   if (variant === "banner") {
-    // Horizontal Layout (Categories Page)
     return (
       <Link href={`/categories/${slug}`} className="block group h-full">
-        <article className="rounded-24 p-5 h-full transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-zinc-100 flex items-center gap-5 bg-white">
-          {/* Icon Box */}
-          <div className="bg-orange-50 h-14 w-14 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 shrink-0">
-            <Icon className="h-7 w-7 text-orange-600" strokeWidth={1.5} />
-          </div>
-
-          <div className="flex flex-col min-w-0 flex-1">
-            <h3 className="text-lg font-bold text-zinc-900 group-hover:text-orange-600 transition-colors">
+        <article
+          className="rounded-2xl p-5 h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-md border flex flex-col gap-3"
+          style={{ backgroundColor: palette.bg, borderColor: palette.border }}
+        >
+          {/* Icon + Name row */}
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+              style={{ backgroundColor: "rgba(255,255,255,0.7)" }}
+            >
+              <Icon className="h-5 w-5" style={{ color: palette.icon }} strokeWidth={1.8} />
+            </div>
+            <h3 className="font-bold text-[#0F172A] text-base group-hover:text-[#D94111] transition-colors leading-tight">
               {name}
             </h3>
-            <p className="text-xs text-zinc-400 font-bold uppercase tracking-widest mt-1">
-              {displayStories} STORIES • {startupCount} STARTUPS
-            </p>
           </div>
+
+          {/* Counts */}
+          <p className="text-[11px] font-semibold text-zinc-500">
+            {startupCount} startups &nbsp;•&nbsp; {storyCount} stories
+          </p>
+
+          {/* Description */}
+          {description && (
+            <p className="text-[12px] text-zinc-500 leading-relaxed line-clamp-2">
+              {description}
+            </p>
+          )}
         </article>
       </Link>
     );
   }
 
-  // Vertical Layout (Default) - Ultra Compact version
+  // Compact vertical card (used on homepage / category grid)
   return (
     <Link href={`/categories/${slug}`} className="block group h-full">
-      <article className="bg-white rounded-lg p-3 h-full border border-zinc-100/80 shadow-[0_2px_15px_rgb(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-center gap-3 group-hover:border-orange-100">
-        {/* Icon Container - Smaller */}
-        <div className="w-10 h-10 rounded-lg bg-[#FFF8F5] flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-xs border border-orange-50/50">
-          <Icon className="h-5 w-5 text-[#D94111]" strokeWidth={2} />
+      <article
+        className="rounded-2xl p-4 h-full border flex flex-col items-center justify-center text-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+        style={{ backgroundColor: palette.bg, borderColor: palette.border }}
+      >
+        <div
+          className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+          style={{ backgroundColor: "rgba(255,255,255,0.7)" }}
+        >
+          <Icon className="h-6 w-6" style={{ color: palette.icon }} strokeWidth={1.8} />
         </div>
-
-        <div className="space-y-0.5">
-          <h3 className="font-bold text-[12px] text-zinc-900 group-hover:text-[#D94111] transition-colors tracking-tight leading-tight">
+        <div>
+          <h3 className="font-bold text-[13px] text-[#0F172A] group-hover:text-[#D94111] transition-colors leading-tight">
             {name}
           </h3>
-          <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest opacity-80">
-            {displayStories} stories
+          <p className="text-[10px] text-zinc-400 font-semibold mt-0.5">
+            {storyCount} stories
           </p>
         </div>
       </article>

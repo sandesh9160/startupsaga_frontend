@@ -6,35 +6,31 @@ import { getCategories, getPlatformStats } from "@/lib/api";
 import { Category } from "@/types";
 import { getIcon } from "@/lib/icons";
 
-
 export function CategoriesContent() {
     const [categories, setCategories] = useState<Category[]>([]);
-    const [stats, setStats] = useState({ total_startups: 3160, total_stories: 861 });
+    const [stats, setStats] = useState({ total_startups: 0, total_stories: 0 });
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        getCategories().then(setCategories).catch(err => console.error(err));
-        getPlatformStats()
-            .then(data => {
-                if (data && data.total_startups) {
-                    setStats(data);
-                }
-            })
-            .catch(err => console.error("Failed to load platform stats", err));
+        Promise.all([
+            getCategories(),
+            getPlatformStats().catch(() => null),
+        ]).then(([cats, platformStats]) => {
+            setCategories(cats);
+            if (platformStats?.total_startups) setStats(platformStats);
+        }).catch(console.error)
+            .finally(() => setIsLoading(false));
     }, []);
 
     return (
         <div className="bg-[#fafafa] min-h-screen">
-            {/* Header */}
-            <section className="container-wide py-12 md:py-20 text-center">
-                <div className="inline-flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-6 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100/50">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                    Market Landscape
-                </div>
-                <h1 className="text-3xl md:text-5xl font-bold text-zinc-900 mb-6 font-serif tracking-tight max-w-4xl mx-auto leading-tight">
-                    Indian Startup Categories — Fintech, SaaS, D2C & More
+            {/* Header — same style as reference */}
+            <section className="container-wide py-12 md:py-16 text-center">
+                <h1 className="text-3xl md:text-5xl font-bold text-zinc-900 mb-5 font-serif tracking-tight max-w-4xl mx-auto leading-tight">
+                    Indian Startup Categories — Fintech, SaaS, D2C &amp; More
                 </h1>
-                <div className="max-w-3xl mx-auto space-y-4">
-                    <p className="text-base md:text-lg text-zinc-500 leading-relaxed font-normal">
+                <div className="max-w-3xl mx-auto space-y-3 mb-8">
+                    <p className="text-base md:text-lg text-zinc-500 leading-relaxed">
                         Navigate India's startup ecosystem by industry vertical. From fintech giants transforming payments to agritech innovators empowering farmers, discover the sectors driving India's economic transformation.
                     </p>
                     <p className="text-[13px] text-zinc-400 leading-relaxed">
@@ -42,35 +38,49 @@ export function CategoriesContent() {
                     </p>
                 </div>
 
-                {/* Impact Metrics */}
-                <div className="flex justify-center gap-12 md:gap-20 mt-12 pb-6 border-b border-zinc-100 max-w-2xl mx-auto">
-                    <div className="text-center group">
-                        <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                            {stats.total_startups.toLocaleString()}
-                        </div>
-                        <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Total Startups</div>
-                    </div>
-                    <div className="text-center group">
-                        <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                            {stats.total_stories.toLocaleString()}
-                        </div>
-                        <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Curated Stories</div>
-                    </div>
+                {/* Stats row */}
+                <div className="flex justify-center items-center gap-10 text-sm text-zinc-500">
+                    <span>
+                        <span className="text-2xl font-bold text-zinc-900 font-serif mr-1.5">
+                            {stats.total_startups ? stats.total_startups.toLocaleString() : "—"}
+                        </span>
+                        Startups
+                    </span>
+                    <span className="w-px h-5 bg-zinc-200" />
+                    <span>
+                        <span className="text-2xl font-bold text-zinc-900 font-serif mr-1.5">
+                            {stats.total_stories ? stats.total_stories.toLocaleString() : "—"}
+                        </span>
+                        Stories
+                    </span>
                 </div>
             </section>
 
             {/* Categories Grid */}
-            <section className="container-wide pb-12 px-5 max-w-6xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {categories.map((category) => (
-                        <CategoryCard
-                            key={category.slug}
-                            {...category}
-                            icon={getIcon(category.iconName || "help-circle")}
-                            variant="banner"
-                        />
-                    ))}
-                </div>
+            <section className="container-wide pb-14">
+                {isLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {Array.from({ length: 9 }).map((_, i) => (
+                            <div key={i} className="h-32 rounded-2xl bg-zinc-200 animate-pulse" />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {categories.map((category, index) => (
+                            <CategoryCard
+                                key={category.slug}
+                                slug={category.slug}
+                                name={category.name}
+                                icon={getIcon(category.iconName || "help-circle")}
+                                startupCount={category.startupCount ?? 0}
+                                storyCount={category.storyCount ?? 0}
+                                description={category.description}
+                                variant="banner"
+                                paletteIndex={index}
+                            />
+                        ))}
+                    </div>
+                )}
             </section>
         </div>
     );

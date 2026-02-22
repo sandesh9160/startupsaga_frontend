@@ -345,7 +345,23 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                         {relatedStories.map((s) => (
-                                            <StoryCard key={s.slug} {...s} />
+                                            <StoryCard
+                                                key={s.slug}
+                                                slug={s.slug}
+                                                title={s.title}
+                                                excerpt={s.excerpt}
+                                                thumbnail={s.thumbnail}
+                                                og_image={s.og_image}
+                                                category={s.category}
+                                                categorySlug={s.category_slug}
+                                                city={s.city}
+                                                citySlug={s.city_slug}
+                                                publishDate={s.publishDate || s.publish_date}
+                                                author_name={s.author_name || s.author}
+                                                read_time={s.read_time}
+                                                featured={false}
+                                                isFeatured={false}
+                                            />
                                         ))}
                                     </div>
                                 </div>

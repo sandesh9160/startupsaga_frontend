@@ -141,7 +141,23 @@ export function CategoryDetailContent({ category, categoryStartups, categoryStor
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {categoryStories.map((story) => (
-                                <StoryCard key={story.slug} {...story} />
+                                <StoryCard
+                                    key={story.slug}
+                                    slug={story.slug}
+                                    title={story.title}
+                                    excerpt={story.excerpt}
+                                    thumbnail={story.thumbnail}
+                                    og_image={story.og_image}
+                                    category={story.category}
+                                    categorySlug={story.category_slug}
+                                    city={story.city}
+                                    citySlug={story.city_slug}
+                                    publishDate={story.publishDate || story.publish_date}
+                                    author_name={story.author_name || story.author}
+                                    read_time={story.read_time}
+                                    featured={false}
+                                    isFeatured={false}
+                                />
                             ))}
                         </div>
                     )}

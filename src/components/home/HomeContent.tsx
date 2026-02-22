@@ -4,13 +4,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { ArrowRight, TrendingUp, Building2, MapPin, Sparkles, Image as ImageIcon } from "lucide-react";
+import { ArrowRight, TrendingUp, Building2, MapPin, Sparkles, Image as ImageIcon, Briefcase, Cpu, GraduationCap, Heart, Wallet, Store, ShoppingBag } from "lucide-react";
 import { StoryCard } from "@/components/cards/StoryCard";
 import { StartupCard } from "@/components/cards/StartupCard";
 import { CityCard } from "@/components/cards/CityCard";
 import { CategoryCard } from "@/components/cards/CategoryCard";
 import { Newsletter } from "@/components/sections/Newsletter";
-import { Banner } from "@/components/sections/Banner";
+// import { Banner } from "@/components/sections/Banner";
 import { TrendingStories } from "@/components/stories/TrendingStories";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { getTrendingStories, getSections, getStories, getStartups, getCities, getCategories, getPlatformStats } from "@/lib/api";
@@ -177,23 +177,23 @@ export function HomeContent({
                                         key={section.id || index}
                                         className="relative overflow-hidden mb-0"
                                         style={{
-                                            backgroundColor: bgColor,
-                                            paddingTop: paddingY !== null ? paddingY : 20,
-                                            paddingBottom: paddingY !== null ? paddingY : 20,
+                                            backgroundColor: (bgColor === '#FFFFFF' || bgColor === 'FFFFFF') ? '#0F172A' : bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 80,
+                                            paddingBottom: paddingY !== null ? paddingY : 100,
                                             paddingLeft: paddingX !== null ? paddingX : 0,
                                             paddingRight: paddingX !== null ? paddingX : 0,
                                         }}
                                     >
                                         <div className="container-wide relative z-10 text-center">
-                                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-serif mb-4 max-w-4xl mx-auto leading-[1.2] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
+                                            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black font-serif mb-6 max-w-5xl mx-auto leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000" style={{ color: (textColor === '#0F172A' || textColor === '0F172A') ? '#FFFFFF' : textColor.startsWith('#') ? textColor : '#' + textColor }}>
                                                 {section.title || heroData.title}
                                             </h1>
                                             <div
                                                 className={cn(
                                                     "text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 prose prose-lg text-center marker:text-zinc-500",
-                                                    (textColor === '#FFFFFF' || textColor === 'FFFFFF') ? 'prose-invert' : 'prose-zinc'
+                                                    (textColor === '#FFFFFF' || textColor === 'FFFFFF' || (textColor === '#0F172A' || textColor === '0F172A')) ? 'prose-invert' : 'prose-zinc'
                                                 )}
-                                                style={{ color: (textColor === '#FFFFFF' || textColor === 'FFFFFF') ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)' }}
+                                                style={{ color: (textColor === '#FFFFFF' || textColor === 'FFFFFF' || (textColor === '#0F172A' || textColor === '0F172A')) ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)' }}
                                                 dangerouslySetInnerHTML={{ __html: section.description || section.subtitle || heroData.content }}
                                             />
                                             <div className="flex flex-col sm:flex-row items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
@@ -201,7 +201,7 @@ export function HomeContent({
                                                     "w-full sm:w-auto h-14 px-10 rounded-xl shadow-xl transition-all group border-none",
                                                     (section.settings?.buttonStyle === 'secondary') ? "bg-white hover:bg-zinc-100 text-slate-900 border border-zinc-200" :
                                                         (section.settings?.buttonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                            "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-600/20"
+                                                            "bg-[#F2542D] hover:bg-[#D94111] text-white shadow-orange-600/20"
                                                 )} asChild>
                                                     <Link href={section.link_url || "/stories"} className="flex items-center gap-2">
                                                         <span className="font-bold text-lg">{section.link_text || "Explore Stories"}</span>
@@ -209,18 +209,13 @@ export function HomeContent({
                                                     </Link>
                                                 </Button>
 
-                                                {(section.settings?.secondaryButtonText || section.settings?.secondaryButtonLink) && (
-                                                    <Button className={cn(
-                                                        "w-full sm:w-auto h-14 px-10 rounded-xl active:scale-95 transition-all border-none",
-                                                        (section.settings?.secondaryButtonStyle === 'primary') ? "bg-orange-600 hover:bg-orange-700 text-white shadow-xl" :
-                                                            (section.settings?.secondaryButtonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                                "bg-white hover:bg-zinc-100 text-[#0F172A]"
-                                                    )} asChild>
-                                                        <Link href={section.settings?.secondaryButtonLink || "/submit"} className="font-bold text-lg">
-                                                            {section.settings?.secondaryButtonText || "Submit Your Journey"}
-                                                        </Link>
-                                                    </Button>
-                                                )}
+                                                <Button className={cn(
+                                                    "w-full sm:w-auto h-14 px-10 rounded-xl active:scale-95 transition-all border-none bg-white hover:bg-zinc-100 text-[#0F172A]",
+                                                )} asChild>
+                                                    <Link href={section.settings?.secondaryButtonLink || "/submit"} className="font-bold text-lg text-[#0F172A]">
+                                                        {section.settings?.secondaryButtonText || "Submit Your Startup"}
+                                                    </Link>
+                                                </Button>
                                                 {(section.settings?.extraButtons || []).map((btn: { text: string; link: string; style: string }, i: number) => (
                                                     <Button key={i} className={cn(
                                                         "w-full sm:w-auto h-14 px-10 rounded-xl active:scale-95 transition-all border-none",
@@ -240,24 +235,35 @@ export function HomeContent({
 
                             case 'latest_stories':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 12, paddingBottom: paddingY !== null ? paddingY : 12 }}>
+                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
                                         <div className="container-wide">
                                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                                                 <div className="lg:col-span-8">
-                                                    <div className="flex items-baseline justify-between mb-6 border-b border-zinc-100 pb-3">
-                                                        <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-0">{section.title || "Latest Stories"}</h2>
-                                                        <Link href="/stories" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                                    <div className="flex items-baseline justify-between mb-10">
+                                                        <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Latest Stories"}</h2>
+                                                        <Link href="/stories" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
                                                             View all <ArrowRight className="h-4 w-4" />
                                                         </Link>
                                                     </div>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                                        {(items.length > 0 ? items : latestStories).map((story: any) => (
-                                                            <StoryCard key={story.slug || story.id || story.title} {...story} />
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                        {(items.length > 0 ? items : initialStories).slice(0, 6).map((story: any) => (
+                                                            <StoryCard
+                                                                key={story.slug}
+                                                                slug={story.slug}
+                                                                title={story.title}
+                                                                excerpt={story.excerpt}
+                                                                thumbnail={story.thumbnail}
+                                                                category={story.category}
+                                                                categorySlug={story.category_slug}
+                                                                city={story.city}
+                                                                citySlug={story.city_slug}
+                                                                publishDate={story.publish_date}
+                                                            />
                                                         ))}
                                                     </div>
                                                 </div>
                                                 <div className="lg:col-span-4">
-                                                    <TrendingStories stories={trendingStories} />
+                                                    <TrendingStories stories={initialTrending} />
                                                 </div>
                                             </div>
                                         </div>
@@ -266,26 +272,58 @@ export function HomeContent({
 
                             case 'trending_stories':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 12, paddingBottom: paddingY !== null ? paddingY : 12 }}>
+                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
                                         <div className="container-wide">
-                                            <div className="flex items-baseline justify-between mb-6 border-b border-zinc-100 pb-3">
-                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-0">{section.title || "Trending"}</h2>
+                                            <div className="flex items-baseline justify-between mb-10">
+                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Most Read Across Hubs"}</h2>
+                                                <Link href="/stories" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                                    View all trending <ArrowRight className="h-4 w-4" />
+                                                </Link>
                                             </div>
-                                            <TrendingStories stories={items.length > 0 ? items : trendingStories} />
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                                {(items.length > 0 ? items : initialTrending).slice(0, 4).map((story: any) => (
+                                                    <StoryCard
+                                                        key={story.slug}
+                                                        slug={story.slug}
+                                                        title={story.title}
+                                                        excerpt={story.excerpt}
+                                                        thumbnail={story.thumbnail}
+                                                        category={story.category}
+                                                        categorySlug={story.category_slug}
+                                                        city={story.city}
+                                                        citySlug={story.city_slug}
+                                                        publishDate={story.publish_date}
+                                                    />
+                                                ))}
+                                            </div>
                                         </div>
                                     </section>
                                 );
 
                             case 'featured_stories':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 12, paddingBottom: paddingY !== null ? paddingY : 12 }}>
+                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
                                         <div className="container-wide">
-                                            <div className="flex items-baseline justify-between mb-6 border-b border-zinc-100 pb-3">
-                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-0">{section.title || "Featured Stories"}</h2>
+                                            <div className="flex items-baseline justify-between mb-10">
+                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Most Read Across Hubs"}</h2>
+                                                <Link href="/stories" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                                    View all <ArrowRight className="h-4 w-4" />
+                                                </Link>
                                             </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                                {(items.length > 0 ? items : trendingStories.slice(0, 3)).map((story: any) => (
-                                                    <StoryCard key={story.slug || story.id || story.title} {...story} />
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                                {(items.length > 0 ? items : initialStories.slice(0, 4)).map((story: any) => (
+                                                    <StoryCard
+                                                        key={story.slug}
+                                                        slug={story.slug}
+                                                        title={story.title}
+                                                        excerpt={story.excerpt}
+                                                        thumbnail={story.thumbnail}
+                                                        category={story.category}
+                                                        categorySlug={story.category_slug}
+                                                        city={story.city}
+                                                        citySlug={story.city_slug}
+                                                        publishDate={story.publish_date}
+                                                    />
                                                 ))}
                                             </div>
                                         </div>
@@ -294,16 +332,16 @@ export function HomeContent({
 
                             case 'category_grid':
                                 return (
-                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 20, paddingBottom: paddingY !== null ? paddingY : 20 }}>
+                                    <section key={section.id || index} className="mb-0 overflow-hidden" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
                                         <div className="container-wide">
-                                            <div className="flex items-baseline justify-between mb-8">
-                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A]" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>{section.title || "Top Categories"}</h2>
-                                                <Link href="/categories" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                            <div className="flex items-baseline justify-between mb-10">
+                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Top Categories"}</h2>
+                                                <Link href="/categories" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
                                                     All categories <ArrowRight className="h-4 w-4" />
                                                 </Link>
                                             </div>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                                                {(items.length > 0 ? items : topCategories.slice(0, 14)).map((category: any) => (
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-6">
+                                                {(items.length > 0 ? items : topCategories.slice(0, 7)).map((category: any) => (
                                                     <CategoryCard
                                                         key={category.slug || category.id}
                                                         slug={category.slug || (category.title || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')}
@@ -321,32 +359,17 @@ export function HomeContent({
 
                             case 'city_grid':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0 border-b border-zinc-100/50" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
+                                    <section key={section.id || index} className="w-full mb-0 border-b border-zinc-100/50" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
                                         <div className="container-wide">
-                                            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-                                                <div className="max-w-3xl">
-                                                    <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-4 bg-orange-50 px-3 py-1 rounded-full border border-orange-100/50">
-                                                        <MapPin className="h-3 w-3" />
-                                                        Regional Ecosystems
-                                                    </div>
-                                                    <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-4 font-serif tracking-tight leading-tight">
-                                                        {section.title || "Startup Hubs in India — Bengaluru, Mumbai, Delhi NCR & More"}
-                                                    </h2>
-                                                    <div className="text-zinc-500 text-lg leading-relaxed max-w-2xl prose prose-zinc" dangerouslySetInnerHTML={{ __html: section.description || "India's startup revolution extends far beyond Bengaluru. Explore thriving entrepreneurial ecosystems in metros, emerging Tier 2 hubs, and ambitious Tier 3 cities building the next wave of innovation." }} />
-                                                </div>
-                                                <div className="flex gap-10 border-l border-zinc-100 pl-8 h-fit">
-                                                    <div>
-                                                        <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{platformStats.total_startups.toLocaleString()}+</div>
-                                                        <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Verified Startups</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{(platformStats as any).total_unicorns ?? 0}</div>
-                                                        <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Unicorns</div>
-                                                    </div>
-                                                </div>
+                                            <div className="flex items-baseline justify-between mb-10">
+                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Explore by City"}</h2>
+                                                <Link href="/cities" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                                    All cities <ArrowRight className="h-4 w-4" />
+                                                </Link>
                                             </div>
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                                                {(items.length > 0 ? items : topCities.filter((c: any) => !c.tier || String(c.tier) === '1').slice(0, 12)).map((city: any) => {
+
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+                                                {(items.length > 0 ? items : topCities.filter((c: any) => !c.tier || String(c.tier) === '1').slice(0, 6)).map((city: any) => {
                                                     const citySlug = city.slug || (city.title || city.name || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
                                                     return (
                                                         <CityCard
@@ -361,43 +384,24 @@ export function HomeContent({
                                                     );
                                                 })}
                                             </div>
-
-                                            <div className="mt-12 pt-8 border-t border-zinc-100 flex justify-center">
-                                                <Button variant="ghost" className="text-orange-600 font-bold hover:bg-orange-50 gap-2 group" asChild>
-                                                    <Link href="/cities">
-                                                        Explore All Startup Hubs <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                                    </Link>
-                                                </Button>
-                                            </div>
                                         </div>
                                     </section>
                                 );
 
                             case 'rising_hubs':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0 bg-[#fdfdfd] border-b border-zinc-100/50" style={{ paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
+                                    <section key={section.id || index} className="w-full mb-0 bg-[#fdfdfd] border-b border-zinc-100/50" style={{ paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
                                         <div className="container-wide">
-                                            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
+                                            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10">
                                                 <div className="max-w-3xl">
-                                                    <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-4 bg-orange-50 px-3 py-1 rounded-full border border-orange-100/50">
-                                                        <TrendingUp className="h-3 w-3" />
-                                                        Growth Markets
-                                                    </div>
-                                                    <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] mb-4 font-serif tracking-tight leading-tight" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
-                                                        {section.title || "Rising Startup Hubs — India's Tier 2 & 3 Revolution"}
+                                                    <h2 className="text-xl md:text-2xl lg:text-[2rem] font-bold text-[#0F172A] mb-2 font-serif tracking-tight leading-tight">
+                                                        {section.title || "Rising Startup Hubs"}
                                                     </h2>
-                                                    <div className="text-zinc-500 text-lg leading-relaxed max-w-2xl prose prose-zinc" dangerouslySetInnerHTML={{ __html: section.subtitle || "Beyond the metros, a new wave of innovation is sweeping through cities like Jaipur, Kochi, and Indore. Explore the ecosystems driving India's next decade of growth." }} />
+                                                    <p className="text-zinc-500 text-lg">{section.subtitle || "Tier 2 & Tier 3 cities driving India's startup growth"}</p>
                                                 </div>
-                                                <div className="flex items-center gap-10 border-l border-zinc-100 pl-8 h-fit">
-                                                    <div>
-                                                        <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{platformStats.total_startups.toLocaleString()}+</div>
-                                                        <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Verified Startups</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{(platformStats as any).total_unicorns ?? 0}</div>
-                                                        <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Unicorns</div>
-                                                    </div>
-                                                </div>
+                                                <Link href="/cities" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all pb-1">
+                                                    View all rising hubs <ArrowRight className="h-4 w-4" />
+                                                </Link>
                                             </div>
 
                                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
@@ -416,68 +420,6 @@ export function HomeContent({
                                                     );
                                                 })}
                                             </div>
-
-                                            <div className="mt-12 pt-8 border-t border-zinc-100 flex justify-center">
-                                                <Button variant="ghost" className="text-orange-600 font-bold hover:bg-orange-50 gap-2 group" asChild>
-                                                    <Link href="/cities">
-                                                        View All 100+ Startup Cities <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                                    </Link>
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
-
-                            case 'platform_categories':
-                                return (
-                                    <section key={section.id || index} className="w-full bg-[#fafafa] border-y border-zinc-100 mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 32, paddingBottom: paddingY !== null ? paddingY : 32 }}>
-                                        <div className="container-wide text-center">
-                                            <div className="inline-flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-6 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100/50">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                                                Market Landscape
-                                            </div>
-                                            <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-zinc-900 mb-4 font-serif tracking-tight max-w-4xl mx-auto leading-tight">
-                                                Indian Startup Categories — Fintech, SaaS, D2C & More
-                                            </h2>
-                                            <div className="max-w-3xl mx-auto mb-12">
-                                                <div className="text-base md:text-lg text-zinc-500 leading-relaxed font-normal prose prose-zinc mx-auto text-center" dangerouslySetInnerHTML={{ __html: section.description || section.subtitle || "Navigate India's startup ecosystem by industry vertical. From fintech giants transforming payments to agritech innovators empowering farmers." }} />
-                                            </div>
-
-                                            {/* Impact Metrics */}
-                                            <div className="flex justify-center gap-12 md:gap-20 mb-16 pb-8 border-b border-zinc-100 max-w-2xl mx-auto">
-                                                <div className="text-center group">
-                                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                                        {platformStats.total_startups.toLocaleString()}
-                                                    </div>
-                                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Total Startups</div>
-                                                </div>
-                                                <div className="text-center group">
-                                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                                        {platformStats.total_stories.toLocaleString()}
-                                                    </div>
-                                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Curated Stories</div>
-                                                </div>
-                                                <div className="text-center group">
-                                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                                        {(platformStats as any).total_unicorns ?? 0}
-                                                    </div>
-                                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Unicorns</div>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 max-w-6xl mx-auto">
-                                                {topCategories.slice(0, 14).map((category: any) => (
-                                                    <CategoryCard
-                                                        key={category.slug || category.id}
-                                                        slug={category.slug || (category.title || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')}
-                                                        name={category.name || category.title}
-                                                        icon={getIcon(category.iconName || category.icon || "help-circle")}
-                                                        startupCount={category.startup_count || category.startupCount || 0}
-                                                        storyCount={category.story_count || category.storyCount || 0}
-                                                        description={category.description || ""}
-                                                    />
-                                                ))}
-                                            </div>
                                         </div>
                                     </section>
                                 );
@@ -488,50 +430,50 @@ export function HomeContent({
                                     if (!fs) return null;
                                     const fsSlug = fs.slug || (fs.title || fs.name || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
                                     return (
-                                        <section key={section.id || index} className="container-wide mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 16, paddingBottom: paddingY !== null ? paddingY : 16 }}>
+                                        <section key={section.id || index} className="container-wide mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
                                             <div className="flex items-center gap-3 mb-10">
-                                                <Sparkles className="h-6 w-6 text-orange-600 fill-orange-600" />
-                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A]">{section.title || "Featured Startup of the Week"}</h2>
+                                                <Sparkles className="h-6 w-6 text-[#D94111] fill-[#D94111]" />
+                                                <h2 className="text-xl md:text-2xl lg:text-[2rem] font-bold text-[#0F172A] font-serif">{section.title || "Featured Startup of the Week"}</h2>
                                             </div>
-                                            <div className="bg-[#FFFFFF] rounded-[2rem] border border-zinc-100 shadow-xl shadow-zinc-200/50 overflow-hidden group">
-                                                <div className="grid grid-cols-1 lg:grid-cols-12">
-                                                    <div className="lg:col-span-4 bg-[#FFF5F1] p-12 flex flex-col items-center justify-center text-center border-r border-zinc-50">
-                                                        <div className="w-32 h-32 rounded-3xl bg-white shadow-xl flex items-center justify-center p-6 mb-8 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
+                                            <div className="bg-[#FFF8F5] rounded-[2rem] border border-orange-100 shadow-sm overflow-hidden group">
+                                                <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[400px]">
+                                                    <div className="lg:col-span-4 p-12 flex flex-col items-center justify-center text-center border-r border-orange-100/50">
+                                                        <div className="w-40 h-40 rounded-3xl bg-white shadow-xl flex items-center justify-center p-8 mb-8 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
                                                             {(fs.logo || fs.og_image || fs.image || fs.imageUrl) ? (
                                                                 <Image
                                                                     src={getSafeImageSrc(fs.logo || fs.og_image || fs.image || fs.imageUrl)}
                                                                     alt={fs.name || fs.title}
                                                                     fill
-                                                                    className="object-contain p-6"
-                                                                    sizes="128px"
+                                                                    className="object-contain p-8"
+                                                                    sizes="160px"
                                                                     unoptimized={getSafeImageSrc(fs.logo || fs.og_image || fs.image || fs.imageUrl).endsWith('.svg')}
                                                                 />
                                                             ) : (
-                                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100/50 text-orange-600 font-bold text-5xl font-serif">
+                                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100/50 text-orange-600 font-bold text-6xl font-serif">
                                                                     {(fs.name || fs.title)?.[0] || 'S'}
                                                                 </div>
                                                             )}
                                                         </div>
                                                         <h3 className="text-3xl font-bold text-[#0F172A] mb-2 font-serif">{fs.name || fs.title}</h3>
-                                                        <p className="text-zinc-500 text-sm leading-relaxed">{fs.tagline || fs.subtitle}</p>
+                                                        <p className="text-zinc-500 text-sm leading-relaxed">{fs.tagline || fs.subtitle || "Premium electric scooters designed for the new India"}</p>
                                                     </div>
-                                                    <div className="lg:col-span-8 p-12">
+                                                    <div className="lg:col-span-8 p-12 flex flex-col justify-center">
                                                         <div className="flex flex-wrap gap-3 mb-8">
-                                                            <span className="px-4 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-widest">{fs.category?.name || fs.category || "Startup"}</span>
-                                                            <span className="px-4 py-1.5 rounded-full bg-zinc-50 text-zinc-500 text-xs font-bold uppercase tracking-widest">{fs.city?.name || fs.city || "India"}</span>
-                                                            <span className="px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest">{(fs as any).funding_stage ?? fs.stage ?? "Series E"}</span>
+                                                            <span className="px-5 py-2 rounded-full bg-white text-[#D94111] text-xs font-bold border border-orange-100 shadow-sm">{fs.category?.name || fs.category || "EV & Mobility"}</span>
+                                                            <span className="px-5 py-2 rounded-full bg-white text-zinc-500 text-xs font-bold border border-zinc-100 shadow-sm">{fs.city?.name || fs.city || "Bengaluru"}</span>
+                                                            <span className="px-5 py-2 rounded-full bg-white text-zinc-500 text-xs font-bold border border-zinc-100 shadow-sm">{(fs as any).funding_stage ?? fs.stage ?? "Series E"}</span>
                                                         </div>
-                                                        <p className="text-zinc-600 text-lg leading-relaxed mb-10">
+                                                        <p className="text-zinc-600 text-lg leading-relaxed mb-10 max-w-2xl">
                                                             {fs.description || fs.content ? ((fs.description || fs.content).length > 300 ? (fs.description || fs.content).substring(0, 300) + "..." : (fs.description || fs.content)) : "Leading innovation in the Indian startup ecosystem."}
                                                         </p>
-                                                        <div className="grid grid-cols-3 gap-8 mb-10 border-t border-zinc-100 pt-8">
-                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Founded</p><p className="font-bold text-[#0F172A]">{fs.founded_year || "2013"}</p></div>
-                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Team</p><p className="font-bold text-[#0F172A]">{fs.team_size || "2000+"}</p></div>
-                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Founders</p><p className="font-bold text-[#0F172A] truncate">{fs.founder_name || fs.founders || "Founders"}</p></div>
+                                                        <div className="grid grid-cols-3 gap-8 mb-10">
+                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-2">Founded</p><p className="font-bold text-[#0F172A] text-lg">{fs.founded_year || "2013"}</p></div>
+                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-2">Team Size</p><p className="font-bold text-[#0F172A] text-lg">{fs.team_size || "2000+"}</p></div>
+                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-2">Founders</p><p className="font-bold text-[#0F172A] text-lg truncate">{fs.founder_name || fs.founders || "Founders"}</p></div>
                                                         </div>
-                                                        <Button className="h-12 px-8 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold group" asChild>
+                                                        <Button className="w-fit h-14 px-10 rounded-xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold text-lg group shadow-lg shadow-orange-600/20" asChild>
                                                             <Link href={`/startups/${fsSlug}`} className="flex items-center gap-2">
-                                                                View Full Profile <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                                                View Full Profile <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                                                             </Link>
                                                         </Button>
                                                     </div>
@@ -543,26 +485,14 @@ export function HomeContent({
 
                             case 'startup_cards':
                                 return (
-                                    <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 16, paddingBottom: paddingY !== null ? paddingY : 16 }}>
-                                        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10">
-                                            <div className="max-w-3xl">
-                                                <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A]" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Featured Startups"}</h2>
-                                            </div>
-                                            <div className="flex items-center gap-10 border-l border-zinc-100 pl-8 h-fit">
-                                                <div>
-                                                    <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{platformStats.total_startups.toLocaleString()}+</div>
-                                                    <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Verified Startups</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{(platformStats as any).total_unicorns ?? 0}</div>
-                                                    <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Unicorns</div>
-                                                </div>
-                                            </div>
-                                            <Link href="/startups" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                    <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 48, paddingBottom: paddingY !== null ? paddingY : 48 }}>
+                                        <div className="flex items-baseline justify-between mb-10">
+                                            <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-[#0F172A] font-serif" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Featured Startups"}</h2>
+                                            <Link href="/startups" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
                                                 View all <ArrowRight className="h-4 w-4" />
                                             </Link>
                                         </div>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                                             {(items.length > 0 ? items : featuredStartups.slice(0, 8)).map((startup: any) => (
                                                 <StartupCard key={startup.slug || startup.id} {...startup} />
                                             ))}
@@ -576,67 +506,42 @@ export function HomeContent({
                                         <Newsletter />
                                     </div>
                                 );
-                                return (
-                                    <div key={section.id || index} className="mb-0">
-                                        <Newsletter />
-                                    </div>
-                                );
 
                             case 'cta':
                             case 'banner':
                                 return (
-                                    <section key={section.id || index} className="bg-[#0F172A] text-center overflow-hidden relative mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 32, paddingBottom: paddingY !== null ? paddingY : 32 }}>
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 via-white/20 to-orange-600" />
+                                    <section key={section.id || index} className="bg-[#0F172A] text-center overflow-hidden relative mb-0 pb-16" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 80, paddingBottom: paddingY !== null ? paddingY : 80 }}>
+                                        {/* Decorative gradients */}
+                                        <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#F2542D]/10 rounded-full blur-[120px]" />
+                                        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
+
                                         <div className="container-wide relative z-10">
-                                            <h2 className="text-xl md:text-2xl lg:text-[1.75rem] font-bold text-white mb-4 font-serif" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
+                                            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-6 font-serif tracking-tight leading-tight" style={{ color: '#' + (textColor.replace('#', '') === '0F172A' ? 'FFFFFF' : textColor.replace('#', '')) }}>
                                                 {section.title || "Stay Updated with India's Startup Ecosystem"}
                                             </h2>
-                                            <div className="text-lg mb-12 max-w-2xl mx-auto prose prose-lg prose-invert opacity-80" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }} dangerouslySetInnerHTML={{ __html: section.description || section.subtitle || "Get the latest funding news, founder stories, and industry insights delivered to your inbox every week." }} />
-                                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
-                                                {section.section_type === 'newsletter' || section.settings?.showInput ? (
-                                                    <input
-                                                        type="email"
-                                                        placeholder="Enter your email"
-                                                        className="w-full h-14 px-6 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/30 focus:outline-none focus:border-orange-600 transition-all"
-                                                        suppressHydrationWarning
-                                                    />
-                                                ) : null}
-                                                <Button suppressHydrationWarning className={cn(
-                                                    "w-full sm:w-auto h-14 px-10 rounded-xl font-bold text-lg border-none transform transition-all active:scale-95",
-                                                    (section.settings?.buttonStyle === 'secondary') ? "bg-white hover:bg-zinc-100 text-slate-900 border border-zinc-200" :
-                                                        (section.settings?.buttonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                            "bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-600/20"
+                                            <div className="text-lg md:text-xl mb-12 max-w-2xl mx-auto font-medium text-zinc-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: section.description || section.subtitle || "Get the latest funding news, founder stories, and industry insights." }} />
+
+                                            <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
+                                                <Button className={cn(
+                                                    "w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold text-lg group shadow-xl shadow-orange-600/20 transition-all",
                                                 )} asChild={!!section.link_url}>
                                                     {section.link_url ? (
-                                                        <Link href={section.link_url}>{section.link_text || "Action"}</Link>
+                                                        <Link href={section.link_url} className="flex items-center gap-2">
+                                                            {section.link_text || "Get Started"}
+                                                            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                                        </Link>
                                                     ) : (
                                                         <span>{section.link_text || "Subscribe"}</span>
                                                     )}
                                                 </Button>
 
                                                 {(section.settings?.secondaryButtonText || section.settings?.secondaryButtonLink) && (
-                                                    <Button className={cn(
-                                                        "w-full sm:w-auto h-14 px-10 rounded-xl font-bold text-lg border-none transform transition-all active:scale-95",
-                                                        (section.settings?.secondaryButtonStyle === 'primary') ? "bg-orange-600 hover:bg-orange-700 text-white" :
-                                                            (section.settings?.secondaryButtonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                                "bg-white hover:bg-zinc-100 text-slate-900"
-                                                    )} asChild>
+                                                    <Button variant="outline" className="w-full sm:w-auto h-14 px-10 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10 backdrop-blur-sm font-bold text-lg" asChild>
                                                         <Link href={section.settings?.secondaryButtonLink || "/submit"}>
-                                                            {section.settings?.secondaryButtonText || "Submit Your Journey"}
+                                                            {section.settings?.secondaryButtonText || "Learn More"}
                                                         </Link>
                                                     </Button>
                                                 )}
-
-                                                {(section.settings?.extraButtons || []).map((btn: any, i: number) => (
-                                                    <Button key={i} className={cn(
-                                                        "w-full sm:w-auto h-14 px-10 rounded-xl font-bold text-lg border-none transform transition-all active:scale-95",
-                                                        btn.style === 'primary' ? "bg-orange-600 hover:bg-orange-700 text-white" :
-                                                            btn.style === 'outline' ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                                "bg-white hover:bg-zinc-100 text-slate-900"
-                                                    )} asChild>
-                                                        <Link href={btn.link || "/"}>{btn.text}</Link>
-                                                    </Button>
-                                                ))}
                                             </div>
                                         </div>
                                     </section>
@@ -1046,7 +951,23 @@ export function HomeContent({
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                                     {latestStories.map((story) => (
-                                        <StoryCard key={story.slug} {...story} />
+                                        <StoryCard
+                                            key={story.slug}
+                                            slug={story.slug}
+                                            title={story.title}
+                                            excerpt={story.excerpt}
+                                            thumbnail={story.thumbnail}
+                                            og_image={story.og_image}
+                                            category={story.category}
+                                            categorySlug={story.category_slug}
+                                            city={story.city}
+                                            citySlug={story.city_slug}
+                                            publishDate={story.publish_date}
+                                            author_name={story.author_name || story.author}
+                                            read_time={story.read_time}
+                                            featured={false}
+                                            isFeatured={false}
+                                        />
                                     ))}
                                 </div>
                             </div>
@@ -1062,124 +983,84 @@ export function HomeContent({
                     <section className="bg-[#F8F9FA] py-12 mb-8">
                         <div className="container-wide">
                             <div className="flex items-baseline justify-between mb-10">
-                                <h2 className="text-3xl font-bold text-[#0F172A]">Top Categories</h2>
+                                <h2 className="text-3xl font-bold text-[#0F172A] font-serif">Top Categories</h2>
                                 <Link href="/categories" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
                                     All categories <ArrowRight className="h-4 w-4" />
                                 </Link>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                                {topCategories.slice(0, 14).map((category) => (
-                                    <CategoryCard key={category.slug} {...category} icon={getIcon(category.iconName || "help-circle")} />
-                                ))}
+                            <div className="grid grid-cols-2 lg:grid-cols-7 gap-4">
+                                {topCategories.slice(0, 7).map((category, idx) => {
+                                    // Map exact icons for the 7 top categories based on screenshot
+                                    const slug = (category.slug || "").toLowerCase();
+                                    const name = (category.name || "").toLowerCase();
+                                    let icon = null;
+
+                                    if (slug.includes('saas') || name.includes('saas')) icon = <Briefcase strokeWidth={1.5} className="w-7 h-7" />;
+                                    else if (slug.includes('ai') || name.includes('ai')) icon = <Cpu strokeWidth={1.5} className="w-7 h-7" />;
+                                    else if (slug.includes('edtech') || name.includes('edtech')) icon = <GraduationCap strokeWidth={1.5} className="w-7 h-7" />;
+                                    else if (slug.includes('health') || name.includes('health')) icon = <Heart strokeWidth={1.5} className="w-7 h-7" />;
+                                    else if (slug.includes('fintech') || name.includes('fintech')) icon = <Wallet strokeWidth={1.5} className="w-7 h-7" />;
+                                    else if (slug.includes('retail') || name.includes('retail')) icon = <Store strokeWidth={1.5} className="w-7 h-7" />;
+                                    else if (slug.includes('d2c') || name.includes('d2c')) icon = <ShoppingBag strokeWidth={1.5} className="w-7 h-7" />;
+                                    else {
+                                        const IconComponent = getIcon(category.iconName || "folder");
+                                        icon = <IconComponent strokeWidth={1.5} className="w-7 h-7" />;
+                                    }
+
+                                    const storiesCount = category.storyCount || category.story_count || category.storiesCount || 0;
+
+                                    return (
+                                        <Link href={`/categories/${category.slug}`} key={category.slug} className="group bg-white rounded-[1.5rem] flex flex-col items-center justify-center py-5 px-4 border border-zinc-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300">
+                                            <div className="w-[60px] h-[60px] rounded-full bg-orange-50 flex items-center justify-center mb-2 text-orange-600 group-hover:scale-110 group-hover:bg-orange-100 transition-all duration-300">
+                                                {icon}
+                                            </div>
+                                            <h3 className="font-bold text-[#0F172A] text-[15px] font-serif mb-1 group-hover:text-[#0F172A] transition-colors text-center">
+                                                {category.name}
+                                            </h3>
+                                            <p className="text-zinc-400 text-xs font-medium">{storiesCount} stories</p>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         </div>
                     </section>
 
                     {/* Explore by City (Tier 1) */}
-                    <section className="container-wide py-12 mb-8 border-b border-zinc-100/50">
-                        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-                            <div className="max-w-3xl">
-                                <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-4 bg-orange-50 px-3 py-1 rounded-full border border-orange-100/50">
-                                    <MapPin className="h-3 w-3" />
-                                    Regional Ecosystems
-                                </div>
-                                <h2 className="text-3xl md:text-5xl font-bold text-[#0F172A] mb-6 font-serif tracking-tight leading-tight">
-                                    Startup Hubs in India — Bengaluru, Mumbai, Delhi NCR & More
-                                </h2>
-                                <p className="text-zinc-500 text-lg leading-relaxed max-w-2xl">
-                                    India's startup revolution extends far beyond Bengaluru. Explore thriving entrepreneurial ecosystems in metros, emerging Tier 2 hubs, and ambitious Tier 3 cities building the next wave of innovation.
-                                </p>
-                            </div>
-                            <div className="flex gap-10 border-l border-zinc-100 pl-8 h-fit">
-                                <div>
-                                    <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{platformStats.total_startups.toLocaleString()}+</div>
-                                    <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Verified Startups</div>
-                                </div>
-                                <div>
-                                    <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{(platformStats as any).total_unicorns ?? 0}</div>
-                                    <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Unicorns</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                            {topCities.filter(c => !c.tier || String(c.tier).includes('1')).slice(0, 12).map((city) => (
-                                <CityCard key={city.slug} {...city} />
-                            ))}
+                    <section className="container-wide py-12 mb-8 bg-white">
+                        <div className="flex items-baseline justify-between mb-8">
+                            <h2 className="text-3xl font-bold text-[#0F172A] font-serif tracking-tight">Explore by City</h2>
+                            <Link href="/cities" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                All cities <ArrowRight className="h-4 w-4" />
+                            </Link>
                         </div>
 
-                        <div className="mt-12 pt-8 border-t border-zinc-100 flex justify-center">
-                            <Button variant="ghost" className="text-orange-600 font-bold hover:bg-orange-50 gap-2 group" asChild>
-                                <Link href="/cities">
-                                    Explore All Startup Hubs <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                </Link>
-                            </Button>
+                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+                            {topCities.filter(c => !c.tier || String(c.tier).includes('1')).slice(0, 5).map((city) => (
+                                <CityCard key={city.slug} {...city} />
+                            ))}
                         </div>
                     </section>
 
                     {/* Rising Startup Hubs (Tier 2 & 3) */}
-                    <section className="bg-[#FFFFFF] py-8 mb-8">
-                        <div className="container-wide">
-                            <div className="flex items-baseline justify-between mb-2">
-                                <h2 className="text-3xl font-bold text-[#0F172A]">Rising Startup Hubs</h2>
-                                <Link href="/cities" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all text-xs">
-                                    View all rising hubs <ArrowRight className="h-3 w-3" />
-                                </Link>
+                    <section className="bg-white py-8 mb-8">
+                        <div className="container-wide overflow-hidden relative">
+                            <div className="flex flex-col mb-8">
+                                <div className="flex items-baseline justify-between mb-2">
+                                    <h2 className="text-3xl font-bold text-[#0F172A] font-serif tracking-tight">Rising Startup Hubs</h2>
+                                    <Link href="/cities" className="text-orange-600 font-bold tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all text-sm">
+                                        View all rising hubs <ArrowRight className="h-3 w-3" />
+                                    </Link>
+                                </div>
+                                <p className="text-zinc-400 text-sm">Tier 2 & Tier 3 cities driving India's startup growth</p>
                             </div>
-                            <p className="text-zinc-400 text-sm mb-10">Tier 2 & Tier 3 cities driving India's startup growth</p>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                                 {topCities.filter(c => String(c.tier).includes('2') || String(c.tier).includes('3')).slice(0, 12).map((city) => (
                                     <CityCard key={city.slug} {...city} />
                                 ))}
                             </div>
                         </div>
                     </section>
-
-                    {/* Indian Startup Categories Section (Impact Stats) */}
-                    <section className="w-full bg-[#fafafa] py-16 border-y border-zinc-100 mb-0">
-                        <div className="container-wide text-center">
-                            <div className="inline-flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-6 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100/50">
-                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                                Market Landscape
-                            </div>
-                            <h2 className="text-3xl md:text-5xl font-bold text-zinc-900 mb-6 font-serif tracking-tight max-w-4xl mx-auto leading-tight">
-                                Indian Startup Categories — Fintech, SaaS, D2C & More
-                            </h2>
-                            <div className="max-w-3xl mx-auto mb-12">
-                                <p className="text-base md:text-lg text-zinc-500 leading-relaxed font-normal">
-                                    Navigate India's startup ecosystem by industry vertical. From fintech giants transforming payments to agritech innovators empowering farmers, discover the sectors driving India's economic transformation.
-                                </p>
-                            </div>
-
-                            {/* Impact Metrics */}
-                            <div className="flex justify-center gap-12 md:gap-20 mb-16 pb-8 border-b border-zinc-100 max-w-2xl mx-auto">
-                                <div className="text-center group">
-                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                        {platformStats.total_startups.toLocaleString()}
-                                    </div>
-                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Total Startups</div>
-                                </div>
-                                <div className="text-center group">
-                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                        {platformStats.total_stories.toLocaleString()}
-                                    </div>
-                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Curated Stories</div>
-                                </div>
-                                <div className="text-center group">
-                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                        {(platformStats as any).total_unicorns ?? 0}
-                                    </div>
-                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Unicorns</div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 max-w-6xl mx-auto">
-                                {topCategories.slice(0, 14).map((category) => (
-                                    <CategoryCard key={category.slug} {...category} icon={getIcon(category.iconName || "help-circle")} />
-                                ))}
-                            </div>
-                        </div>
-                    </section >
 
                     {/* Featured Startup of the Week */}
                     <section className="container-wide py-12 mb-12">
@@ -1201,12 +1082,6 @@ export function HomeContent({
                                                     className="object-contain p-6"
                                                     sizes="128px"
                                                     unoptimized={getSafeImageSrc(featuredStartups[0].logo || featuredStartups[0].og_image).endsWith('.svg')}
-                                                    onError={(e) => {
-                                                        // If image 404s, hide it and the fallback div will show or we can trigger state
-                                                        // For now, let's just use a state to track if image is valid
-                                                        // But since we are in a map/list-like context, state is more complex.
-                                                        // Let's at least ensure we don't show the broken icon if possible.
-                                                    }}
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100/50 text-orange-600 font-bold text-5xl font-serif">
@@ -1265,27 +1140,6 @@ export function HomeContent({
                         <Newsletter />
                     </div>
 
-                    {/* Custom Banner / Submit CTA */}
-                    <section className="bg-[#0F172A] py-24 text-center overflow-hidden relative mb-0">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 via-white/20 to-orange-600" />
-                        <div className="container-wide relative z-10">
-                            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 font-serif">
-                                Stay Updated with India's Startup Ecosystem
-                            </h2>
-                            <p className="text-white/60 text-lg mb-12 max-w-2xl mx-auto">
-                                Get the latest funding news, founder stories, and industry insights delivered to your inbox every week.
-                            </p>
-
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
-                                <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg border-none" asChild>
-                                    <Link href="/submit">Submit Your Journey</Link>
-                                </Button>
-                                <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-white hover:bg-zinc-100 text-[#0F172A] font-bold text-lg border-none" asChild>
-                                    <Link href="/stories">Read More Stories</Link>
-                                </Button>
-                            </div>
-                        </div>
-                    </section>
                 </>
             )
             }

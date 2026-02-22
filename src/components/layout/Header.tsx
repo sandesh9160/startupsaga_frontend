@@ -40,10 +40,11 @@ export function Header({ initialNav = [] }: HeaderProps) {
 
   // Fallback links if the database is empty
   const defaults = [
+    { id: 'home', label: "Home", url: "/", children: [] },
     { id: 'stories', label: "Stories", url: "/stories", children: [] },
     { id: 'startups', label: "Startups", url: "/startups", children: [] },
-    { id: 'cities', label: "Cities", url: "/cities", children: [] },
     { id: 'categories', label: "Categories", url: "/categories", children: [] },
+    { id: 'cities', label: "Cities", url: "/cities", children: [] },
   ];
 
   const [navLinks, setNavLinks] = useState<any[]>(initialNav.length > 0 ? initialNav : defaults);

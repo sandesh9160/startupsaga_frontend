@@ -28,45 +28,34 @@ export function CityCard({ slug, name, image, startupCount, storyCount, unicornC
 
   return (
     <Link href={`/cities/${slug}`} className="block group min-w-0">
-      <article className="relative overflow-hidden rounded-xl w-full h-40 transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
+      <article className="relative overflow-hidden rounded-[1.5rem] w-full h-[240px] transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         {/* Background image */}
         <Image
           src={imageSrc}
           alt={name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
           unoptimized={imageSrc.toLowerCase().endsWith(".svg")}
         />
 
         {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/90 via-[#0F172A]/30 to-transparent" />
 
         {/* Tier Badge */}
-        {tier && (
-          <div className={cn(
-            "absolute top-3 right-3 px-2 py-0.5 rounded-full backdrop-blur-md border text-[9px] font-black uppercase tracking-wider shadow-lg",
-            String(tier) === '2'
-              ? "bg-orange-500/90 border-orange-400/50 text-white"
-              : "bg-amber-500/90 border-amber-400/50 text-white"
-          )}>
+        {tier && String(tier) !== '1' && (
+          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white tracking-wide">
             Tier {tier}
           </div>
         )}
 
         {/* Text content */}
-        <div className="absolute bottom-0 left-0 right-0 p-3">
-          <h3 className="text-base font-bold text-white leading-tight drop-shadow">
+        <div className="absolute bottom-0 left-0 right-0 p-5">
+          <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight font-serif mb-1">
             {name}
           </h3>
-          <p className="text-white/80 text-xs font-medium mt-0.5">
+          <p className="text-zinc-300 text-xs md:text-sm font-medium">
             {formattedStartupCount} startups
-            {unicornCount && unicornCount > 0 && (
-              <>
-                <span className="mx-1 opacity-50">•</span>
-                <span className="text-blue-200">{unicornCount} {unicornCount === 1 ? 'unicorn' : 'unicorns'}</span>
-              </>
-            )}
           </p>
         </div>
       </article>

@@ -238,7 +238,23 @@ export function StoriesContent() {
                     ) : stories.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {stories.map((story) => (
-                                <StoryCard key={story.slug} {...story} />
+                                <StoryCard
+                                    key={story.slug}
+                                    slug={story.slug}
+                                    title={story.title}
+                                    excerpt={story.excerpt}
+                                    thumbnail={story.thumbnail}
+                                    og_image={(story as any).og_image}
+                                    category={story.category}
+                                    categorySlug={(story as any).category_slug}
+                                    city={story.city}
+                                    citySlug={(story as any).city_slug}
+                                    publishDate={story.publishDate || (story as any).publish_date}
+                                    author_name={(story as any).author_name || (story as any).author}
+                                    read_time={(story as any).read_time}
+                                    featured={false}
+                                    isFeatured={false}
+                                />
                             ))}
                         </div>
                     ) : (
