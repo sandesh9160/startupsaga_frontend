@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
     ArrowLeft,
     Calendar,
-    Twitter,
-    Linkedin,
     Link as LinkIcon,
     Share2,
     MapPin,
@@ -19,7 +17,9 @@ import {
     List,
     Clock,
     TrendingUp,
-    Share
+    Share,
+    Linkedin,
+    Twitter
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getSafeImageSrc } from "@/lib/images";
