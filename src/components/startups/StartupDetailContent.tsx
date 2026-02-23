@@ -61,13 +61,14 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
             const headingRegex = /<(h[23])[^>]*>([^<]*)<\/\1>/gi;
             const matches = [...startup.description.matchAll(headingRegex)];
             if (matches.length > 0) {
-                setTableOfContents(
-                    matches.map((m, i) => ({
+                setTableOfContents([
+                    { id: 0, title: "TL;DR", anchor: "tldr" },
+                    ...matches.map((m, i) => ({
                         id: i + 1,
                         title: m[2].trim(),
                         anchor: `toc-${i}`,
                     }))
-                );
+                ]);
             }
         }
     }, [startup.description]);
@@ -213,19 +214,44 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                             </div>
                         )}
 
-                        {/* About / Description */}
+                        {/* TL;DR Section */}
+                        <div id="tldr" className="bg-[#FAF5FF] rounded-xl border border-purple-100 p-6 shadow-sm">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Layers size={14} className="text-purple-600" />
+                                <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-400">TL;DR</h2>
+                            </div>
+                            <div className="text-zinc-700 text-sm leading-relaxed font-medium">
+                                <p className="mb-2"><strong>Quick Take:</strong> {startup.tagline}</p>
+                                <div className="space-y-2">
+                                    <div className="flex gap-2">
+                                        <span className="text-purple-600 font-bold">•</span>
+                                        <span><strong>Impact:</strong> Leading {categoryName} player in {cityName}.</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <span className="text-purple-600 font-bold">•</span>
+                                        <span><strong>Status:</strong> {startup.funding_stage || startup.stage} company with {startup.team_size} employees.</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <span className="text-purple-600 font-bold">•</span>
+                                        <span><strong>DNA:</strong> {startup.business_model || startup.sector} focused, founded in {startup.founded_year}.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* About / Description (Journey) */}
                         <div id="introduction" className="bg-white rounded-xl border border-zinc-100 p-6 shadow-sm">
                             <div className="flex items-center gap-2 mb-4">
-                                <BookOpen size={14} className="text-indigo-600" />
-                                <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-400">About</h2>
+                                <TrendingUp size={14} className="text-indigo-600" />
+                                <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-400">The Startup Journey</h2>
                             </div>
                             <div
                                 id="journey"
                                 className="prose prose-zinc prose-sm max-w-none leading-relaxed
                                     prose-headings:font-bold prose-headings:text-zinc-900 prose-headings:tracking-tight
-                                    prose-h2:text-lg prose-h2:mt-6 prose-h2:mb-2
-                                    prose-h3:text-base prose-h3:mt-5 prose-h3:mb-1.5
-                                    prose-p:text-zinc-600 prose-p:mb-3
+                                    prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:font-serif
+                                    prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-2
+                                    prose-p:text-zinc-600 prose-p:mb-4 prose-p:text-base
                                     prose-strong:text-zinc-900"
                                 dangerouslySetInnerHTML={{ __html: startup.description || "" }}
                             />
@@ -244,40 +270,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                             </button>
                         </div>
 
-                        {/* Related Stories */}
-                        {relatedStories.length > 0 && (
-                            <section className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-sm font-black text-zinc-900 flex items-center gap-2 uppercase tracking-wide">
-                                        <Layers className="h-4 w-4 text-orange-500" /> Stories & Updates
-                                    </h3>
-                                    <Link href="/stories" className="text-[10px] font-bold text-orange-600 hover:text-orange-700 uppercase tracking-widest transition-colors">
-                                        View All
-                                    </Link>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {relatedStories.map((story) => (
-                                        <StoryCard
-                                            key={story.slug}
-                                            slug={story.slug}
-                                            title={story.title}
-                                            excerpt={story.excerpt}
-                                            thumbnail={story.thumbnail}
-                                            og_image={story.og_image}
-                                            category={story.category}
-                                            categorySlug={story.category_slug}
-                                            city={story.city}
-                                            citySlug={story.city_slug}
-                                            publishDate={story.publishDate || story.publish_date}
-                                            author_name={story.author_name || story.author}
-                                            read_time={story.read_time}
-                                            featured={false}
-                                            isFeatured={false}
-                                        />
-                                    ))}
-                                </div>
-                            </section>
-                        )}
+
                     </div>
 
                     {/* Right — Infobox */}

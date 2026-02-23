@@ -430,50 +430,49 @@ export function HomeContent({
                                     if (!fs) return null;
                                     const fsSlug = fs.slug || (fs.title || fs.name || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
                                     return (
-                                        <section key={section.id || index} className="container-wide mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
+                                        <section key={section.id || index} className="container-wide mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 20, paddingBottom: paddingY !== null ? paddingY : 20 }}>
                                             <div className="flex items-center gap-3 mb-10">
-                                                <Sparkles className="h-6 w-6 text-[#D94111] fill-[#D94111]" />
+                                                <Sparkles className="h-4 w-4 text-[#D94111] fill-[#D94111]" />
                                                 <h2 className="text-xl md:text-2xl lg:text-[2rem] font-bold text-[#0F172A] font-serif">{section.title || "Featured Startup of the Week"}</h2>
                                             </div>
-                                            <div className="bg-[#FFF8F5] rounded-[2rem] border border-orange-100 shadow-sm overflow-hidden group">
-                                                <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[400px]">
-                                                    <div className="lg:col-span-4 p-12 flex flex-col items-center justify-center text-center border-r border-orange-100/50">
-                                                        <div className="w-40 h-40 rounded-3xl bg-white shadow-xl flex items-center justify-center p-8 mb-8 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
+                                            <div className="bg-[#FFF8F5] rounded-3xl border border-orange-100 shadow-sm overflow-hidden group">
+                                                <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[300px]">
+                                                    <div className="lg:col-span-4 p-8 flex flex-col items-center justify-center text-center border-r border-orange-100/50">
+                                                        <div className="w-32 h-32 rounded-3xl bg-white shadow-md flex items-center justify-center p-6 mb-6 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
                                                             {(fs.logo || fs.og_image || fs.image || fs.imageUrl) ? (
                                                                 <Image
                                                                     src={getSafeImageSrc(fs.logo || fs.og_image || fs.image || fs.imageUrl)}
                                                                     alt={fs.name || fs.title}
                                                                     fill
-                                                                    className="object-contain p-8"
-                                                                    sizes="160px"
+                                                                    className="object-contain p-6"
+                                                                    sizes="128px"
                                                                     unoptimized={getSafeImageSrc(fs.logo || fs.og_image || fs.image || fs.imageUrl).endsWith('.svg')}
                                                                 />
                                                             ) : (
-                                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100/50 text-orange-600 font-bold text-6xl font-serif">
+                                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100/50 text-orange-600 font-bold text-5xl font-serif">
                                                                     {(fs.name || fs.title)?.[0] || 'S'}
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <h3 className="text-3xl font-bold text-[#0F172A] mb-2 font-serif">{fs.name || fs.title}</h3>
-                                                        <p className="text-zinc-500 text-sm leading-relaxed">{fs.tagline || fs.subtitle || "Premium electric scooters designed for the new India"}</p>
+                                                        <h3 className="text-2xl font-bold text-[#0F172A] mb-2 font-serif">{fs.name || fs.title}</h3>
                                                     </div>
-                                                    <div className="lg:col-span-8 p-12 flex flex-col justify-center">
-                                                        <div className="flex flex-wrap gap-3 mb-8">
-                                                            <span className="px-5 py-2 rounded-full bg-white text-[#D94111] text-xs font-bold border border-orange-100 shadow-sm">{fs.category?.name || fs.category || "EV & Mobility"}</span>
-                                                            <span className="px-5 py-2 rounded-full bg-white text-zinc-500 text-xs font-bold border border-zinc-100 shadow-sm">{fs.city?.name || fs.city || "Bengaluru"}</span>
-                                                            <span className="px-5 py-2 rounded-full bg-white text-zinc-500 text-xs font-bold border border-zinc-100 shadow-sm">{(fs as any).funding_stage ?? fs.stage ?? "Series E"}</span>
+                                                    <div className="lg:col-span-8 p-8 flex flex-col justify-center">
+                                                        <div className="flex flex-wrap gap-3 mb-6">
+                                                            <span className="px-4 py-1.5 rounded-full bg-white text-[#D94111] text-xs font-bold border border-orange-100 shadow-sm">{fs.category?.name || fs.category || "EV & Mobility"}</span>
+                                                            <span className="px-4 py-1.5 rounded-full bg-white text-zinc-500 text-xs font-bold border border-zinc-100 shadow-sm">{fs.city?.name || fs.city || "Bengaluru"}</span>
+                                                            <span className="px-4 py-1.5 rounded-full bg-white text-zinc-500 text-xs font-bold border border-zinc-100 shadow-sm">{(fs as any).funding_stage ?? fs.stage ?? "Series E"}</span>
                                                         </div>
-                                                        <p className="text-zinc-600 text-lg leading-relaxed mb-10 max-w-2xl">
-                                                            {fs.description || fs.content ? ((fs.description || fs.content).length > 300 ? (fs.description || fs.content).substring(0, 300) + "..." : (fs.description || fs.content)) : "Leading innovation in the Indian startup ecosystem."}
+                                                        <p className="text-zinc-600 text-base leading-relaxed mb-8 max-w-2xl line-clamp-3">
+                                                            {fs.tagline || fs.subtitle || fs.description || "Leading innovation in the Indian startup ecosystem."}
                                                         </p>
-                                                        <div className="grid grid-cols-3 gap-8 mb-10">
-                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-2">Founded</p><p className="font-bold text-[#0F172A] text-lg">{fs.founded_year || "2013"}</p></div>
-                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-2">Team Size</p><p className="font-bold text-[#0F172A] text-lg">{fs.team_size || "2000+"}</p></div>
-                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-2">Founders</p><p className="font-bold text-[#0F172A] text-lg truncate">{fs.founder_name || fs.founders || "Founders"}</p></div>
+                                                        <div className="grid grid-cols-3 gap-6 mb-8 text-left">
+                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Founded</p><p className="font-bold text-[#0F172A] text-base">{fs.founded_year || "2013"}</p></div>
+                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Team Size</p><p className="font-bold text-[#0F172A] text-base">{fs.team_size || "2000+"}</p></div>
+                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Founders</p><p className="font-bold text-[#0F172A] text-base truncate pr-2">{fs.founder_name || fs.founders || "Founders"}</p></div>
                                                         </div>
-                                                        <Button className="w-fit h-14 px-10 rounded-xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold text-lg group shadow-lg shadow-orange-600/20" asChild>
+                                                        <Button className="w-fit h-12 px-8 rounded-xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold text-sm group shadow-md shadow-orange-600/20" asChild>
                                                             <Link href={`/startups/${fsSlug}`} className="flex items-center gap-2">
-                                                                View Full Profile <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                                                View Full Profile <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                                                             </Link>
                                                         </Button>
                                                     </div>
@@ -1069,11 +1068,11 @@ export function HomeContent({
                             <h2 className="text-3xl font-bold text-[#0F172A]">Featured Startup of the Week</h2>
                         </div>
                         {featuredStartups[0] && (
-                            <div className="bg-[#FFFFFF] rounded-[2rem] border border-zinc-100 shadow-xl shadow-zinc-200/50 overflow-hidden group">
-                                <div className="grid grid-cols-1 lg:grid-cols-12">
+                            <div className="bg-[#FFFFFF] rounded-3xl border border-zinc-100 shadow-xl shadow-zinc-200/50 overflow-hidden group">
+                                <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[300px]">
                                     {/* Left Side: Brand */}
-                                    <div className="lg:col-span-4 bg-[#FFF5F1] p-12 flex flex-col items-center justify-center text-center border-r border-zinc-50">
-                                        <div className="w-32 h-32 rounded-3xl bg-white shadow-xl flex items-center justify-center p-6 mb-8 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
+                                    <div className="lg:col-span-4 bg-[#FFF5F1] p-8 flex flex-col items-center justify-center text-center border-r border-zinc-50">
+                                        <div className="w-32 h-32 rounded-3xl bg-white shadow-md flex items-center justify-center p-6 mb-6 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
                                             {(featuredStartups[0].logo || featuredStartups[0].og_image) ? (
                                                 <Image
                                                     src={getSafeImageSrc(featuredStartups[0].logo || featuredStartups[0].og_image)}
@@ -1089,42 +1088,37 @@ export function HomeContent({
                                                 </div>
                                             )}
                                         </div>
-                                        <h3 className="text-3xl font-bold text-[#0F172A] mb-2 font-serif">{featuredStartups[0].name}</h3>
-                                        <p className="text-zinc-500 text-sm leading-relaxed">{featuredStartups[0].tagline}</p>
+                                        <h3 className="text-2xl font-bold text-[#0F172A] mb-2 font-serif">{featuredStartups[0].name}</h3>
                                     </div>
 
                                     {/* Right Side: Details */}
-                                    <div className="lg:col-span-8 p-12">
-                                        <div className="flex flex-wrap gap-3 mb-8">
+                                    <div className="lg:col-span-8 p-8 flex flex-col justify-center">
+                                        <div className="flex flex-wrap gap-3 mb-6">
                                             <span className="px-4 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-widest">{featuredStartups[0].category?.name || "Startup"}</span>
                                             <span className="px-4 py-1.5 rounded-full bg-zinc-50 text-zinc-500 text-xs font-bold uppercase tracking-widest">{featuredStartups[0].city?.name || "India"}</span>
                                             <span className="px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest">{(featuredStartups[0] as any).funding_stage ?? featuredStartups[0].stage ?? "Series E"}</span>
                                         </div>
 
-                                        <p className="text-zinc-600 text-lg leading-relaxed mb-10">
-                                            {featuredStartups[0].description ? (
-                                                featuredStartups[0].description.length > 300
-                                                    ? featuredStartups[0].description.substring(0, 300) + "..."
-                                                    : featuredStartups[0].description
-                                            ) : "Leading innovation in the Indian startup ecosystem with groundbreaking solutions and visionary leadership."}
+                                        <p className="text-zinc-600 text-base leading-relaxed mb-8 max-w-2xl line-clamp-3">
+                                            {featuredStartups[0].tagline || featuredStartups[0].description || "Leading innovation in the Indian startup ecosystem with groundbreaking solutions and visionary leadership."}
                                         </p>
 
-                                        <div className="grid grid-cols-3 gap-8 mb-10 border-t border-zinc-100 pt-8">
+                                        <div className="grid grid-cols-3 gap-6 mb-8 text-left border-t border-zinc-100 pt-6">
                                             <div>
-                                                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Founded</p>
-                                                <p className="font-bold text-[#0F172A]">{featuredStartups[0].founded_year || "2013"}</p>
+                                                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Founded</p>
+                                                <p className="font-bold text-[#0F172A] text-base">{featuredStartups[0].founded_year || "2013"}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Team Size</p>
-                                                <p className="font-bold text-[#0F172A]">{featuredStartups[0].team_size || "2000+"}</p>
+                                                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Team Size</p>
+                                                <p className="font-bold text-[#0F172A] text-base">{featuredStartups[0].team_size || "2000+"}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Founders</p>
-                                                <p className="font-bold text-[#0F172A] truncate">{featuredStartups[0].founder_name || "Tarun Mehta, Swapnil Jain"}</p>
+                                                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Founders</p>
+                                                <p className="font-bold text-[#0F172A] text-base truncate pr-2">{featuredStartups[0].founder_name || "Tarun Mehta, Swapnil Jain"}</p>
                                             </div>
                                         </div>
 
-                                        <Button className="h-12 px-8 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold group" asChild>
+                                        <Button className="w-fit h-12 px-8 rounded-xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold group shadow-md shadow-orange-600/20" asChild>
                                             <Link href={`/startups/${featuredStartups[0].slug}`} className="flex items-center gap-2">
                                                 View Full Profile <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                                             </Link>

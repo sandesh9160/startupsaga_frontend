@@ -243,14 +243,21 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                         >
                             {story.content ? (
                                 <div dangerouslySetInnerHTML={{
-                                    __html: story.content.replace(
-                                        /<(h[23])([^>]*)>(.*?)<\/\1>/gi,
-                                        (match: string, tag: string, attrs: string, content: string) => {
-                                            const title = content.replace(/<[^>]*>/g, '').trim();
-                                            const id = title.toLowerCase().replace(/\s+/g, '-');
-                                            return `<${tag}${attrs} id="${id}">${content}</${tag}>`;
-                                        }
-                                    )
+                                    __html: story.content
+                                        .replace(
+                                            /<(h[23])([^>]*)>(.*?)<\/\1>/gi,
+                                            (match: string, tag: string, attrs: string, content: string) => {
+                                                const title = content.replace(/<[^>]*>/g, '').trim();
+                                                const id = title.toLowerCase().replace(/\s+/g, '-');
+                                                return `<${tag}${attrs} id="${id}">${content}</${tag}>`;
+                                            }
+                                        )
+                                        .replace(
+                                            /<img([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi,
+                                            (match: string, p1: string, p2: string, p3: string) => {
+                                                return `<img${p1}src="${getSafeImageSrc(p2)}"${p3}>`;
+                                            }
+                                        )
                                 }} />
                             ) : (
                                 <div className="bg-zinc-50 rounded-2xl p-16 text-center border border-dashed border-zinc-200">
