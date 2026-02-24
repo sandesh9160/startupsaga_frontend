@@ -4,13 +4,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { ArrowRight, TrendingUp, Building2, MapPin, Sparkles, Image as ImageIcon } from "lucide-react";
+import { ArrowRight, TrendingUp, Building2, MapPin, Sparkles, Image as ImageIcon, Briefcase, Cpu, GraduationCap, Heart, Wallet, Store, ShoppingBag } from "lucide-react";
 import { StoryCard } from "@/components/cards/StoryCard";
 import { StartupCard } from "@/components/cards/StartupCard";
 import { CityCard } from "@/components/cards/CityCard";
 import { CategoryCard } from "@/components/cards/CategoryCard";
 import { Newsletter } from "@/components/sections/Newsletter";
-import { Banner } from "@/components/sections/Banner";
+// import { Banner } from "@/components/sections/Banner";
 import { TrendingStories } from "@/components/stories/TrendingStories";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { getTrendingStories, getSections, getStories, getStartups, getCities, getCategories, getPlatformStats } from "@/lib/api";
@@ -26,17 +26,22 @@ interface HomeContentProps {
     initialCategories?: any[];
     initialPlatformStats?: { total_startups: number; total_stories: number; total_unicorns?: number };
     hasError?: boolean;
+    defaultView?: React.ReactNode;
 }
 
+const EMPTY_ARRAY: any[] = [];
+const DEFAULT_STATS = { total_startups: 3160, total_stories: 861, total_unicorns: 0 };
+
 export function HomeContent({
-    initialTrending = [],
-    initialSections = [],
-    initialStories = [],
-    initialStartups = [],
-    initialCities = [],
-    initialCategories = [],
-    initialPlatformStats = { total_startups: 3160, total_stories: 861, total_unicorns: 0 },
-    hasError = false
+    initialTrending = EMPTY_ARRAY,
+    initialSections = EMPTY_ARRAY,
+    initialStories = EMPTY_ARRAY,
+    initialStartups = EMPTY_ARRAY,
+    initialCities = EMPTY_ARRAY,
+    initialCategories = EMPTY_ARRAY,
+    initialPlatformStats = DEFAULT_STATS,
+    hasError = false,
+    defaultView
 }: HomeContentProps) {
     const isHydrated = useRef(false);
     const [latestStories, setLatestStories] = useState<any[]>(initialStories);
@@ -50,13 +55,24 @@ export function HomeContent({
     // Initialize hero data from initialSections if available and active to avoid hydration mismatch
     const initialHero = initialSections.find((s: any) => s.section_type === 'hero' && s.is_active === true);
     const [heroData, setHeroData] = useState({
-        title: initialHero?.title || initialHero?.name || "Startup Stories of India",
-        content: initialHero?.description || initialHero?.content || "Discover the journeys, milestones, and lessons from India's most inspiring founders and startups."
+        title: initialHero?.title || initialHero?.name || "",
+        content: initialHero?.description || initialHero?.content || ""
     });
 
     const [isClient, setIsClient] = useState(false);
 
     // Mark hydration complete
+    // Sync state with initial props if they change (e.g. during client-side navigation)
+    useEffect(() => {
+        setLatestStories(initialStories);
+        setFeaturedStartups(initialStartups);
+        setTopCities(initialCities);
+        setTopCategories(initialCategories);
+        setPageSections(initialSections);
+        setTrendingStories(initialTrending);
+        setPlatformStats(initialPlatformStats);
+    }, [initialStories, initialStartups, initialCities, initialCategories, initialSections, initialTrending, initialPlatformStats]);
+
     useEffect(() => {
         setIsClient(true);
         isHydrated.current = true;
@@ -107,7 +123,7 @@ export function HomeContent({
                     promises.push(getPlatformStats().then(setPlatformStats).catch(() => null));
                 }
 
-                if (initialSections.length === 0) {
+                if (initialSections.length === 0 && !defaultView) {
                     // Try both 'homepage' and 'home' for better compatibility
                     promises.push(getSections('homepage').then((sections) => {
                         if (sections && sections.length > 0) {
@@ -152,14 +168,14 @@ export function HomeContent({
     }, [isClient, initialSections, initialTrending, initialStories, initialStartups, initialCities, initialCategories]);
 
     return (
-        <div className="bg-[#FFFFFF]">
+        <div className="bg-transparent">
 
             {activeSections.length > 0 ? (
                 <div className="flex flex-col w-full">
                     {activeSections.map((section: any, index: number) => {
                         // Section-specific data
                         const sSettings = section.settings || {};
-                        const bgColor = sSettings.backgroundColor || '#FFFFFF';
+                        const bgColor = sSettings.backgroundColor || '#ffffffae';
                         const textColor = sSettings.textColor || '#0F172A';
 
                         // Spacing from backend (paddingY = vertical, paddingX = horizontal)
@@ -168,7 +184,7 @@ export function HomeContent({
 
                         // Common wrappers
                         const items = sSettings.items || [];
-                        const align = sSettings.align || 'center';
+                        const align = sSettings.align || 'left';
 
                         switch (section.section_type) {
                             case 'hero':
@@ -177,31 +193,44 @@ export function HomeContent({
                                         key={section.id || index}
                                         className="relative overflow-hidden mb-0"
                                         style={{
-                                            backgroundColor: bgColor,
-                                            paddingTop: paddingY !== null ? paddingY : 20,
-                                            paddingBottom: paddingY !== null ? paddingY : 20,
+                                            backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 32,
+                                            paddingBottom: paddingY !== null ? paddingY : 40,
                                             paddingLeft: paddingX !== null ? paddingX : 0,
                                             paddingRight: paddingX !== null ? paddingX : 0,
                                         }}
                                     >
-                                        <div className="container-wide relative z-10 text-center">
-                                            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif mb-6 max-w-4xl mx-auto leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
+                                        <div className={cn(
+                                            "container-wide relative z-10",
+                                            align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center'
+                                        )}>
+                                            <h1
+                                                className={cn(
+                                                    "text-3xl md:text-4xl lg:text-5xl font-semibold font-serif mb-4 max-w-4xl leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000",
+                                                    align === 'left' ? 'mr-auto ml-0' : align === 'right' ? 'ml-auto mr-0' : 'mx-auto'
+                                                )}
+                                                style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}
+                                            >
                                                 {section.title || heroData.title}
                                             </h1>
                                             <div
                                                 className={cn(
-                                                    "text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 prose prose-lg text-center marker:text-zinc-500",
-                                                    (textColor === '#FFFFFF' || textColor === 'FFFFFF') ? 'prose-invert' : 'prose-zinc'
+                                                    "text-base md:text-lg mb-8 max-w-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 prose prose-slate marker:text-zinc-500",
+                                                    align === 'left' ? 'text-left mr-auto ml-0' : align === 'right' ? 'text-right ml-auto mr-0' : 'text-center mx-auto',
+                                                    (textColor === '#FFFFFF' || textColor === 'FFFFFF' || (textColor === '#0F172A' || textColor === '0F172A')) ? 'prose-invert' : 'prose-zinc'
                                                 )}
-                                                style={{ color: (textColor === '#FFFFFF' || textColor === 'FFFFFF') ? 'rgba(255,255,255,0.7)' : 'rgba(15,23,42,0.7)' }}
+                                                style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor, opacity: 0.8 }}
                                                 dangerouslySetInnerHTML={{ __html: section.description || section.subtitle || heroData.content }}
                                             />
-                                            <div className="flex flex-col sm:flex-row items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+                                            <div className={cn(
+                                                "flex flex-col sm:flex-row items-center gap-5 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500",
+                                                align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center'
+                                            )}>
                                                 <Button className={cn(
                                                     "w-full sm:w-auto h-14 px-10 rounded-xl shadow-xl transition-all group border-none",
                                                     (section.settings?.buttonStyle === 'secondary') ? "bg-white hover:bg-zinc-100 text-slate-900 border border-zinc-200" :
                                                         (section.settings?.buttonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                            "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-600/20"
+                                                            "bg-[#F2542D] hover:bg-[#D94111] text-white shadow-orange-600/20"
                                                 )} asChild>
                                                     <Link href={section.link_url || "/stories"} className="flex items-center gap-2">
                                                         <span className="font-bold text-lg">{section.link_text || "Explore Stories"}</span>
@@ -209,18 +238,13 @@ export function HomeContent({
                                                     </Link>
                                                 </Button>
 
-                                                {(section.settings?.secondaryButtonText || section.settings?.secondaryButtonLink) && (
-                                                    <Button className={cn(
-                                                        "w-full sm:w-auto h-14 px-10 rounded-xl active:scale-95 transition-all border-none",
-                                                        (section.settings?.secondaryButtonStyle === 'primary') ? "bg-orange-600 hover:bg-orange-700 text-white shadow-xl" :
-                                                            (section.settings?.secondaryButtonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                                "bg-white hover:bg-zinc-100 text-[#0F172A]"
-                                                    )} asChild>
-                                                        <Link href={section.settings?.secondaryButtonLink || "/submit"} className="font-bold text-lg">
-                                                            {section.settings?.secondaryButtonText || "Submit Your Journey"}
-                                                        </Link>
-                                                    </Button>
-                                                )}
+                                                <Button className={cn(
+                                                    "w-full sm:w-auto h-14 px-10 rounded-xl active:scale-95 transition-all border-none bg-white hover:bg-zinc-100 text-[#0F172A]",
+                                                )} asChild>
+                                                    <Link href={section.settings?.secondaryButtonLink || "/submit"} className="font-bold text-lg text-[#0F172A]">
+                                                        {section.settings?.secondaryButtonText || "Submit Your Startup"}
+                                                    </Link>
+                                                </Button>
                                                 {(section.settings?.extraButtons || []).map((btn: { text: string; link: string; style: string }, i: number) => (
                                                     <Button key={i} className={cn(
                                                         "w-full sm:w-auto h-14 px-10 rounded-xl active:scale-95 transition-all border-none",
@@ -240,19 +264,53 @@ export function HomeContent({
 
                             case 'latest_stories':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 12, paddingBottom: paddingY !== null ? paddingY : 12 }}>
+                                    <section
+                                        key={section.id || index}
+                                        className="mb-0"
+                                        style={{
+                                            backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 24,
+                                            paddingBottom: paddingY !== null ? paddingY : 24,
+                                            paddingLeft: paddingX !== null ? paddingX : 0,
+                                            paddingRight: paddingX !== null ? paddingX : 0
+                                        }}
+                                    >
                                         <div className="container-wide">
                                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                                                 <div className="lg:col-span-8">
-                                                    <div className="flex items-baseline justify-between mb-8 border-b border-zinc-100 pb-4">
-                                                        <h2 className="text-3xl font-bold text-[#0F172A] mb-0">{section.title || "Latest Stories"}</h2>
-                                                        <Link href="/stories" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                                    <div className={cn(
+                                                        "flex items-baseline justify-between mb-10",
+                                                        align === 'left' ? 'flex-row' : align === 'right' ? 'flex-row-reverse' : 'flex-row'
+                                                    )}>
+                                                        <h2
+                                                            className="text-xl md:text-2xl lg:text-[1.75rem] font-semibold text-[#0F172A] font-serif"
+                                                            style={{
+                                                                color: textColor.startsWith('#') ? textColor : '#' + textColor,
+                                                                textAlign: align as any
+                                                            }}
+                                                        >
+                                                            {section.title || "Latest Stories"}
+                                                        </h2>
+                                                        <Link href="/stories" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
                                                             View all <ArrowRight className="h-4 w-4" />
                                                         </Link>
                                                     </div>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                                                        {(items.length > 0 ? items : latestStories).map((story: any) => (
-                                                            <StoryCard key={story.slug || story.id || story.title} {...story} />
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                        {(items.length > 0 ? items : latestStories).slice(0, 6).map((story: any) => (
+                                                            <StoryCard
+                                                                key={story.slug}
+                                                                slug={story.slug}
+                                                                title={story.title}
+                                                                excerpt={story.excerpt}
+                                                                thumbnail={story.thumbnail}
+                                                                category={story.category}
+                                                                categorySlug={story.category_slug}
+                                                                city={story.city}
+                                                                citySlug={story.city_slug}
+                                                                publishDate={story.publish_date}
+                                                                author_name={story.author_name || story.author}
+                                                                read_time={story.read_time}
+                                                            />
                                                         ))}
                                                     </div>
                                                 </div>
@@ -266,26 +324,104 @@ export function HomeContent({
 
                             case 'trending_stories':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 12, paddingBottom: paddingY !== null ? paddingY : 12 }}>
+                                    <section
+                                        key={section.id || index}
+                                        className="mb-0"
+                                        style={{
+                                            backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 24,
+                                            paddingBottom: paddingY !== null ? paddingY : 24,
+                                            paddingLeft: paddingX !== null ? paddingX : 0,
+                                            paddingRight: paddingX !== null ? paddingX : 0
+                                        }}
+                                    >
                                         <div className="container-wide">
-                                            <div className="flex items-baseline justify-between mb-8 border-b border-zinc-100 pb-4">
-                                                <h2 className="text-3xl font-bold text-[#0F172A] mb-0">{section.title || "Trending"}</h2>
+                                            <div className={cn(
+                                                "flex items-baseline justify-between mb-10",
+                                                align === 'left' ? 'flex-row' : align === 'right' ? 'flex-row-reverse' : 'flex-row'
+                                            )}>
+                                                <h2
+                                                    className="text-xl md:text-2xl lg:text-[1.75rem] font-semibold text-[#0F172A] font-serif"
+                                                    style={{
+                                                        color: textColor.startsWith('#') ? textColor : '#' + textColor,
+                                                        textAlign: align as any
+                                                    }}
+                                                >
+                                                    {section.title || "Most Read Across Hubs"}
+                                                </h2>
+                                                <Link href="/stories" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                                    View all trending <ArrowRight className="h-4 w-4" />
+                                                </Link>
                                             </div>
-                                            <TrendingStories stories={items.length > 0 ? items : trendingStories} />
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                                {(items.length > 0 ? items : trendingStories).slice(0, 4).map((story: any) => (
+                                                    <StoryCard
+                                                        key={story.slug}
+                                                        slug={story.slug}
+                                                        title={story.title}
+                                                        excerpt={story.excerpt}
+                                                        thumbnail={story.thumbnail}
+                                                        category={story.category}
+                                                        categorySlug={story.category_slug}
+                                                        city={story.city}
+                                                        citySlug={story.city_slug}
+                                                        publishDate={story.publish_date}
+                                                        author_name={story.author_name || story.author}
+                                                        read_time={story.read_time}
+                                                    />
+                                                ))}
+                                            </div>
                                         </div>
                                     </section>
                                 );
 
                             case 'featured_stories':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 12, paddingBottom: paddingY !== null ? paddingY : 12 }}>
+                                    <section
+                                        key={section.id || index}
+                                        className="mb-0"
+                                        style={{
+                                            backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 24,
+                                            paddingBottom: paddingY !== null ? paddingY : 24,
+                                            paddingLeft: paddingX !== null ? paddingX : 0,
+                                            paddingRight: paddingX !== null ? paddingX : 0
+                                        }}
+                                    >
                                         <div className="container-wide">
-                                            <div className="flex items-baseline justify-between mb-8 border-b border-zinc-100 pb-4">
-                                                <h2 className="text-3xl font-bold text-[#0F172A] mb-0">{section.title || "Featured Stories"}</h2>
+                                            <div className={cn(
+                                                "flex items-baseline justify-between mb-10",
+                                                align === 'left' ? 'flex-row' : align === 'right' ? 'flex-row-reverse' : 'flex-row'
+                                            )}>
+                                                <h2
+                                                    className="text-xl md:text-2xl lg:text-[1.75rem] font-semibold text-[#0F172A] font-serif"
+                                                    style={{
+                                                        color: textColor.startsWith('#') ? textColor : '#' + textColor,
+                                                        textAlign: align as any
+                                                    }}
+                                                >
+                                                    {section.title || "Most Read Across Hubs"}
+                                                </h2>
+                                                <Link href="/stories" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                                    View all <ArrowRight className="h-4 w-4" />
+                                                </Link>
                                             </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                                {(items.length > 0 ? items : trendingStories.slice(0, 3)).map((story: any) => (
-                                                    <StoryCard key={story.slug || story.id || story.title} {...story} />
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                                {(items.length > 0 ? items : initialStories.slice(0, 4)).map((story: any) => (
+                                                    <StoryCard
+                                                        key={story.slug}
+                                                        slug={story.slug}
+                                                        title={story.title}
+                                                        excerpt={story.excerpt}
+                                                        thumbnail={story.thumbnail}
+                                                        category={story.category}
+                                                        categorySlug={story.category_slug}
+                                                        city={story.city}
+                                                        citySlug={story.city_slug}
+                                                        publishDate={story.publish_date}
+                                                        author_name={story.author_name || story.author}
+                                                        read_time={story.read_time}
+                                                    />
                                                 ))}
                                             </div>
                                         </div>
@@ -294,16 +430,37 @@ export function HomeContent({
 
                             case 'category_grid':
                                 return (
-                                    <section key={section.id || index} className="mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 20, paddingBottom: paddingY !== null ? paddingY : 20 }}>
+                                    <section
+                                        key={section.id || index}
+                                        className="mb-0 overflow-hidden"
+                                        style={{
+                                            backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 24,
+                                            paddingBottom: paddingY !== null ? paddingY : 24,
+                                            paddingLeft: paddingX !== null ? paddingX : 0,
+                                            paddingRight: paddingX !== null ? paddingX : 0
+                                        }}
+                                    >
                                         <div className="container-wide">
-                                            <div className="flex items-baseline justify-between mb-10">
-                                                <h2 className="text-3xl font-bold text-[#0F172A]" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>{section.title || "Top Categories"}</h2>
-                                                <Link href="/categories" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                            <div className={cn(
+                                                "flex items-baseline justify-between mb-10",
+                                                align === 'left' ? 'flex-row' : align === 'right' ? 'flex-row-reverse' : 'flex-row'
+                                            )}>
+                                                <h2
+                                                    className="text-xl md:text-2xl lg:text-[1.75rem] font-semibold text-[#0F172A] font-serif"
+                                                    style={{
+                                                        color: textColor.startsWith('#') ? textColor : '#' + textColor,
+                                                        textAlign: align as any
+                                                    }}
+                                                >
+                                                    {section.title || "Top Categories"}
+                                                </h2>
+                                                <Link href="/categories" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
                                                     All categories <ArrowRight className="h-4 w-4" />
                                                 </Link>
                                             </div>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                                                {(items.length > 0 ? items : topCategories.slice(0, 14)).map((category: any) => (
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-6">
+                                                {(items.length > 0 ? items : topCategories.slice(0, 7)).map((category: any) => (
                                                     <CategoryCard
                                                         key={category.slug || category.id}
                                                         slug={category.slug || (category.title || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')}
@@ -321,32 +478,38 @@ export function HomeContent({
 
                             case 'city_grid':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0 border-b border-zinc-100/50" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
+                                    <section
+                                        key={section.id || index}
+                                        className="w-full mb-0 border-b border-zinc-100/50"
+                                        style={{
+                                            backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 24,
+                                            paddingBottom: paddingY !== null ? paddingY : 24,
+                                            paddingLeft: paddingX !== null ? paddingX : 0,
+                                            paddingRight: paddingX !== null ? paddingX : 0
+                                        }}
+                                    >
                                         <div className="container-wide">
-                                            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-                                                <div className="max-w-3xl">
-                                                    <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-4 bg-orange-50 px-3 py-1 rounded-full border border-orange-100/50">
-                                                        <MapPin className="h-3 w-3" />
-                                                        Regional Ecosystems
-                                                    </div>
-                                                    <h2 className="text-3xl md:text-5xl font-bold text-[#0F172A] mb-6 font-serif tracking-tight leading-tight">
-                                                        {section.title || "Startup Hubs in India — Bengaluru, Mumbai, Delhi NCR & More"}
-                                                    </h2>
-                                                    <div className="text-zinc-500 text-lg leading-relaxed max-w-2xl prose prose-zinc" dangerouslySetInnerHTML={{ __html: section.description || "India's startup revolution extends far beyond Bengaluru. Explore thriving entrepreneurial ecosystems in metros, emerging Tier 2 hubs, and ambitious Tier 3 cities building the next wave of innovation." }} />
-                                                </div>
-                                                <div className="flex gap-10 border-l border-zinc-100 pl-8 h-fit">
-                                                    <div>
-                                                        <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{platformStats.total_startups.toLocaleString()}+</div>
-                                                        <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Verified Startups</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{(platformStats as any).total_unicorns ?? 0}</div>
-                                                        <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Unicorns</div>
-                                                    </div>
-                                                </div>
+                                            <div className={cn(
+                                                "flex items-baseline justify-between mb-10",
+                                                align === 'left' ? 'flex-row' : align === 'right' ? 'flex-row-reverse' : 'flex-row'
+                                            )}>
+                                                <h2
+                                                    className="text-xl md:text-2xl lg:text-[1.75rem] font-semibold text-[#0F172A] font-serif"
+                                                    style={{
+                                                        color: textColor.startsWith('#') ? textColor : '#' + textColor,
+                                                        textAlign: align as any
+                                                    }}
+                                                >
+                                                    {section.title || "Explore by City"}
+                                                </h2>
+                                                <Link href="/cities" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                                    All cities <ArrowRight className="h-4 w-4" />
+                                                </Link>
                                             </div>
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                                                {(items.length > 0 ? items : topCities.filter((c: any) => !c.tier || String(c.tier) === '1').slice(0, 12)).map((city: any) => {
+
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+                                                {(items.length > 0 ? items : topCities.filter((c: any) => !c.tier || String(c.tier) === '1').slice(0, 6)).map((city: any) => {
                                                     const citySlug = city.slug || (city.title || city.name || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
                                                     return (
                                                         <CityCard
@@ -361,43 +524,43 @@ export function HomeContent({
                                                     );
                                                 })}
                                             </div>
-
-                                            <div className="mt-12 pt-8 border-t border-zinc-100 flex justify-center">
-                                                <Button variant="ghost" className="text-orange-600 font-bold hover:bg-orange-50 gap-2 group" asChild>
-                                                    <Link href="/cities">
-                                                        Explore All Startup Hubs <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                                    </Link>
-                                                </Button>
-                                            </div>
                                         </div>
                                     </section>
                                 );
 
                             case 'rising_hubs':
                                 return (
-                                    <section key={section.id || index} className="w-full mb-0 bg-[#fdfdfd] border-b border-zinc-100/50" style={{ paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
+                                    <section
+                                        key={section.id || index}
+                                        className="w-full mb-0 bg-[#fdfdfd] border-b border-zinc-100/50"
+                                        style={{
+                                            backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 24,
+                                            paddingBottom: paddingY !== null ? paddingY : 24,
+                                            paddingLeft: paddingX !== null ? paddingX : 0,
+                                            paddingRight: paddingX !== null ? paddingX : 0
+                                        }}
+                                    >
                                         <div className="container-wide">
-                                            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-                                                <div className="max-w-3xl">
-                                                    <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-4 bg-orange-50 px-3 py-1 rounded-full border border-orange-100/50">
-                                                        <TrendingUp className="h-3 w-3" />
-                                                        Growth Markets
-                                                    </div>
-                                                    <h2 className="text-3xl md:text-5xl font-bold text-[#0F172A] mb-6 font-serif tracking-tight leading-tight" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
-                                                        {section.title || "Rising Startup Hubs — India's Tier 2 & 3 Revolution"}
+                                            <div className={cn(
+                                                "flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10",
+                                                align === 'left' ? '' : align === 'right' ? 'lg:flex-row-reverse' : ''
+                                            )}>
+                                                <div className={cn(
+                                                    "max-w-3xl",
+                                                    align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center mx-auto'
+                                                )}>
+                                                    <h2
+                                                        className="text-xl md:text-2xl lg:text-[2rem] font-semibold text-[#0F172A] mb-2 font-serif tracking-tight leading-tight"
+                                                        style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}
+                                                    >
+                                                        {section.title || "Rising Startup Hubs"}
                                                     </h2>
-                                                    <div className="text-zinc-500 text-lg leading-relaxed max-w-2xl prose prose-zinc" dangerouslySetInnerHTML={{ __html: section.subtitle || "Beyond the metros, a new wave of innovation is sweeping through cities like Jaipur, Kochi, and Indore. Explore the ecosystems driving India's next decade of growth." }} />
+                                                    <p className="text-zinc-500 text-lg">{section.subtitle || "Tier 2 & Tier 3 cities driving India's startup growth"}</p>
                                                 </div>
-                                                <div className="flex items-center gap-10 border-l border-zinc-100 pl-8 h-fit">
-                                                    <div>
-                                                        <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{platformStats.total_startups.toLocaleString()}+</div>
-                                                        <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Verified Startups</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{(platformStats as any).total_unicorns ?? 0}</div>
-                                                        <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Unicorns</div>
-                                                    </div>
-                                                </div>
+                                                <Link href="/cities" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all pb-1">
+                                                    View all rising hubs <ArrowRight className="h-4 w-4" />
+                                                </Link>
                                             </div>
 
                                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
@@ -416,68 +579,6 @@ export function HomeContent({
                                                     );
                                                 })}
                                             </div>
-
-                                            <div className="mt-12 pt-8 border-t border-zinc-100 flex justify-center">
-                                                <Button variant="ghost" className="text-orange-600 font-bold hover:bg-orange-50 gap-2 group" asChild>
-                                                    <Link href="/cities">
-                                                        View All 100+ Startup Cities <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                                    </Link>
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
-
-                            case 'platform_categories':
-                                return (
-                                    <section key={section.id || index} className="w-full bg-[#fafafa] border-y border-zinc-100 mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 32, paddingBottom: paddingY !== null ? paddingY : 32 }}>
-                                        <div className="container-wide text-center">
-                                            <div className="inline-flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-6 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100/50">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                                                Market Landscape
-                                            </div>
-                                            <h2 className="text-3xl md:text-5xl font-bold text-zinc-900 mb-6 font-serif tracking-tight max-w-4xl mx-auto leading-tight">
-                                                Indian Startup Categories — Fintech, SaaS, D2C & More
-                                            </h2>
-                                            <div className="max-w-3xl mx-auto mb-12">
-                                                <div className="text-base md:text-lg text-zinc-500 leading-relaxed font-normal prose prose-zinc mx-auto text-center" dangerouslySetInnerHTML={{ __html: section.description || section.subtitle || "Navigate India's startup ecosystem by industry vertical. From fintech giants transforming payments to agritech innovators empowering farmers." }} />
-                                            </div>
-
-                                            {/* Impact Metrics */}
-                                            <div className="flex justify-center gap-12 md:gap-20 mb-16 pb-8 border-b border-zinc-100 max-w-2xl mx-auto">
-                                                <div className="text-center group">
-                                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                                        {platformStats.total_startups.toLocaleString()}
-                                                    </div>
-                                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Total Startups</div>
-                                                </div>
-                                                <div className="text-center group">
-                                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                                        {platformStats.total_stories.toLocaleString()}
-                                                    </div>
-                                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Curated Stories</div>
-                                                </div>
-                                                <div className="text-center group">
-                                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                                        {(platformStats as any).total_unicorns ?? 0}
-                                                    </div>
-                                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Unicorns</div>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 max-w-6xl mx-auto">
-                                                {topCategories.slice(0, 14).map((category: any) => (
-                                                    <CategoryCard
-                                                        key={category.slug || category.id}
-                                                        slug={category.slug || (category.title || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')}
-                                                        name={category.name || category.title}
-                                                        icon={getIcon(category.iconName || category.icon || "help-circle")}
-                                                        startupCount={category.startup_count || category.startupCount || 0}
-                                                        storyCount={category.story_count || category.storyCount || 0}
-                                                        description={category.description || ""}
-                                                    />
-                                                ))}
-                                            </div>
                                         </div>
                                     </section>
                                 );
@@ -488,52 +589,76 @@ export function HomeContent({
                                     if (!fs) return null;
                                     const fsSlug = fs.slug || (fs.title || fs.name || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
                                     return (
-                                        <section key={section.id || index} className="container-wide mb-0" style={{ paddingTop: paddingY !== null ? paddingY : 16, paddingBottom: paddingY !== null ? paddingY : 16 }}>
-                                            <div className="flex items-center gap-3 mb-10">
-                                                <Sparkles className="h-6 w-6 text-orange-600 fill-orange-600" />
-                                                <h2 className="text-3xl font-bold text-[#0F172A]">{section.title || "Featured Startup of the Week"}</h2>
-                                            </div>
-                                            <div className="bg-[#FFFFFF] rounded-[2rem] border border-zinc-100 shadow-xl shadow-zinc-200/50 overflow-hidden group">
-                                                <div className="grid grid-cols-1 lg:grid-cols-12">
-                                                    <div className="lg:col-span-4 bg-[#FFF5F1] p-12 flex flex-col items-center justify-center text-center border-r border-zinc-50">
-                                                        <div className="w-32 h-32 rounded-3xl bg-white shadow-xl flex items-center justify-center p-6 mb-8 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
-                                                            {(fs.logo || fs.og_image || fs.image || fs.imageUrl) ? (
-                                                                <Image
-                                                                    src={getSafeImageSrc(fs.logo || fs.og_image || fs.image || fs.imageUrl)}
-                                                                    alt={fs.name || fs.title}
-                                                                    fill
-                                                                    className="object-contain p-6"
-                                                                    sizes="128px"
-                                                                    unoptimized={getSafeImageSrc(fs.logo || fs.og_image || fs.image || fs.imageUrl).endsWith('.svg')}
-                                                                />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100/50 text-orange-600 font-bold text-5xl font-serif">
-                                                                    {(fs.name || fs.title)?.[0] || 'S'}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <h3 className="text-3xl font-bold text-[#0F172A] mb-2 font-serif">{fs.name || fs.title}</h3>
-                                                        <p className="text-zinc-500 text-sm leading-relaxed">{fs.tagline || fs.subtitle}</p>
+                                        <section
+                                            key={section.id || index}
+                                            className="mb-0"
+                                            style={{
+                                                backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                                paddingTop: paddingY !== null ? paddingY : 24,
+                                                paddingBottom: paddingY !== null ? paddingY : 24,
+                                                paddingLeft: paddingX !== null ? paddingX : 0,
+                                                paddingRight: paddingX !== null ? paddingX : 0
+                                            }}
+                                        >
+                                            <div className="container-wide">
+                                                <div className={cn(
+                                                    "flex items-baseline justify-between mb-10",
+                                                    align === 'left' ? 'flex-row' : align === 'right' ? 'flex-row-reverse' : 'flex-row'
+                                                )}>
+                                                    <div className="flex items-center gap-3">
+                                                        <Sparkles className="h-5 w-5 text-[#D94111] fill-[#D94111] self-center" />
+                                                        <h2
+                                                            className="text-xl md:text-2xl lg:text-[1.75rem] font-semibold text-[#0F172A] font-serif"
+                                                            style={{
+                                                                color: textColor.startsWith('#') ? textColor : '#' + textColor,
+                                                                textAlign: align as any
+                                                            }}
+                                                        >
+                                                            {section.title || "Featured Startup of the Week"}
+                                                        </h2>
                                                     </div>
-                                                    <div className="lg:col-span-8 p-12">
-                                                        <div className="flex flex-wrap gap-3 mb-8">
-                                                            <span className="px-4 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-widest">{fs.category?.name || fs.category || "Startup"}</span>
-                                                            <span className="px-4 py-1.5 rounded-full bg-zinc-50 text-zinc-500 text-xs font-bold uppercase tracking-widest">{fs.city?.name || fs.city || "India"}</span>
-                                                            <span className="px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest">{(fs as any).funding_stage ?? fs.stage ?? "Series E"}</span>
+                                                </div>
+                                                <div className="bg-[#FFF8F5] rounded-3xl border border-orange-100 shadow-sm overflow-hidden group">
+                                                    <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[300px]">
+                                                        <div className="lg:col-span-4 p-8 flex flex-col items-center justify-center text-center border-r border-orange-100/50">
+                                                            <div className="w-32 h-32 rounded-3xl bg-white shadow-md flex items-center justify-center p-6 mb-6 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
+                                                                {(fs.logo || fs.og_image || fs.image || fs.imageUrl) ? (
+                                                                    <Image
+                                                                        src={getSafeImageSrc(fs.logo || fs.og_image || fs.image || fs.imageUrl)}
+                                                                        alt={fs.name || fs.title}
+                                                                        fill
+                                                                        className="object-contain p-6"
+                                                                        sizes="128px"
+                                                                        unoptimized={getSafeImageSrc(fs.logo || fs.og_image || fs.image || fs.imageUrl).endsWith('.svg')}
+                                                                    />
+                                                                ) : (
+                                                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100/50 text-orange-600 font-bold text-5xl font-serif">
+                                                                        {(fs.name || fs.title)?.[0] || 'S'}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <h3 className="text-2xl font-semibold text-[#0F172A] mb-2 font-serif">{fs.name || fs.title}</h3>
                                                         </div>
-                                                        <p className="text-zinc-600 text-lg leading-relaxed mb-10">
-                                                            {fs.description || fs.content ? ((fs.description || fs.content).length > 300 ? (fs.description || fs.content).substring(0, 300) + "..." : (fs.description || fs.content)) : "Leading innovation in the Indian startup ecosystem."}
-                                                        </p>
-                                                        <div className="grid grid-cols-3 gap-8 mb-10 border-t border-zinc-100 pt-8">
-                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Founded</p><p className="font-bold text-[#0F172A]">{fs.founded_year || "2013"}</p></div>
-                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Team</p><p className="font-bold text-[#0F172A]">{fs.team_size || "2000+"}</p></div>
-                                                            <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Founders</p><p className="font-bold text-[#0F172A] truncate">{fs.founder_name || fs.founders || "Founders"}</p></div>
+                                                        <div className="lg:col-span-8 p-8 flex flex-col justify-center">
+                                                            <div className="flex flex-wrap gap-3 mb-6">
+                                                                <span className="px-4 py-1.5 rounded-full bg-white text-[#D94111] text-xs font-bold border border-orange-100 shadow-sm">{fs.category?.name || fs.category || "EV & Mobility"}</span>
+                                                                <span className="px-4 py-1.5 rounded-full bg-white text-zinc-500 text-xs font-bold border border-zinc-100 shadow-sm">{fs.city?.name || fs.city || "Bengaluru"}</span>
+                                                                <span className="px-4 py-1.5 rounded-full bg-white text-zinc-500 text-xs font-bold border border-zinc-100 shadow-sm">{(fs as any).funding_stage ?? fs.stage ?? "Series E"}</span>
+                                                            </div>
+                                                            <p className="text-zinc-600 text-base leading-relaxed mb-8 max-w-2xl line-clamp-3">
+                                                                {fs.tagline || fs.subtitle || fs.description || "Leading innovation in the Indian startup ecosystem."}
+                                                            </p>
+                                                            <div className="grid grid-cols-3 gap-6 mb-8 text-left">
+                                                                <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Founded</p><p className="font-semibold text-[#0F172A] text-base">{fs.founded_year || "2013"}</p></div>
+                                                                <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Team Size</p><p className="font-semibold text-[#0F172A] text-base">{fs.team_size || "2000+"}</p></div>
+                                                                <div><p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Founders</p><p className="font-semibold text-[#0F172A] text-base truncate pr-2">{fs.founder_name || fs.founders || "Founders"}</p></div>
+                                                            </div>
+                                                            <Button className="w-fit h-12 px-8 rounded-xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold text-sm group shadow-md shadow-orange-600/20" asChild>
+                                                                <Link href={`/startups/${fsSlug}`} className="flex items-center gap-2">
+                                                                    View Full Profile <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                                                </Link>
+                                                            </Button>
                                                         </div>
-                                                        <Button className="h-12 px-8 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold group" asChild>
-                                                            <Link href={`/startups/${fsSlug}`} className="flex items-center gap-2">
-                                                                View Full Profile <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                                            </Link>
-                                                        </Button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -543,26 +668,35 @@ export function HomeContent({
 
                             case 'startup_cards':
                                 return (
-                                    <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 16, paddingBottom: paddingY !== null ? paddingY : 16 }}>
-                                        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10">
-                                            <div className="max-w-3xl">
-                                                <h2 className="text-3xl font-bold text-[#0F172A]" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title || "Featured Startups"}</h2>
-                                            </div>
-                                            <div className="flex items-center gap-10 border-l border-zinc-100 pl-8 h-fit">
-                                                <div>
-                                                    <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{platformStats.total_startups.toLocaleString()}+</div>
-                                                    <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Verified Startups</div>
-                                                </div>
-                                                <div>
-                                                    <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{(platformStats as any).total_unicorns ?? 0}</div>
-                                                    <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Unicorns</div>
-                                                </div>
-                                            </div>
-                                            <Link href="/startups" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                    <section
+                                        key={section.id || index}
+                                        className="container-wide mb-0"
+                                        style={{
+                                            backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 24,
+                                            paddingBottom: paddingY !== null ? paddingY : 24,
+                                            paddingLeft: paddingX !== null ? paddingX : 0,
+                                            paddingRight: paddingX !== null ? paddingX : 0
+                                        }}
+                                    >
+                                        <div className={cn(
+                                            "flex items-baseline justify-between mb-10",
+                                            align === 'left' ? 'flex-row' : align === 'right' ? 'flex-row-reverse' : 'flex-row'
+                                        )}>
+                                            <h2
+                                                className="text-xl md:text-2xl lg:text-[1.75rem] font-semibold text-[#0F172A] font-serif"
+                                                style={{
+                                                    color: textColor.startsWith('#') ? textColor : '#' + textColor,
+                                                    textAlign: align as any
+                                                }}
+                                            >
+                                                {section.title || "Featured Startups"}
+                                            </h2>
+                                            <Link href="/startups" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
                                                 View all <ArrowRight className="h-4 w-4" />
                                             </Link>
                                         </div>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                                             {(items.length > 0 ? items : featuredStartups.slice(0, 8)).map((startup: any) => (
                                                 <StartupCard key={startup.slug || startup.id} {...startup} />
                                             ))}
@@ -572,724 +706,770 @@ export function HomeContent({
 
                             case 'newsletter':
                                 return (
-                                    <div key={section.id || index} className="mb-0">
-                                        <Newsletter />
-                                    </div>
-                                );
-                                return (
-                                    <div key={section.id || index} className="mb-0">
-                                        <Newsletter />
-                                    </div>
+                                    <Newsletter
+                                        key={section.id || index}
+                                        title={section.title}
+                                        description={section.settings?.body || section.description || section.content}
+                                        buttonText={section.settings?.buttonText || section.link_text}
+                                        align={align}
+                                        paddingY={paddingY}
+                                        bgColor={bgColor}
+                                    />
                                 );
 
                             case 'cta':
                             case 'banner':
                                 return (
-                                    <section key={section.id || index} className="bg-[#0F172A] text-center overflow-hidden relative mb-0" style={{ backgroundColor: bgColor, paddingTop: paddingY !== null ? paddingY : 32, paddingBottom: paddingY !== null ? paddingY : 32 }}>
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 via-white/20 to-orange-600" />
+                                    <section
+                                        key={section.id || index}
+                                        className={cn(
+                                            "bg-[#0F172A] overflow-hidden relative mb-0 pb-16",
+                                            align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center'
+                                        )}
+                                        style={{
+                                            backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
+                                            paddingTop: paddingY !== null ? paddingY : 48,
+                                            paddingBottom: paddingY !== null ? paddingY : 48,
+                                            paddingLeft: paddingX !== null ? paddingX : 0,
+                                            paddingRight: paddingX !== null ? paddingX : 0
+                                        }}
+                                    >
+                                        {/* Decorative gradients */}
+                                        <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#F2542D]/10 rounded-full blur-[120px]" />
+                                        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
+
                                         <div className="container-wide relative z-10">
-                                            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 font-serif" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}>
+                                            <h2
+                                                className={cn(
+                                                    "text-3xl md:text-5xl lg:text-6xl font-semibold text-white mb-6 font-serif tracking-tight leading-tight",
+                                                    align === 'left' ? 'mr-auto ml-0' : align === 'right' ? 'ml-auto mr-0' : 'mx-auto'
+                                                )}
+                                                style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}
+                                            >
                                                 {section.title || "Stay Updated with India's Startup Ecosystem"}
                                             </h2>
-                                            <div className="text-lg mb-12 max-w-2xl mx-auto prose prose-lg prose-invert opacity-80" style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }} dangerouslySetInnerHTML={{ __html: section.description || section.subtitle || "Get the latest funding news, founder stories, and industry insights delivered to your inbox every week." }} />
-                                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
-                                                {section.section_type === 'newsletter' || section.settings?.showInput ? (
-                                                    <input
-                                                        type="email"
-                                                        placeholder="Enter your email"
-                                                        className="w-full h-14 px-6 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/30 focus:outline-none focus:border-orange-600 transition-all"
-                                                        suppressHydrationWarning
-                                                    />
-                                                ) : null}
-                                                <Button suppressHydrationWarning className={cn(
-                                                    "w-full sm:w-auto h-14 px-10 rounded-xl font-bold text-lg border-none transform transition-all active:scale-95",
-                                                    (section.settings?.buttonStyle === 'secondary') ? "bg-white hover:bg-zinc-100 text-slate-900 border border-zinc-200" :
-                                                        (section.settings?.buttonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                            "bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-600/20"
+                                            <div
+                                                className={cn(
+                                                    "text-lg md:text-xl mb-12 max-w-2xl font-medium text-zinc-400 leading-relaxed",
+                                                    align === 'left' ? 'mr-auto ml-0' : align === 'right' ? 'ml-auto mr-0' : 'mx-auto'
+                                                )}
+                                                dangerouslySetInnerHTML={{ __html: section.description || section.subtitle || "Get the latest funding news, founder stories, and industry insights." }}
+                                            />
+
+                                            <div className={cn(
+                                                "flex flex-col sm:flex-row items-center gap-5",
+                                                align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center'
+                                            )}>
+                                                <Button className={cn(
+                                                    "w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold text-lg group shadow-xl shadow-orange-600/20 transition-all",
                                                 )} asChild={!!section.link_url}>
                                                     {section.link_url ? (
-                                                        <Link href={section.link_url}>{section.link_text || "Action"}</Link>
+                                                        <Link href={section.link_url} className="flex items-center gap-2">
+                                                            {section.link_text || "Get Started"}
+                                                            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                                        </Link>
                                                     ) : (
                                                         <span>{section.link_text || "Subscribe"}</span>
                                                     )}
                                                 </Button>
 
                                                 {(section.settings?.secondaryButtonText || section.settings?.secondaryButtonLink) && (
-                                                    <Button className={cn(
-                                                        "w-full sm:w-auto h-14 px-10 rounded-xl font-bold text-lg border-none transform transition-all active:scale-95",
-                                                        (section.settings?.secondaryButtonStyle === 'primary') ? "bg-orange-600 hover:bg-orange-700 text-white" :
-                                                            (section.settings?.secondaryButtonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                                "bg-white hover:bg-zinc-100 text-slate-900"
-                                                    )} asChild>
+                                                    <Button variant="outline" className="w-full sm:w-auto h-14 px-10 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10 backdrop-blur-sm font-bold text-lg" asChild>
                                                         <Link href={section.settings?.secondaryButtonLink || "/submit"}>
-                                                            {section.settings?.secondaryButtonText || "Submit Your Journey"}
+                                                            {section.settings?.secondaryButtonText || "Learn More"}
                                                         </Link>
                                                     </Button>
                                                 )}
-
-                                                {(section.settings?.extraButtons || []).map((btn: any, i: number) => (
-                                                    <Button key={i} className={cn(
-                                                        "w-full sm:w-auto h-14 px-10 rounded-xl font-bold text-lg border-none transform transition-all active:scale-95",
-                                                        btn.style === 'primary' ? "bg-orange-600 hover:bg-orange-700 text-white" :
-                                                            btn.style === 'outline' ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                                                "bg-white hover:bg-zinc-100 text-slate-900"
-                                                    )} asChild>
-                                                        <Link href={btn.link || "/"}>{btn.text}</Link>
-                                                    </Button>
-                                                ))}
                                             </div>
                                         </div>
                                     </section>
                                 );
 
-                            case 'text':
-                                return (
-                                    <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, textAlign: align as any, paddingTop: paddingY !== null ? paddingY : 20, paddingBottom: paddingY !== null ? paddingY : 20 }}>
-                                        {section.title && <h2 className="text-3xl font-bold mb-4" style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }}>{section.title}</h2>}
-                                        {section.subtitle && <h3 className="text-xl text-zinc-500 mb-4">{section.subtitle}</h3>}
-                                        <div className="prose prose-lg max-w-none mx-auto mb-8" dangerouslySetInnerHTML={{ __html: section.content || section.description || "" }} style={{ color: '#' + (textColor.replace('#', '') === 'FFFFFF' ? 'FFFFFF' : '0F172A') }} />
+                                // ─── HELPER FOR SECTION STYLES ───
+                                const getBaseStyles = (s: any, fallbackPY = 80) => {
+                                    const st = s.settings || {};
+                                    const bg = st.backgroundColor || (s.type === 'hero' ? '#0F172A' : st.backgroundColor);
 
-                                        {(section.link_text || section.settings?.secondaryButtonText || (section.settings?.extraButtons || []).length > 0) && (
-                                            <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
-                                                {section.link_text && (
-                                                    <Button className={cn(
-                                                        "h-12 px-8 rounded-xl font-bold border-none transition-all active:scale-95",
-                                                        sSettings.buttonStyle === 'outline' ? "bg-transparent border-2 hover:bg-zinc-50" : "bg-orange-600 hover:bg-orange-700 text-white"
-                                                    )} asChild>
-                                                        <Link href={section.link_url || "#"}>{section.link_text}</Link>
-                                                    </Button>
-                                                )}
-                                                {sSettings.secondaryButtonText && (
-                                                    <Button className="h-12 px-8 rounded-xl font-bold bg-white hover:bg-zinc-50 text-slate-900 border border-zinc-200 transition-all active:scale-95" asChild>
-                                                        <Link href={sSettings.secondaryButtonLink || "#"}>{sSettings.secondaryButtonText}</Link>
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        )}
-                                    </section>
-                                );
+                                    return {
+                                        backgroundColor: bg ? (bg.startsWith('#') ? bg : '#' + bg) : undefined,
+                                        paddingTop: st.paddingY !== undefined && st.paddingY !== null ? st.paddingY : fallbackPY,
+                                        paddingBottom: st.paddingY !== undefined && st.paddingY !== null ? st.paddingY : fallbackPY,
+                                        paddingLeft: st.paddingX !== undefined && st.paddingX !== null ? st.paddingX : undefined,
+                                        paddingRight: st.paddingX !== undefined && st.paddingX !== null ? st.paddingX : undefined,
+                                        marginTop: st.marginTop !== undefined ? st.marginTop : undefined,
+                                        marginBottom: st.marginBottom !== undefined ? st.marginBottom : undefined,
+                                        marginLeft: st.marginLeft !== undefined ? st.marginLeft : undefined,
+                                        marginRight: st.marginRight !== undefined ? st.marginRight : undefined,
+                                        textAlign: (st.align || 'left') as any,
+                                        fontFamily: st.fontFamily && st.fontFamily !== 'inherit' ? st.fontFamily : undefined,
+                                        fontSize: st.fontSize ? `${st.fontSize}px` : undefined,
+                                        color: st.textColor ? (st.textColor.startsWith('#') ? st.textColor : '#' + st.textColor) : undefined,
+                                    };
+                                };
 
-                            case 'image':
-                                return (
-                                    <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, textAlign: align as any, paddingTop: paddingY !== null ? paddingY : 20, paddingBottom: paddingY !== null ? paddingY : 20 }}>
-                                        {(section.image || section.settings?.imageUrl) && (
-                                            <div className="relative w-full h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl">
-                                                <Image src={getSafeImageSrc(section.image || section.settings?.imageUrl)} alt={section.title || "Section Image"} fill className="object-cover" />
-                                            </div>
-                                        )}
-                                        {section.description && <p className="mt-4 text-zinc-500 text-center max-w-2xl mx-auto italic">{section.description}</p>}
-                                    </section>
-                                );
+                                const sectionStyles = getBaseStyles(section);
+                                const titleStyle = {
+                                    color: sectionStyles.color,
+                                    fontFamily: sectionStyles.fontFamily,
+                                    textAlign: sectionStyles.textAlign
+                                };
 
-                            case 'video':
-                                return (
-                                    <section key={section.id || index} className="container-wide mb-0" style={{ backgroundColor: bgColor, textAlign: align as any, paddingTop: paddingY !== null ? paddingY : 20, paddingBottom: paddingY !== null ? paddingY : 20 }}>
-                                        {(section.settings?.videoUrl) && (
-                                            <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black">
-                                                <iframe
-                                                    src={section.settings.videoUrl.indexOf('watch?v=') !== -1 ? section.settings.videoUrl.replace('watch?v=', 'embed/') : section.settings.videoUrl}
-                                                    className="absolute inset-0 w-full h-full border-0"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                    allowFullScreen
-                                                />
-                                            </div>
-                                        )}
-                                        {section.settings?.caption && <p className="mt-4 text-zinc-500 text-center max-w-2xl mx-auto italic">{section.settings.caption}</p>}
-                                    </section>
-                                );
-
-                            case 'custom_content':
-                                return (
-                                    <section
-                                        key={section.id || index}
-                                        className="container-wide mb-0"
-                                        style={{
-                                            backgroundColor: bgColor,
-                                            textAlign: align as any,
-                                            paddingTop: paddingY !== null ? paddingY : 28,
-                                            paddingBottom: paddingY !== null ? paddingY : 28,
-                                            paddingLeft: paddingX !== null ? paddingX : undefined,
-                                            paddingRight: paddingX !== null ? paddingX : undefined,
-                                        }}
-                                    >
-                                        {section.title && (
-                                            <h2
-                                                className="text-3xl font-bold mb-4 font-serif"
-                                                style={{ color: textColor.startsWith('#') ? textColor : '#0F172A', fontFamily: sSettings.fontFamily || undefined }}
+                                switch (section.section_type || section.type) {
+                                    case 'hero':
+                                        return (
+                                            <section
+                                                key={section.id || index}
+                                                className="relative overflow-hidden"
+                                                style={sectionStyles}
                                             >
-                                                {section.title}
-                                            </h2>
-                                        )}
-                                        {section.subtitle && (
-                                            <h3 className="text-xl text-zinc-500 mb-6">{section.subtitle}</h3>
-                                        )}
-                                        {(section.settings?.imageUrl || section.image) && (
-                                            <div className="relative w-full h-[300px] md:h-[500px] rounded-2xl overflow-hidden shadow-xl mb-8">
-                                                <Image
-                                                    src={getSafeImageSrc(section.settings?.imageUrl || section.image)}
-                                                    alt={section.title || 'Section image'}
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            </div>
-                                        )}
-                                        <div
-                                            className="prose prose-lg max-w-none"
-                                            style={{
-                                                color: textColor.startsWith('#') ? textColor : '#0F172A',
-                                                fontFamily: sSettings.fontFamily || undefined,
-                                                fontSize: sSettings.fontSize ? `${sSettings.fontSize}px` : undefined,
-                                            }}
-                                            dangerouslySetInnerHTML={{ __html: section.content || section.description || '' }}
-                                        />
-                                        {(section.link_text || section.link_url) && (
-                                            <div className="mt-8 flex justify-center">
-                                                <Link
-                                                    href={section.link_url || '#'}
-                                                    className="inline-flex items-center gap-2 h-12 px-8 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold transition-all"
-                                                >
-                                                    {section.link_text || 'Learn More'}
-                                                    <ArrowRight className="h-4 w-4" />
-                                                </Link>
-                                            </div>
-                                        )}
-                                    </section>
-                                );
-
-                            case 'mission_vision':
-                                return (
-                                    <section key={section.id || index} style={{ backgroundColor: sSettings.backgroundColor || '#ffffff', paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
-                                        <div className="container-wide">
-                                            {section.title && (
-                                                <div className="text-center mb-10">
-                                                    <h2 className="text-3xl font-bold font-serif" style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}>{section.title}</h2>
-                                                    {section.subtitle && <p className="text-zinc-500 mt-2 text-lg">{section.subtitle}</p>}
+                                                <div className="container-wide relative z-10">
+                                                    <h1
+                                                        className={cn(
+                                                            "text-4xl md:text-5xl lg:text-7xl font-semibold mb-6 max-w-5xl leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000 font-serif",
+                                                            align === 'left' ? 'mr-auto ml-0 text-left' : align === 'right' ? 'ml-auto mr-0 text-right' : 'mx-auto text-center'
+                                                        )}
+                                                        style={titleStyle}
+                                                    >
+                                                        {section.title || heroData.title}
+                                                    </h1>
+                                                    <p
+                                                        className={cn(
+                                                            "text-lg md:text-xl mb-12 max-w-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200",
+                                                            align === 'left' ? 'mr-auto ml-0 text-left' : align === 'right' ? 'ml-auto mr-0 text-right' : 'mx-auto text-center'
+                                                        )}
+                                                        style={{ color: sectionStyles.color ? `${sectionStyles.color}CC` : 'rgba(255,255,255,0.7)', fontFamily: sectionStyles.fontFamily }}
+                                                    >
+                                                        {section.description || section.content || heroData.content}
+                                                    </p>
+                                                    <div className={cn(
+                                                        "flex flex-col sm:flex-row items-center gap-5 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500",
+                                                        align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center'
+                                                    )}>
+                                                        <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-600/20 active:scale-95 transition-all group border-none" asChild>
+                                                            <Link href={section.link_url || "/stories"} className="flex items-center gap-2">
+                                                                <span className="font-bold text-lg">{section.link_text || "Explore Stories"}</span>
+                                                                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                                            </Link>
+                                                        </Button>
+                                                        {sSettings.secondaryButtonText && (
+                                                            <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-white hover:bg-zinc-100 text-[#0F172A] active:scale-95 transition-all border-none" asChild>
+                                                                <Link href={sSettings.secondaryButtonLink || "/submit"} className="font-bold text-lg">
+                                                                    {sSettings.secondaryButtonText}
+                                                                </Link>
+                                                            </Button>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            )}
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : [
-                                                    { icon: '🎯', title: 'Our Mission', description: '', color: '#FEF3E8' },
-                                                    { icon: '🌐', title: 'Our Vision', description: '', color: '#EEF6FF' }
-                                                ]).map((card: any, i: number) => (
-                                                    <div key={i} className="rounded-2xl p-6 border border-zinc-100" style={{ backgroundColor: card.color || '#F8FAFC' }}>
-                                                        <div className="flex items-center gap-3 mb-4">
-                                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: 'rgba(255,255,255,0.8)' }}>
-                                                                {card.icon || '⭐'}
-                                                            </div>
-                                                            <h3 className="text-xl font-bold text-slate-900">{card.title || 'Section Title'}</h3>
-                                                        </div>
-                                                        <p className="text-zinc-600 leading-relaxed">{card.description}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
+                                            </section>
+                                        );
 
-                            case 'stats_bar':
-                                return (
-                                    <section key={section.id || index} style={{ backgroundColor: sSettings.backgroundColor || '#ffffff', paddingTop: paddingY !== null ? paddingY : 20, paddingBottom: paddingY !== null ? paddingY : 20 }}>
-                                        <div className="container-wide">
-                                            {section.title && <h2 className="text-2xl font-bold text-center mb-8 font-serif" style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}>{section.title}</h2>}
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
-                                                    <div key={i} className="text-center p-6 rounded-2xl border border-zinc-100 bg-white shadow-sm">
-                                                        <div className="text-3xl font-black text-orange-600 mb-1">{card.stat_value || '0'}</div>
-                                                        <div className="text-sm text-zinc-500 font-medium">{card.stat_label || 'Stat'}</div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
+                                    case 'text':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    {section.title && <h2 className="text-2xl md:text-4xl font-semibold mb-6 font-serif" style={titleStyle}>{section.title}</h2>}
+                                                    {section.subtitle && <h3 className="text-xl text-zinc-500 mb-6 font-medium" style={{ textAlign: sectionStyles.textAlign }}>{section.subtitle}</h3>}
+                                                    <div
+                                                        className={cn(
+                                                            "prose prose-lg max-w-none mb-8",
+                                                            align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center'
+                                                        )}
+                                                        dangerouslySetInnerHTML={{ __html: section.content || section.description || "" }}
+                                                        style={{
+                                                            color: sectionStyles.color,
+                                                            fontFamily: sectionStyles.fontFamily,
+                                                            fontSize: sectionStyles.fontSize
+                                                        }}
+                                                    />
 
-                            case 'team_grid':
-                                return (
-                                    <section key={section.id || index} style={{ backgroundColor: sSettings.backgroundColor || '#ffffff', paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
-                                        <div className="container-wide">
-                                            <div className="flex items-center gap-3 mb-10">
-                                                <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 text-lg">👤</div>
-                                                <h2 className="text-2xl font-bold font-serif" style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}>{section.title || 'Our Team'}</h2>
-                                            </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                                                {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
-                                                    <div key={i} className="text-center group">
-                                                        <div className="w-24 h-24 mx-auto rounded-2xl mb-3 bg-zinc-100 border border-zinc-200 overflow-hidden flex items-center justify-center">
-                                                            {card.image ? (
-                                                                <img src={getSafeImageSrc(card.image)} alt={card.title} className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                <span className="text-2xl font-bold text-zinc-400">{(card.title || 'T')[0]}</span>
+                                                    {(section.link_text || sSettings.secondaryButtonText || (sSettings.extraButtons || []).length > 0) && (
+                                                        <div className={cn(
+                                                            "flex flex-wrap items-center gap-4 mt-8",
+                                                            align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center'
+                                                        )}>
+                                                            {section.link_text && (
+                                                                <Button className={cn(
+                                                                    "h-12 px-8 rounded-xl font-bold border-none transition-all active:scale-95",
+                                                                    sSettings.buttonStyle === 'outline' ? "bg-transparent border-2 hover:bg-zinc-50" : "bg-orange-600 hover:bg-orange-700 text-white"
+                                                                )} asChild>
+                                                                    <Link href={section.link_url || "#"}>{section.link_text}</Link>
+                                                                </Button>
+                                                            )}
+                                                            {sSettings.secondaryButtonText && (
+                                                                <Button className="h-12 px-8 rounded-xl font-bold bg-white hover:bg-zinc-50 text-slate-900 border border-zinc-200 transition-all active:scale-95" asChild>
+                                                                    <Link href={sSettings.secondaryButtonLink || "#"}>{sSettings.secondaryButtonText}</Link>
+                                                                </Button>
                                                             )}
                                                         </div>
-                                                        <h4 className="font-bold text-zinc-900">{card.title || 'Name'}</h4>
-                                                        <p className="text-sm text-orange-600 font-medium">{card.role || ''}</p>
-                                                        {card.description && <p className="text-xs text-zinc-500 mt-1 max-w-[180px] mx-auto">{card.description}</p>}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
-
-                            case 'values_grid':
-                                return (
-                                    <section key={section.id || index} style={{ backgroundColor: sSettings.backgroundColor || '#ffffff', paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
-                                        <div className="container-wide">
-                                            <div className="flex items-center gap-3 mb-10">
-                                                <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 text-lg">🏅</div>
-                                                <h2 className="text-2xl font-bold font-serif" style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}>{section.title || 'Our Values'}</h2>
-                                            </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                                                {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
-                                                    <div key={i} className="p-6 rounded-2xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow">
-                                                        <h3 className="font-bold text-zinc-900 text-lg mb-2">{card.title || 'Value'}</h3>
-                                                        <p className="text-zinc-500 text-sm leading-relaxed">{card.description || ''}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
-
-                            case 'policy_section':
-                                return (
-                                    <section key={section.id || index} style={{ backgroundColor: sSettings.backgroundColor || '#ffffff', paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
-                                        <div className="container-wide max-w-4xl mx-auto px-4 md:px-8">
-                                            {section.title && <h2 className="text-2xl font-bold font-serif mb-6 pb-4 border-b border-zinc-200" style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}>{section.title}</h2>}
-                                            {(sSettings.body || section.content || section.description) && (
-                                                <div className="prose prose-zinc max-w-none leading-relaxed text-zinc-700"
-                                                    dangerouslySetInnerHTML={{ __html: sSettings.body || section.content || section.description || '' }} />
-                                            )}
-                                        </div>
-                                    </section>
-                                );
-
-                            case 'faq':
-                                return (
-                                    <section key={section.id || index} style={{ backgroundColor: sSettings.backgroundColor || '#f8fafc', paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
-                                        <div className="container-wide max-w-3xl mx-auto px-4 md:px-8">
-                                            {section.title && <h2 className="text-2xl font-bold font-serif mb-8 text-center" style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}>{section.title}</h2>}
-                                            <div className="space-y-4">
-                                                {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
-                                                    <details key={i} className="group bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
-                                                        <summary className="flex items-center justify-between px-6 py-4 cursor-pointer list-none font-semibold text-zinc-900 hover:text-orange-600 transition-colors">
-                                                            <span>{card.question || card.title}</span>
-                                                            <span className="text-zinc-400 group-open:rotate-180 transition-transform duration-200 shrink-0 ml-4">▼</span>
-                                                        </summary>
-                                                        <div className="px-6 pb-4 text-zinc-600 text-sm leading-relaxed border-t border-zinc-100 pt-3">
-                                                            {card.answer || card.description}
-                                                        </div>
-                                                    </details>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
-
-                            case 'callout':
-                                return (
-                                    <section key={section.id || index} style={{ paddingTop: paddingY !== null ? paddingY : 16, paddingBottom: paddingY !== null ? paddingY : 16 }}>
-                                        <div className="container-wide px-4 md:px-8">
-                                            <div className="flex items-start gap-4 px-6 py-5 rounded-xl border" style={{ backgroundColor: sSettings.backgroundColor || '#FEF3E8', borderColor: `${sSettings.textColor || '#F97316'}40` }}>
-                                                <span className="text-2xl shrink-0 mt-0.5">⚠️</span>
-                                                <div>
-                                                    {section.title && <p className="font-bold mb-1" style={{ color: sSettings.textColor || '#9A3412' }}>{section.title}</p>}
-                                                    <p className="text-sm leading-relaxed" style={{ color: sSettings.textColor || '#9A3412' }}>
-                                                        {sSettings.body || section.content || section.description || 'This is an important notice.'}
-                                                    </p>
+                                                    )}
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
+                                            </section>
+                                        );
 
-                            case 'related_cards':
-                                return (
-                                    <section key={section.id || index} style={{ backgroundColor: sSettings.backgroundColor || '#f8fafc', paddingTop: paddingY !== null ? paddingY : 28, paddingBottom: paddingY !== null ? paddingY : 28 }}>
-                                        <div className="container-wide px-4 md:px-8">
-                                            {section.title && <h2 className="text-2xl font-bold font-serif mb-8" style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}>{section.title}</h2>}
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                                {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
-                                                    <Link key={i} href={card.link || '#'} className="flex items-start gap-3 p-5 bg-white rounded-xl border border-zinc-200 shadow-sm hover:border-orange-300 hover:shadow-md transition-all group no-underline">
-                                                        <span className="text-2xl shrink-0">{card.icon || '📄'}</span>
-                                                        <div>
-                                                            <p className="font-bold text-zinc-900 text-sm group-hover:text-orange-600 transition-colors">{card.title}</p>
-                                                            {card.description && <p className="text-zinc-500 text-xs mt-1 leading-relaxed">{card.description}</p>}
+                                    case 'image':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    {(section.image || sSettings.imageUrl) && (
+                                                        <div className="relative w-full h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl">
+                                                            <Image src={getSafeImageSrc(section.image || sSettings.imageUrl)} alt={section.title || "Section Image"} fill className="object-cover" />
                                                         </div>
-                                                    </Link>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
+                                                    )}
+                                                    {section.description && (
+                                                        <p
+                                                            className={cn(
+                                                                "mt-6 text-zinc-500 italic max-w-2xl text-lg",
+                                                                align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center mx-auto'
+                                                            )}
+                                                            style={{ color: sectionStyles.color, fontFamily: sectionStyles.fontFamily }}
+                                                        >
+                                                            {section.description}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </section>
+                                        );
 
-                            case 'image_gallery':
-                                return (
-                                    <section key={section.id || index} style={{ backgroundColor: sSettings.backgroundColor || '#ffffff', paddingTop: paddingY !== null ? paddingY : 24, paddingBottom: paddingY !== null ? paddingY : 24 }}>
-                                        <div className="container-wide px-4 md:px-8">
-                                            {section.title && <h2 className="text-2xl font-bold font-serif mb-8" style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}>{section.title}</h2>}
-                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
-                                                    <div key={i} className="relative aspect-video rounded-xl overflow-hidden bg-zinc-100 border border-zinc-200 shadow-sm group">
-                                                        {card.image ? (
-                                                            <Image src={getSafeImageSrc(card.image)} alt={card.title || `Gallery image ${i + 1}`} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                                                        ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-zinc-300 text-4xl">🖼️</div>
+                                    case 'custom_content':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    {section.title && (
+                                                        <h2 className="text-2xl md:text-4xl font-semibold mb-6 font-serif" style={titleStyle}>
+                                                            {section.title}
+                                                        </h2>
+                                                    )}
+                                                    {section.subtitle && (
+                                                        <h3 className="text-xl text-zinc-500 mb-8 font-medium" style={{ textAlign: sectionStyles.textAlign }}>{section.subtitle}</h3>
+                                                    )}
+                                                    {(sSettings.imageUrl || section.image) && (
+                                                        <div className="relative w-full h-[300px] md:h-[500px] rounded-2xl overflow-hidden shadow-xl mb-10">
+                                                            <Image
+                                                                src={getSafeImageSrc(sSettings.imageUrl || section.image)}
+                                                                alt={section.title || 'Section image'}
+                                                                fill
+                                                                className="object-cover"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div
+                                                        className={cn(
+                                                            "prose prose-lg max-w-none",
+                                                            align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center'
                                                         )}
-                                                        {card.title && (
-                                                            <div className="absolute bottom-0 inset-x-0 px-3 py-2 bg-gradient-to-t from-black/60 to-transparent">
-                                                                <p className="text-white text-xs font-medium">{card.title}</p>
+                                                        style={{
+                                                            color: sectionStyles.color,
+                                                            fontFamily: sectionStyles.fontFamily,
+                                                            fontSize: sectionStyles.fontSize,
+                                                        }}
+                                                        dangerouslySetInnerHTML={{ __html: section.content || section.description || '' }}
+                                                    />
+                                                    {section.link_text && (
+                                                        <div className={cn(
+                                                            "mt-10 flex",
+                                                            align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center'
+                                                        )}>
+                                                            <Link
+                                                                href={section.link_url || '#'}
+                                                                className="inline-flex items-center gap-2 h-12 px-8 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold shadow-lg shadow-orange-600/20 transition-all hover:-translate-y-0.5"
+                                                            >
+                                                                {section.link_text}
+                                                                <ArrowRight className="h-4 w-4" />
+                                                            </Link>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </section>
+                                        );
+
+                                    case 'mission_vision':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    {section.title && (
+                                                        <div className={cn("mb-12", align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center')}>
+                                                            <h2 className="text-3xl md:text-4xl font-semibold font-serif" style={titleStyle}>{section.title}</h2>
+                                                            {section.subtitle && <p className="text-zinc-500 mt-3 text-xl max-w-2xl mx-auto" style={{ textAlign: sectionStyles.textAlign }}>{section.subtitle}</p>}
+                                                        </div>
+                                                    )}
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                        {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : [
+                                                            { icon: '🎯', title: 'Our Mission', description: '', color: '#FEF3E8' },
+                                                            { icon: '🌐', title: 'Our Vision', description: '', color: '#EEF6FF' }
+                                                        ]).map((card: any, i: number) => (
+                                                            <div key={i} className="rounded-2xl p-8 border border-zinc-100 shadow-sm transition-all hover:shadow-md" style={{ backgroundColor: card.color || '#F8FAFC' }}>
+                                                                <div className="flex items-center gap-4 mb-6">
+                                                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm" style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}>
+                                                                        {card.icon || '⭐'}
+                                                                    </div>
+                                                                    <h3 className="text-2xl font-bold text-slate-900">{card.title || 'Section Title'}</h3>
+                                                                </div>
+                                                                <p className="text-zinc-600 text-lg leading-relaxed">{card.description}</p>
                                                             </div>
-                                                        )}
+                                                        ))}
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
+                                                </div>
+                                            </section>
+                                        );
 
-                            case 'table_of_contents':
-                                return (
-                                    <section key={section.id || index} style={{ paddingTop: paddingY !== null ? paddingY : 16, paddingBottom: paddingY !== null ? paddingY : 16 }}>
-                                        <div className="container-wide max-w-2xl px-4 md:px-8">
-                                            <div className="p-6 rounded-xl border border-zinc-200 shadow-sm" style={{ backgroundColor: sSettings.backgroundColor || '#f8fafc' }}>
-                                                {section.title && <p className="font-bold text-zinc-900 mb-4 text-sm uppercase tracking-wider">{section.title}</p>}
-                                                <ol className="space-y-2">
-                                                    {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
-                                                        <li key={i} className="flex items-center gap-3">
-                                                            <span className="text-orange-600 font-bold font-mono text-sm">{String(i + 1).padStart(2, '0')}</span>
-                                                            <a href={card.link || '#'} className="text-zinc-700 hover:text-orange-600 transition-colors text-sm font-medium">{card.title}</a>
-                                                        </li>
-                                                    ))}
-                                                </ol>
-                                            </div>
-                                        </div>
-                                    </section>
-                                );
+                                    case 'stats_bar':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    {section.title && <h2 className="text-2xl md:text-3xl font-semibold text-center mb-10 font-serif" style={titleStyle}>{section.title}</h2>}
+                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                                        {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
+                                                            <div key={i} className="text-center p-8 rounded-2xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-all">
+                                                                <div className="text-4xl font-semibold text-orange-600 mb-2">{card.stat_value || '0'}</div>
+                                                                <div className="text-base text-zinc-500 font-semibold uppercase tracking-wider">{card.stat_label || 'Stat'}</div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        );
 
-                            default:
-                                // Generic renderer for any unrecognized section type that has content
-                                // This ensures custom page types always render rather than silently return null
-                                if (!section.title && !section.content && !section.description && !sSettings.imageUrl) return null;
+                                    case 'team_grid':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    <div className={cn("flex items-center gap-3 mb-12", align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center')}>
+                                                        <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 text-xl shadow-sm">👤</div>
+                                                        <h2 className="text-3xl font-semibold font-serif" style={titleStyle}>{section.title || 'Our Team'}</h2>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
+                                                        {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
+                                                            <div key={i} className="text-center group">
+                                                                <div className="w-32 h-32 mx-auto rounded-3xl mb-4 bg-zinc-50 border border-zinc-200 overflow-hidden flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
+                                                                    {card.image ? (
+                                                                        <img src={getSafeImageSrc(card.image)} alt={card.title} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <span className="text-3xl font-bold text-zinc-300">{(card.title || 'T')[0]}</span>
+                                                                    )}
+                                                                </div>
+                                                                <h4 className="text-lg font-semibold text-zinc-900 group-hover:text-orange-600 transition-colors">{card.title || 'Name'}</h4>
+                                                                <p className="text-sm text-orange-600 font-semibold uppercase tracking-wider mt-1">{card.role || ''}</p>
+                                                                {card.description && <p className="text-sm text-zinc-500 mt-2 max-w-[200px] mx-auto leading-relaxed">{card.description}</p>}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        );
 
-                                return (
-                                    <section
-                                        key={section.id || index}
-                                        className="container-wide mb-0"
-                                        style={{
-                                            backgroundColor: bgColor,
-                                            textAlign: align as any,
-                                            paddingTop: paddingY !== null ? paddingY : 20,
-                                            paddingBottom: paddingY !== null ? paddingY : 20,
-                                        }}
-                                    >
-                                        {section.title && (
-                                            <h2 className="text-3xl font-bold mb-4 font-serif" style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}>
-                                                {section.title}
-                                            </h2>
-                                        )}
-                                        {section.subtitle && <h3 className="text-xl text-zinc-500 mb-4">{section.subtitle}</h3>}
-                                        {(sSettings.imageUrl || section.image) && (
-                                            <div className="relative w-full h-[300px] rounded-2xl overflow-hidden shadow-xl mb-6">
-                                                <Image src={getSafeImageSrc(sSettings.imageUrl || section.image)} alt={section.title || ''} fill className="object-cover" />
+                                    case 'values_grid':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    <div className={cn("flex items-center gap-3 mb-12", align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center')}>
+                                                        <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 text-xl shadow-sm">🏅</div>
+                                                        <h2 className="text-3xl font-semibold font-serif" style={titleStyle}>{section.title || 'Our Values'}</h2>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                                                        {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
+                                                            <div key={i} className="p-8 rounded-2xl border border-zinc-100 bg-white shadow-sm hover:shadow-xl transition-all duration-300 group">
+                                                                <h3 className="font-semibold text-zinc-900 text-xl mb-4 group-hover:text-orange-600 transition-colors">{card.title || 'Value'}</h3>
+                                                                <p className="text-zinc-600 text-[17px] leading-relaxed">{card.description || ''}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        );
+
+                                    case 'policy_section':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide max-w-4xl mx-auto">
+                                                    {section.title && <h2 className="text-2xl md:text-4xl font-semibold font-serif mb-8 pb-6 border-b border-zinc-100" style={titleStyle}>{section.title}</h2>}
+                                                    {(sSettings.body || section.content || section.description) && (
+                                                        <div className="prose prose-zinc max-w-none leading-relaxed text-zinc-700 text-lg"
+                                                            style={{ color: sectionStyles.color, fontFamily: sectionStyles.fontFamily, fontSize: sectionStyles.fontSize }}
+                                                            dangerouslySetInnerHTML={{ __html: sSettings.body || section.content || section.description || '' }} />
+                                                    )}
+                                                </div>
+                                            </section>
+                                        );
+
+                                    case 'faq':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide max-w-3xl mx-auto">
+                                                    {section.title && <h2 className="text-3xl md:text-4xl font-semibold font-serif mb-12 text-center" style={titleStyle}>{section.title}</h2>}
+                                                    <div className="space-y-6">
+                                                        {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
+                                                            <details key={i} className="group bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden transition-all hover:border-orange-200">
+                                                                <summary className="flex items-center justify-between px-8 py-5 cursor-pointer list-none font-semibold text-zinc-900 hover:text-orange-600 transition-colors text-lg">
+                                                                    <span>{card.question || card.title}</span>
+                                                                    <span className="text-zinc-400 group-open:rotate-180 transition-transform duration-300 shrink-0 ml-4">▼</span>
+                                                                </summary>
+                                                                <div className="px-8 pb-6 text-zinc-600 text-[17px] leading-relaxed border-t border-zinc-50 pt-5">
+                                                                    {card.answer || card.description}
+                                                                </div>
+                                                            </details>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        );
+
+                                    case 'callout':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    <div className="flex items-start gap-5 px-8 py-6 rounded-2xl border shadow-sm" style={{ backgroundColor: sSettings.backgroundColor || '#FEF3E8', borderColor: `${sSettings.textColor || '#F97316'}30` }}>
+                                                        <span className="text-3xl shrink-0 mt-0.5">⚠️</span>
+                                                        <div>
+                                                            {section.title && <p className="font-semibold text-lg mb-2" style={{ color: sSettings.textColor || '#9A3412' }}>{section.title}</p>}
+                                                            <p className="text-[17px] leading-relaxed" style={{ color: sSettings.textColor || '#9A3412' }}>
+                                                                {sSettings.body || section.content || section.description || 'This is an important notice.'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        );
+
+                                    case 'related_cards':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    {section.title && <h2 className="text-2xl md:text-3xl font-semibold font-serif mb-10" style={titleStyle}>{section.title}</h2>}
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                                                        {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
+                                                            <Link key={i} href={card.link || '#'} className="flex items-start gap-4 p-6 bg-white rounded-2xl border border-zinc-100 shadow-sm hover:border-orange-300 hover:shadow-xl transition-all group no-underline">
+                                                                <span className="text-3xl shrink-0 transition-transform group-hover:scale-110 duration-300">{card.icon || '📄'}</span>
+                                                                <div>
+                                                                    <p className="font-semibold text-zinc-900 text-lg group-hover:text-orange-600 transition-colors leading-tight">{card.title}</p>
+                                                                    {card.description && <p className="text-zinc-500 text-sm mt-2 leading-relaxed">{card.description}</p>}
+                                                                </div>
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        );
+
+                                    case 'image_gallery':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    {section.title && <h2 className="text-2xl md:text-3xl font-semibold font-serif mb-10" style={titleStyle}>{section.title}</h2>}
+                                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                                        {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
+                                                            <div key={i} className="relative aspect-video rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-100 shadow-sm group">
+                                                                {card.image ? (
+                                                                    <Image src={getSafeImageSrc(card.image)} alt={card.title || `Gallery image ${i + 1}`} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                                                                ) : (
+                                                                    <div className="w-full h-full flex items-center justify-center text-zinc-200 text-5xl">🖼️</div>
+                                                                )}
+                                                                {card.title && (
+                                                                    <div className="absolute bottom-0 inset-x-0 px-5 py-3 bg-gradient-to-t from-black/70 to-transparent translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                                                                        <p className="text-white text-sm font-semibold tracking-tight">{card.title}</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        );
+
+                                    case 'table_of_contents':
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide max-w-2xl">
+                                                    <div className="p-8 rounded-3xl border border-zinc-100 shadow-lg shadow-zinc-200/50" style={{ backgroundColor: sSettings.backgroundColor || '#f8fafc' }}>
+                                                        {section.title && <p className="font-semibold text-zinc-900 mb-6 text-sm uppercase tracking-widest">{section.title}</p>}
+                                                        <ol className="space-y-4">
+                                                            {(sSettings.cards && sSettings.cards.length > 0 ? sSettings.cards : []).map((card: any, i: number) => (
+                                                                <li key={i} className="flex items-center gap-4 group">
+                                                                    <span className="text-orange-600 font-black font-mono text-base">{String(i + 1).padStart(2, '0')}</span>
+                                                                    <a href={card.link || '#'} className="text-zinc-700 hover:text-orange-600 transition-colors text-lg font-semibold border-b border-transparent hover:border-orange-100">{card.title}</a>
+                                                                </li>
+                                                            ))}
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        );
+
+                                    case 'newsletter':
+                                        return (
+                                            <div key={section.id || index} style={sectionStyles}>
+                                                <Newsletter />
                                             </div>
-                                        )}
-                                        {(section.content || section.description) && (
-                                            <div
-                                                className="prose prose-lg max-w-none"
-                                                style={{ color: textColor.startsWith('#') ? textColor : '#0F172A' }}
-                                                dangerouslySetInnerHTML={{ __html: section.content || section.description || '' }}
-                                            />
-                                        )}
-                                    </section>
-                                );
+                                        );
+
+                                    case 'main_content':
+                                        return <div key={section.id || index} className="mb-12">{defaultView}</div>;
+
+                                    default:
+                                        // Generic renderer for any unrecognized section type
+                                        if (!section.title && !section.content && !section.description && !sSettings.imageUrl) return null;
+
+                                        return (
+                                            <section key={section.id || index} style={sectionStyles}>
+                                                <div className="container-wide">
+                                                    {section.title && (
+                                                        <h2 className="text-3xl font-semibold mb-6 font-serif" style={titleStyle}>
+                                                            {section.title}
+                                                        </h2>
+                                                    )}
+                                                    {section.subtitle && <h3 className="text-xl text-zinc-500 mb-6 font-medium" style={{ textAlign: sectionStyles.textAlign }}>{section.subtitle}</h3>}
+                                                    {(sSettings.imageUrl || section.image) && (
+                                                        <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-2xl mb-10">
+                                                            <Image src={getSafeImageSrc(sSettings.imageUrl || section.image)} alt={section.title || ''} fill className="object-cover" />
+                                                        </div>
+                                                    )}
+                                                    {(section.content || section.description) && (
+                                                        <div
+                                                            className="prose prose-lg max-w-none"
+                                                            style={{ color: sectionStyles.color, fontFamily: sectionStyles.fontFamily, fontSize: sectionStyles.fontSize }}
+                                                            dangerouslySetInnerHTML={{ __html: section.content || section.description || '' }}
+                                                        />
+                                                    )}
+                                                </div>
+                                            </section>
+                                        );
+                                }
+
                         }
                     })}
+                    {/* Fallback for pages with a defaultView (like stories/startups) 
+                        if no explicit 'main_content' section was placed by the user */}
+                    {defaultView && !activeSections.some(s => s.section_type === 'main_content') && (
+                        <div>{defaultView}</div>
+                    )}
                 </div>
             ) : (
-                <>
-                    {/* Hero Banner Section */}
-                    <section className="relative overflow-hidden bg-[#0F172A] py-16 md:py-24 lg:py-32 mb-8">
-                        <div className="container-wide relative z-10 text-center">
-                            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif text-white mb-6 max-w-4xl mx-auto leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000">
-                                {heroData.title}
-                            </h1>
-                            <p className="text-lg md:text-xl text-white/70 mb-12 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-                                {heroData.content}
-                            </p>
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
-                                <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-600/20 active:scale-95 transition-all group border-none" asChild>
-                                    <Link href="/stories" className="flex items-center gap-2">
-                                        <span className="font-bold text-lg">Explore Stories</span>
-                                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                                    </Link>
-                                </Button>
-                                <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-white hover:bg-zinc-100 text-[#0F172A] active:scale-95 transition-all border-none" asChild>
-                                    <Link href="/submit" className="font-bold text-lg">
-                                        Submit Your Journey
-                                    </Link>
-                                </Button>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Latest & Trending Section */}
-                    <section className="container-wide py-8 mb-8">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                            {/* Main Content: Latest Stories */}
-                            <div className="lg:col-span-8">
-                                <div className="flex items-baseline justify-between mb-8 border-b border-zinc-100 pb-4">
-                                    <h2 className="text-3xl font-bold text-[#0F172A] mb-0">Latest Stories</h2>
-                                    <Link href="/stories" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
-                                        View all <ArrowRight className="h-4 w-4" />
-                                    </Link>
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                                    {latestStories.map((story) => (
-                                        <StoryCard key={story.slug} {...story} />
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Sidebar: Trending */}
-                            <div className="lg:col-span-4">
-                                <TrendingStories stories={trendingStories} />
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Top Categories */}
-                    <section className="bg-[#F8F9FA] py-12 mb-8">
-                        <div className="container-wide">
-                            <div className="flex items-baseline justify-between mb-10">
-                                <h2 className="text-3xl font-bold text-[#0F172A]">Top Categories</h2>
-                                <Link href="/categories" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
-                                    All categories <ArrowRight className="h-4 w-4" />
-                                </Link>
-                            </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                                {topCategories.slice(0, 14).map((category) => (
-                                    <CategoryCard key={category.slug} {...category} icon={getIcon(category.iconName || "help-circle")} />
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Explore by City (Tier 1) */}
-                    <section className="container-wide py-12 mb-8 border-b border-zinc-100/50">
-                        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-                            <div className="max-w-3xl">
-                                <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-4 bg-orange-50 px-3 py-1 rounded-full border border-orange-100/50">
-                                    <MapPin className="h-3 w-3" />
-                                    Regional Ecosystems
-                                </div>
-                                <h2 className="text-3xl md:text-5xl font-bold text-[#0F172A] mb-6 font-serif tracking-tight leading-tight">
-                                    Startup Hubs in India — Bengaluru, Mumbai, Delhi NCR & More
-                                </h2>
-                                <p className="text-zinc-500 text-lg leading-relaxed max-w-2xl">
-                                    India's startup revolution extends far beyond Bengaluru. Explore thriving entrepreneurial ecosystems in metros, emerging Tier 2 hubs, and ambitious Tier 3 cities building the next wave of innovation.
+                defaultView || (
+                    <>
+                        {/* Hero Banner Section */}
+                        <section className="relative overflow-hidden bg-[#0F172A] py-16 md:py-24 lg:py-32 mb-8">
+                            <div className="container-wide relative z-10 text-center">
+                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold font-serif text-white mb-6 max-w-4xl mx-auto leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000">
+                                    {heroData.title}
+                                </h1>
+                                <p className="text-lg md:text-xl text-white/70 mb-12 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+                                    {heroData.content}
                                 </p>
-                            </div>
-                            <div className="flex gap-10 border-l border-zinc-100 pl-8 h-fit">
-                                <div>
-                                    <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{platformStats.total_startups.toLocaleString()}+</div>
-                                    <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Verified Startups</div>
+                                <div className="flex flex-col sm:flex-row items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+                                    <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-600/20 active:scale-95 transition-all group border-none" asChild>
+                                        <Link href="/stories" className="flex items-center gap-2">
+                                            <span className="font-bold text-lg">Explore Stories</span>
+                                            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                        </Link>
+                                    </Button>
+                                    <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-white hover:bg-zinc-100 text-[#0F172A] active:scale-95 transition-all border-none" asChild>
+                                        <Link href="/submit" className="font-bold text-lg">
+                                            Submit Your Journey
+                                        </Link>
+                                    </Button>
                                 </div>
-                                <div>
-                                    <div className="text-3xl font-bold text-[#0F172A] mb-1 font-serif">{(platformStats as any).total_unicorns ?? 0}</div>
-                                    <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">Unicorns</div>
+                            </div>
+                        </section>
+
+                        {/* Latest & Trending Section */}
+                        <section className="container-wide py-8 mb-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                                {/* Main Content: Latest Stories */}
+                                <div className="lg:col-span-8">
+                                    <div className="flex items-baseline justify-between mb-8 border-b border-zinc-100 pb-4">
+                                        <h2 className="text-3xl font-semibold text-[#0F172A] mb-0">Latest Stories</h2>
+                                        <Link href="/stories" className="text-orange-600 font-semibold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                            View all <ArrowRight className="h-4 w-4" />
+                                        </Link>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                                        {latestStories.map((story) => (
+                                            <StoryCard
+                                                key={story.slug}
+                                                slug={story.slug}
+                                                title={story.title}
+                                                excerpt={story.excerpt}
+                                                thumbnail={story.thumbnail}
+                                                og_image={story.og_image}
+                                                category={story.category}
+                                                categorySlug={story.category_slug}
+                                                city={story.city}
+                                                citySlug={story.city_slug}
+                                                publishDate={story.publish_date}
+                                                author_name={story.author_name || story.author}
+                                                read_time={story.read_time}
+                                                featured={false}
+                                                isFeatured={false}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Sidebar: Trending */}
+                                <div className="lg:col-span-4">
+                                    <TrendingStories stories={trendingStories} />
                                 </div>
                             </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                            {topCities.filter(c => !c.tier || String(c.tier).includes('1')).slice(0, 12).map((city) => (
-                                <CityCard key={city.slug} {...city} />
-                            ))}
-                        </div>
+                        </section>
 
-                        <div className="mt-12 pt-8 border-t border-zinc-100 flex justify-center">
-                            <Button variant="ghost" className="text-orange-600 font-bold hover:bg-orange-50 gap-2 group" asChild>
-                                <Link href="/cities">
-                                    Explore All Startup Hubs <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                </Link>
-                            </Button>
-                        </div>
-                    </section>
+                        {/* Top Categories */}
+                        <section className="bg-[#F8F9FA] py-12 mb-8">
+                            <div className="container-wide">
+                                <div className="flex items-baseline justify-between mb-10">
+                                    <h2 className="text-3xl font-semibold text-[#0F172A] font-serif">Top Categories</h2>
+                                    <Link href="/categories" className="text-orange-600 font-semibold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                        All categories <ArrowRight className="h-4 w-4" />
+                                    </Link>
+                                </div>
+                                <div className="grid grid-cols-2 lg:grid-cols-7 gap-4">
+                                    {topCategories.slice(0, 7).map((category, idx) => {
+                                        // Map exact icons for the 7 top categories based on screenshot
+                                        const slug = (category.slug || "").toLowerCase();
+                                        const name = (category.name || "").toLowerCase();
+                                        let icon = null;
 
-                    {/* Rising Startup Hubs (Tier 2 & 3) */}
-                    <section className="bg-[#FFFFFF] py-8 mb-8">
-                        <div className="container-wide">
-                            <div className="flex items-baseline justify-between mb-2">
-                                <h2 className="text-3xl font-bold text-[#0F172A]">Rising Startup Hubs</h2>
-                                <Link href="/cities" className="text-orange-600 font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all text-xs">
-                                    View all rising hubs <ArrowRight className="h-3 w-3" />
+                                        if (slug.includes('saas') || name.includes('saas')) icon = <Briefcase strokeWidth={1.5} className="w-7 h-7" />;
+                                        else if (slug.includes('ai') || name.includes('ai')) icon = <Cpu strokeWidth={1.5} className="w-7 h-7" />;
+                                        else if (slug.includes('edtech') || name.includes('edtech')) icon = <GraduationCap strokeWidth={1.5} className="w-7 h-7" />;
+                                        else if (slug.includes('health') || name.includes('health')) icon = <Heart strokeWidth={1.5} className="w-7 h-7" />;
+                                        else if (slug.includes('fintech') || name.includes('fintech')) icon = <Wallet strokeWidth={1.5} className="w-7 h-7" />;
+                                        else if (slug.includes('retail') || name.includes('retail')) icon = <Store strokeWidth={1.5} className="w-7 h-7" />;
+                                        else if (slug.includes('d2c') || name.includes('d2c')) icon = <ShoppingBag strokeWidth={1.5} className="w-7 h-7" />;
+                                        else {
+                                            const IconComponent = getIcon(category.iconName || "folder");
+                                            icon = <IconComponent strokeWidth={1.5} className="w-7 h-7" />;
+                                        }
+
+                                        const storiesCount = category.storyCount || category.story_count || category.storiesCount || 0;
+
+                                        return (
+                                            <Link href={`/categories/${category.slug}`} key={category.slug} className="group bg-white rounded-[1.5rem] flex flex-col items-center justify-center py-5 px-4 border border-zinc-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300">
+                                                <div className="w-[60px] h-[60px] rounded-full bg-orange-50 flex items-center justify-center mb-2 text-orange-600 group-hover:scale-110 group-hover:bg-orange-100 transition-all duration-300">
+                                                    {icon}
+                                                </div>
+                                                <h3 className="font-semibold text-[#0F172A] text-[15px] font-serif mb-1 group-hover:text-[#0F172A] transition-colors text-center">
+                                                    {category.name}
+                                                </h3>
+                                                <p className="text-zinc-400 text-xs font-medium">{storiesCount} stories</p>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Explore by City (Tier 1) */}
+                        <section className="container-wide py-12 mb-8 bg-white">
+                            <div className="flex items-baseline justify-between mb-8">
+                                <h2 className="text-3xl font-semibold text-[#0F172A] font-serif tracking-tight">Explore by City</h2>
+                                <Link href="/cities" className="text-orange-600 font-semibold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
+                                    All cities <ArrowRight className="h-4 w-4" />
                                 </Link>
                             </div>
-                            <p className="text-zinc-400 text-sm mb-10">Tier 2 & Tier 3 cities driving India's startup growth</p>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                                {topCities.filter(c => String(c.tier).includes('2') || String(c.tier).includes('3')).slice(0, 12).map((city) => (
+                            <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+                                {topCities.filter(c => !c.tier || String(c.tier).includes('1')).slice(0, 5).map((city) => (
                                     <CityCard key={city.slug} {...city} />
                                 ))}
                             </div>
-                        </div>
-                    </section>
+                        </section>
 
-                    {/* Indian Startup Categories Section (Impact Stats) */}
-                    <section className="w-full bg-[#fafafa] py-16 border-y border-zinc-100 mb-0">
-                        <div className="container-wide text-center">
-                            <div className="inline-flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600 mb-6 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100/50">
-                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                                Market Landscape
-                            </div>
-                            <h2 className="text-3xl md:text-5xl font-bold text-zinc-900 mb-6 font-serif tracking-tight max-w-4xl mx-auto leading-tight">
-                                Indian Startup Categories — Fintech, SaaS, D2C & More
-                            </h2>
-                            <div className="max-w-3xl mx-auto mb-12">
-                                <p className="text-base md:text-lg text-zinc-500 leading-relaxed font-normal">
-                                    Navigate India's startup ecosystem by industry vertical. From fintech giants transforming payments to agritech innovators empowering farmers, discover the sectors driving India's economic transformation.
-                                </p>
-                            </div>
+                        {/* Rising Startup Hubs (Tier 2 & 3) */}
+                        <section className="bg-white py-8 mb-8">
+                            <div className="container-wide overflow-hidden relative">
+                                <div className="flex flex-col mb-8">
+                                    <div className="flex items-baseline justify-between mb-2">
+                                        <h2 className="text-3xl font-semibold text-[#0F172A] font-serif tracking-tight">Rising Startup Hubs</h2>
+                                        <Link href="/cities" className="text-orange-600 font-bold tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all text-sm">
+                                            View all rising hubs <ArrowRight className="h-3 w-3" />
+                                        </Link>
+                                    </div>
+                                    <p className="text-zinc-400 text-sm">Tier 2 & Tier 3 cities driving India's startup growth</p>
+                                </div>
 
-                            {/* Impact Metrics */}
-                            <div className="flex justify-center gap-12 md:gap-20 mb-16 pb-8 border-b border-zinc-100 max-w-2xl mx-auto">
-                                <div className="text-center group">
-                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                        {platformStats.total_startups.toLocaleString()}
-                                    </div>
-                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Total Startups</div>
-                                </div>
-                                <div className="text-center group">
-                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                        {platformStats.total_stories.toLocaleString()}
-                                    </div>
-                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Curated Stories</div>
-                                </div>
-                                <div className="text-center group">
-                                    <div className="text-3xl md:text-4xl font-bold text-zinc-900 mb-1 font-serif group-hover:text-orange-600 transition-colors">
-                                        {(platformStats as any).total_unicorns ?? 0}
-                                    </div>
-                                    <div className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-400">Unicorns</div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                                    {topCities.filter(c => String(c.tier).includes('2') || String(c.tier).includes('3')).slice(0, 12).map((city) => (
+                                        <CityCard key={city.slug} {...city} />
+                                    ))}
                                 </div>
                             </div>
+                        </section>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 max-w-6xl mx-auto">
-                                {topCategories.slice(0, 14).map((category) => (
-                                    <CategoryCard key={category.slug} {...category} icon={getIcon(category.iconName || "help-circle")} />
-                                ))}
+                        {/* Featured Startup of the Week */}
+                        <section className="container-wide py-12 mb-12">
+                            <div className="flex items-center gap-3 mb-10">
+                                <Sparkles className="h-6 w-6 text-orange-600 fill-orange-600" />
+                                <h2 className="text-3xl font-semibold text-[#0F172A]">Featured Startup of the Week</h2>
                             </div>
-                        </div>
-                    </section >
+                            {featuredStartups[0] && (
+                                <div className="bg-[#FFFFFF] rounded-3xl border border-zinc-100 shadow-xl shadow-zinc-200/50 overflow-hidden group">
+                                    <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[300px]">
+                                        {/* Left Side: Brand */}
+                                        <div className="lg:col-span-4 bg-[#FFF5F1] p-8 flex flex-col items-center justify-center text-center border-r border-zinc-50">
+                                            <div className="w-32 h-32 rounded-3xl bg-white shadow-md flex items-center justify-center p-6 mb-6 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
+                                                {(featuredStartups[0].logo || featuredStartups[0].og_image) ? (
+                                                    <Image
+                                                        src={getSafeImageSrc(featuredStartups[0].logo || featuredStartups[0].og_image)}
+                                                        alt={featuredStartups[0].name}
+                                                        fill
+                                                        className="object-contain p-6"
+                                                        sizes="128px"
+                                                        unoptimized={getSafeImageSrc(featuredStartups[0].logo || featuredStartups[0].og_image).endsWith('.svg')}
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100/50 text-orange-600 font-bold text-5xl font-serif">
+                                                        {featuredStartups[0].name?.[0] || 'S'}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <h3 className="text-2xl font-semibold text-[#0F172A] mb-2 font-serif">{featuredStartups[0].name}</h3>
+                                        </div>
 
-                    {/* Featured Startup of the Week */}
-                    <section className="container-wide py-12 mb-12">
-                        <div className="flex items-center gap-3 mb-10">
-                            <Sparkles className="h-6 w-6 text-orange-600 fill-orange-600" />
-                            <h2 className="text-3xl font-bold text-[#0F172A]">Featured Startup of the Week</h2>
-                        </div>
-                        {featuredStartups[0] && (
-                            <div className="bg-[#FFFFFF] rounded-[2rem] border border-zinc-100 shadow-xl shadow-zinc-200/50 overflow-hidden group">
-                                <div className="grid grid-cols-1 lg:grid-cols-12">
-                                    {/* Left Side: Brand */}
-                                    <div className="lg:col-span-4 bg-[#FFF5F1] p-12 flex flex-col items-center justify-center text-center border-r border-zinc-50">
-                                        <div className="w-32 h-32 rounded-3xl bg-white shadow-xl flex items-center justify-center p-6 mb-8 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
-                                            {(featuredStartups[0].logo || featuredStartups[0].og_image) ? (
-                                                <Image
-                                                    src={getSafeImageSrc(featuredStartups[0].logo || featuredStartups[0].og_image)}
-                                                    alt={featuredStartups[0].name}
-                                                    fill
-                                                    className="object-contain p-6"
-                                                    sizes="128px"
-                                                    unoptimized={getSafeImageSrc(featuredStartups[0].logo || featuredStartups[0].og_image).endsWith('.svg')}
-                                                    onError={(e) => {
-                                                        // If image 404s, hide it and the fallback div will show or we can trigger state
-                                                        // For now, let's just use a state to track if image is valid
-                                                        // But since we are in a map/list-like context, state is more complex.
-                                                        // Let's at least ensure we don't show the broken icon if possible.
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100/50 text-orange-600 font-bold text-5xl font-serif">
-                                                    {featuredStartups[0].name?.[0] || 'S'}
+                                        {/* Right Side: Details */}
+                                        <div className="lg:col-span-8 p-8 flex flex-col justify-center">
+                                            <div className="flex flex-wrap gap-3 mb-6">
+                                                <span className="px-4 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-widest">{featuredStartups[0].category?.name || "Startup"}</span>
+                                                <span className="px-4 py-1.5 rounded-full bg-zinc-50 text-zinc-500 text-xs font-bold uppercase tracking-widest">{featuredStartups[0].city?.name || "India"}</span>
+                                                <span className="px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest">{(featuredStartups[0] as any).funding_stage ?? featuredStartups[0].stage ?? "Series E"}</span>
+                                            </div>
+
+                                            <p className="text-zinc-600 text-base leading-relaxed mb-8 max-w-2xl line-clamp-3">
+                                                {featuredStartups[0].tagline || featuredStartups[0].description || "Leading innovation in the Indian startup ecosystem with groundbreaking solutions and visionary leadership."}
+                                            </p>
+
+                                            <div className="grid grid-cols-3 gap-6 mb-8 text-left border-t border-zinc-100 pt-6">
+                                                <div>
+                                                    <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Founded</p>
+                                                    <p className="font-semibold text-[#0F172A] text-base">{featuredStartups[0].founded_year || "2013"}</p>
                                                 </div>
-                                            )}
-                                        </div>
-                                        <h3 className="text-3xl font-bold text-[#0F172A] mb-2 font-serif">{featuredStartups[0].name}</h3>
-                                        <p className="text-zinc-500 text-sm leading-relaxed">{featuredStartups[0].tagline}</p>
-                                    </div>
-
-                                    {/* Right Side: Details */}
-                                    <div className="lg:col-span-8 p-12">
-                                        <div className="flex flex-wrap gap-3 mb-8">
-                                            <span className="px-4 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-widest">{featuredStartups[0].category?.name || "Startup"}</span>
-                                            <span className="px-4 py-1.5 rounded-full bg-zinc-50 text-zinc-500 text-xs font-bold uppercase tracking-widest">{featuredStartups[0].city?.name || "India"}</span>
-                                            <span className="px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest">{(featuredStartups[0] as any).funding_stage ?? featuredStartups[0].stage ?? "Series E"}</span>
-                                        </div>
-
-                                        <p className="text-zinc-600 text-lg leading-relaxed mb-10">
-                                            {featuredStartups[0].description ? (
-                                                featuredStartups[0].description.length > 300
-                                                    ? featuredStartups[0].description.substring(0, 300) + "..."
-                                                    : featuredStartups[0].description
-                                            ) : "Leading innovation in the Indian startup ecosystem with groundbreaking solutions and visionary leadership."}
-                                        </p>
-
-                                        <div className="grid grid-cols-3 gap-8 mb-10 border-t border-zinc-100 pt-8">
-                                            <div>
-                                                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Founded</p>
-                                                <p className="font-bold text-[#0F172A]">{featuredStartups[0].founded_year || "2013"}</p>
+                                                <div>
+                                                    <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Team Size</p>
+                                                    <p className="font-semibold text-[#0F172A] text-base">{featuredStartups[0].team_size || "2000+"}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1.5">Founders</p>
+                                                    <p className="font-semibold text-[#0F172A] text-base truncate pr-2">{featuredStartups[0].founder_name || "Tarun Mehta, Swapnil Jain"}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Team Size</p>
-                                                <p className="font-bold text-[#0F172A]">{featuredStartups[0].team_size || "2000+"}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mb-1">Founders</p>
-                                                <p className="font-bold text-[#0F172A] truncate">{featuredStartups[0].founder_name || "Tarun Mehta, Swapnil Jain"}</p>
-                                            </div>
-                                        </div>
 
-                                        <Button className="h-12 px-8 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold group" asChild>
-                                            <Link href={`/startups/${featuredStartups[0].slug}`} className="flex items-center gap-2">
-                                                View Full Profile <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                            </Link>
-                                        </Button>
+                                            <Button className="w-fit h-12 px-8 rounded-xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold group shadow-md shadow-orange-600/20" asChild>
+                                                <Link href={`/startups/${featuredStartups[0].slug}`} className="flex items-center gap-2">
+                                                    View Full Profile <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                                </Link>
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-                    </section>
+                            )}
+                        </section>
 
-                    {/* Newsletter Section */}
-                    <div className="mb-24">
-                        <Newsletter />
-                    </div>
-
-                    {/* Custom Banner / Submit CTA */}
-                    <section className="bg-[#0F172A] py-24 text-center overflow-hidden relative mb-0">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 via-white/20 to-orange-600" />
-                        <div className="container-wide relative z-10">
-                            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 font-serif">
-                                Stay Updated with India's Startup Ecosystem
-                            </h2>
-                            <p className="text-white/60 text-lg mb-12 max-w-2xl mx-auto">
-                                Get the latest funding news, founder stories, and industry insights delivered to your inbox every week.
-                            </p>
-
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
-                                <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg border-none" asChild>
-                                    <Link href="/submit">Submit Your Journey</Link>
-                                </Button>
-                                <Button className="w-full sm:w-auto h-14 px-10 rounded-xl bg-white hover:bg-zinc-100 text-[#0F172A] font-bold text-lg border-none" asChild>
-                                    <Link href="/stories">Read More Stories</Link>
-                                </Button>
-                            </div>
+                        {/* Newsletter Section */}
+                        <div className="mb-14 mt-10 pb-10">
+                            <Newsletter />
                         </div>
-                    </section>
-                </>
-            )
-            }
-        </div >
+                    </>
+                )
+            )}
+        </div>
     );
 }
 

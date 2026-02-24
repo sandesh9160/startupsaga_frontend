@@ -65,9 +65,36 @@ export default async function StartupDetailPage({ params }: { params: Promise<{ 
 
         const stories = Array.isArray(allStories) ? allStories : (allStories as any)?.results || [];
         const startups = Array.isArray(allStartups) ? allStartups : [];
-        const relatedStories = stories.filter((s: any) => s.categorySlug === startup.categorySlug).slice(0, 3);
+
+        const startupCategorySlug = startup.categorySlug || (typeof startup.category === 'object' ? startup.category?.slug : null);
+        const relatedStories = stories.filter((s: any) => {
+            const sCatSlug = s.categorySlug || (typeof s.category === 'object' ? s.category?.slug : null);
+            return sCatSlug && sCatSlug === startupCategorySlug;
+        }).slice(0, 3);
+        const currentCategorySlug = startup.categorySlug || (typeof startup.category === 'object' ? startup.category?.slug : null);
+        const currentCitySlug = startup.citySlug || (typeof startup.city === 'object' ? startup.city?.slug : null);
+
         const similarStartups = startups
-            .filter((s: any) => s.categorySlug === startup.categorySlug && s.slug !== startup.slug)
+            .filter((s: any) => {
+                if (s.slug === startup.slug) return false;
+                const sCatSlug = s.categorySlug || (typeof s.category === 'object' ? s.category?.slug : null);
+                const sCitySlug = s.citySlug || (typeof s.city === 'object' ? s.city?.slug : null);
+
+                return (currentCategorySlug && sCatSlug === currentCategorySlug) ||
+                    (currentCitySlug && sCitySlug === currentCitySlug);
+            })
+            .sort((a: any, b: any) => {
+                const aCatSlug = a.categorySlug || (typeof a.category === 'object' ? a.category?.slug : null);
+                const aCitySlug = a.citySlug || (typeof a.city === 'object' ? a.city?.slug : null);
+                const bCatSlug = b.categorySlug || (typeof b.category === 'object' ? b.category?.slug : null);
+                const bCitySlug = b.citySlug || (typeof b.city === 'object' ? b.city?.slug : null);
+
+                const scoreA = (currentCategorySlug && aCatSlug === currentCategorySlug ? 1 : 0) +
+                    (currentCitySlug && aCitySlug === currentCitySlug ? 1 : 0);
+                const scoreB = (currentCategorySlug && bCatSlug === currentCategorySlug ? 1 : 0) +
+                    (currentCitySlug && bCitySlug === currentCitySlug ? 1 : 0);
+                return scoreB - scoreA;
+            })
             .slice(0, 4)
             .map((s: any) => ({ ...s, tagline: s.tagline || s.description?.slice(0, 140) }));
 

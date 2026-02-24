@@ -22,7 +22,17 @@ import { getStoriesPage, getCategories, getCities } from "@/lib/api";
 import { Story, Category, City } from "@/types";
 import { cn } from "@/lib/utils";
 
-export function StoriesContent() {
+interface StoriesContentProps {
+    title?: string;
+    description?: string;
+    content?: string;
+}
+
+export function StoriesContent({
+    title,
+    description,
+    content
+}: StoriesContentProps) {
     const searchParams = useSearchParams();
     const [stories, setStories] = useState<Story[]>([]);
     const [totalCount, setTotalCount] = useState(0);
@@ -113,23 +123,28 @@ export function StoriesContent() {
     const hasActiveFilters = searchQuery || selectedCategory !== "all" || selectedCity !== "all" || selectedStage !== "all";
 
     return (
-        <div className="bg-background min-h-screen">
-            <section className="container-wide py-12 md:py-16 border-b border-border/60">
-                <div className="max-w-4xl space-y-5">
-                    <h1 className="text-3xl md:text-5xl font-bold text-foreground font-serif tracking-tight">
-                        Latest Indian Startup Stories & Founder Journeys
-                    </h1>
-                    <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                        Your window into India's startup revolution. From bootstrapped beginnings to billion-dollar exits,
-                        we bring you the untold stories of founders who are reshaping industries.
-                    </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                        Explore in-depth features on funding rounds, pivot moments, growth strategies, and the people behind
-                        India's most ambitious ventures. Updated regularly with the latest from Bengaluru, Mumbai, Delhi NCR,
-                        and emerging startup hubs nationwide.
-                    </p>
-                </div>
-            </section>
+        <div className="bg-transparent min-h-screen">
+            {(title || description || content) && (
+                <section className="container-wide py-12 md:py-16 border-b border-border/60">
+                    <div className="max-w-4xl space-y-5">
+                        {title && (
+                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground font-serif tracking-tight"
+                                dangerouslySetInnerHTML={{ __html: title }}
+                            />
+                        )}
+                        {description && (
+                            <div className="text-base md:text-lg text-muted-foreground leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: description }}
+                            />
+                        )}
+                        {content && (
+                            <div className="text-sm text-muted-foreground leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: content }}
+                            />
+                        )}
+                    </div>
+                </section>
+            )}
 
             <section className="container-wide py-8 border-b border-border/60">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
@@ -238,7 +253,23 @@ export function StoriesContent() {
                     ) : stories.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {stories.map((story) => (
-                                <StoryCard key={story.slug} {...story} />
+                                <StoryCard
+                                    key={story.slug}
+                                    slug={story.slug}
+                                    title={story.title}
+                                    excerpt={story.excerpt}
+                                    thumbnail={story.thumbnail}
+                                    og_image={(story as any).og_image}
+                                    category={story.category}
+                                    categorySlug={(story as any).category_slug}
+                                    city={story.city}
+                                    citySlug={(story as any).city_slug}
+                                    publishDate={story.publishDate || (story as any).publish_date}
+                                    author_name={(story as any).author_name || (story as any).author}
+                                    read_time={(story as any).read_time}
+                                    featured={false}
+                                    isFeatured={false}
+                                />
                             ))}
                         </div>
                     ) : (
@@ -246,7 +277,9 @@ export function StoriesContent() {
                             <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent/5 text-accent mb-4">
                                 <X className="h-6 w-6 opacity-20" />
                             </div>
-                            <h3 className="text-xl font-bold mb-1 font-serif tracking-tight">No Results</h3>
+                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 tracking-tight leading-[1.2] font-serif">
+                                No Results
+                            </h1>
                             <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
                                 We couldn't find any stories matching your current filters.
                             </p>

@@ -9,6 +9,9 @@ export function getSafeImageSrc(src: unknown, fallback: string = "/placeholder.s
       if (trimmed.startsWith("http") || trimmed.startsWith("//") || trimmed.startsWith("data:")) {
         // If it's a local absolute URL, convert it to relative to use Next.js rewrites
         if (trimmed.includes("localhost:8000") || trimmed.includes("127.0.0.1:8000")) {
+          if (trimmed.includes("/media")) {
+            return "/media" + trimmed.split("/media")[1];
+          }
           return trimmed.split(":8000")[1];
         }
         return trimmed;

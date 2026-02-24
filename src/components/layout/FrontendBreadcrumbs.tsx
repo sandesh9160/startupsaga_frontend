@@ -21,10 +21,13 @@ export function FrontendBreadcrumbs() {
         setIsMounted(true);
     }, []);
 
-    // Don't show on homepage
-    if (!isMounted || pathname === "/") return null;
+    // Normalize pathname (remove trailing slash)
+    const cleanPath = pathname.replace(/\/$/, "");
 
-    const segments = pathname.split("/").filter((segment) => segment !== "");
+    const hiddenRoutes = ["", "/stories", "/startups", "/categories", "/cities"];
+    if (hiddenRoutes.includes(cleanPath)) return null;
+
+    const segments = cleanPath.split("/").filter((segment) => segment !== "");
 
     const getBreadcrumbLabel = (segment: string) => {
         // Basic title casing: "my-story" -> "My Story"
@@ -34,40 +37,41 @@ export function FrontendBreadcrumbs() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-4 md:px-6">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link href="/" className="flex items-center gap-2">
-                                <Home className="h-4 w-4" />
-                                <span className="hidden sm:inline">Home</span>
-                            </Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
+        <div className="bg-white relative z-20 border-b border-zinc-100">
+            <div className="container-wide py-3">
+                <Breadcrumb className="font-sans">
+                    <BreadcrumbList className="text-[13px] font-medium text-zinc-400 gap-2 flex-nowrap overflow-hidden">
+                        <BreadcrumbItem className="shrink-0">
+                            <BreadcrumbLink asChild>
+                                <Link href="/" className="hover:text-zinc-900 transition-colors">Home</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
 
-                    {segments.map((segment, index) => {
-                        const isLast = index === segments.length - 1;
-                        const href = `/${segments.slice(0, index + 1).join("/")}`;
-                        const label = getBreadcrumbLabel(segment);
+                        {segments.map((segment, index) => {
+                            const isLast = index === segments.length - 1;
+                            const href = `/${segments.slice(0, index + 1).join("/")}`;
+                            const label = getBreadcrumbLabel(segment);
 
-                        return (
-                            <Fragment key={href}>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    {isLast ? (
-                                        <BreadcrumbPage>{label}</BreadcrumbPage>
-                                    ) : (
-                                        <BreadcrumbLink asChild>
-                                            <Link href={href}>{label}</Link>
-                                        </BreadcrumbLink>
-                                    )}
-                                </BreadcrumbItem>
-                            </Fragment>
-                        );
-                    })}
-                </BreadcrumbList>
-            </Breadcrumb>
+                            return (
+                                <Fragment key={href}>
+                                    <BreadcrumbSeparator className="text-zinc-300">
+                                        <span className="text-[10px] font-normal opacity-50">&gt;</span>
+                                    </BreadcrumbSeparator>
+                                    <BreadcrumbItem>
+                                        {isLast ? (
+                                            <BreadcrumbPage className="text-zinc-900 font-medium max-w-[150px] md:max-w-xs truncate">{label}</BreadcrumbPage>
+                                        ) : (
+                                            <BreadcrumbLink asChild>
+                                                <Link href={href} className="hover:text-zinc-900 transition-colors">{label}</Link>
+                                            </BreadcrumbLink>
+                                        )}
+                                    </BreadcrumbItem>
+                                </Fragment>
+                            );
+                        })}
+                    </BreadcrumbList>
+                </Breadcrumb>
+            </div>
         </div>
     );
 }

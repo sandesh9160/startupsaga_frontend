@@ -8,7 +8,8 @@ import {
     ChevronRight,
     Search,
     X,
-    Rocket
+    Rocket,
+    Filter
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,7 +24,17 @@ import { getStartups, getCategories, getCities } from "@/lib/api";
 import { Startup, Category, City } from "@/types";
 import { cn } from "@/lib/utils";
 
-export function StartupsContent() {
+interface StartupsContentProps {
+    title?: string;
+    description?: string;
+    content?: string;
+}
+
+export function StartupsContent({
+    title,
+    description,
+    content
+}: StartupsContentProps) {
     const [startups, setStartups] = useState<Startup[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [cities, setCities] = useState<City[]>([]);
@@ -61,8 +72,6 @@ export function StartupsContent() {
         loadData();
     }, [searchQuery, selectedCategory, selectedCity, selectedStage]);
 
-    const filteredStartups = startups;
-
     const clearFilters = () => {
         setSearchQuery("");
         setSelectedCategory("all");
@@ -73,78 +82,75 @@ export function StartupsContent() {
     const hasActiveFilters = searchQuery || selectedCategory !== "all" || selectedCity !== "all" || selectedStage !== "all";
 
     return (
-        <div className="bg-[#FAF9FB] min-h-screen font-sans" suppressHydrationWarning>
-            {/* Hero Section */}
-            <section className="relative pt-24 pb-16 overflow-hidden">
-                {/* Visual Polish: Subtle Background Gradient */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] pointer-events-none overflow-hidden">
-                    <div className="absolute top-[-20%] left-[-10%] w-[120%] h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-orange-50/40 opacity-70" />
-                </div>
-
-                <div className="container-wide relative z-10">
-                    <div className="max-w-4xl mx-auto text-center space-y-8">
-                        <div className="space-y-4">
-                            <h1 className="text-4xl md:text-6xl font-bold text-zinc-900 tracking-tight leading-[1.1]">
-                                India Startup Directory - Discover <br />
-                                <span className="text-zinc-900">5,000+ Companies</span>
-                            </h1>
-                            <div className="max-w-3xl mx-auto space-y-6">
-                                <p className="text-lg md:text-xl text-zinc-500 leading-relaxed">
-                                    The most comprehensive directory of Indian startups—from early-stage disruptors to
-                                    established unicorns. Browse companies across fintech, SaaS, D2C, healthtech, and more,
-                                    all building the future of India's digital economy.
-                                </p>
-                                <p className="text-zinc-500 text-base">
-                                    Filter by sector, city, or funding stage to find startups that match your interests, whether you're an investor, job seeker, or fellow entrepreneur.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Search Bar */}
-                        <div className="max-w-3xl mx-auto pt-4">
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
-                                    <Search className="h-5 w-5 text-zinc-400 group-focus-within:text-orange-500 transition-colors" />
-                                </div>
-                                <Input
-                                    placeholder="Search startups by name or description..."
-                                    className="w-full h-16 pl-14 pr-12 rounded-2xl bg-white border-zinc-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:ring-orange-500/20 text-lg transition-all"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                                {searchQuery && (
-                                    <button
-                                        onClick={() => setSearchQuery("")}
-                                        className="absolute right-6 inset-y-0 flex items-center text-zinc-400 hover:text-zinc-600"
-                                    >
-                                        <X className="h-5 w-5" />
-                                    </button>
+        <div className="bg-white min-h-screen font-sans" suppressHydrationWarning>
+            {/* Elegant Hero Section */}
+            {(title || description || content) && (
+                <section className="relative pt-20 overflow-hidden bg-white">
+                    <div className="container-wide relative z-10">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <div className="space-y-6">
+                                {title && (
+                                    <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold text-[#1a1a1a] tracking-tight leading-tight font-serif"
+                                        dangerouslySetInnerHTML={{ __html: title }}
+                                    />
                                 )}
+
+                                <div className="max-w-3xl mx-auto space-y-4">
+                                    {description && (
+                                        <div className="text-base md:text-lg text-zinc-500 leading-relaxed font-medium"
+                                            dangerouslySetInnerHTML={{ __html: description }}
+                                        />
+                                    )}
+                                    {content && (
+                                        <div className="text-zinc-500 text-sm md:text-base px-10"
+                                            dangerouslySetInnerHTML={{ __html: content }}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
-            {/* Sticky Filter Bar */}
-            <div className="sticky top-[72px] z-40 bg-white/100 border-y border-zinc-100/80 shadow-[0_2px_15px_rgb(0,0,0,0.02)]">
-                <div className="container-wide py-4">
-                    <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-4">
-                        <div className="flex items-center gap-3 py-1">
-                            <div className="flex items-center gap-2 text-zinc-500">
-                                <span className="text-sm flex items-center gap-2">
-                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-zinc-400">
-                                        <path d="M2.25 4.5H15.75M4.5 9H13.5M7.5 13.5H10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    Filters:
-                                </span>
+            {/* Content Section with Filters and Cards */}
+            <main className="container-wide relative z-20 pb-20">
+                <div className="max-w-7xl mx-auto">
+                    {/* Compact Search Bar */}
+                    <div className="max-w-2xl mx-auto mb-8 mt-6">
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                                <Search className="h-4 w-4 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
+                            </div>
+                            <Input
+                                placeholder="Search startups by name or description..."
+                                className="w-full h-12 pl-12 pr-12 rounded-2xl bg-white border-zinc-200 shadow-lg shadow-zinc-200/10 focus:ring-0 focus:border-zinc-300 text-zinc-700 text-sm transition-all"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery("")}
+                                    className="absolute right-5 inset-y-0 flex items-center text-zinc-400 hover:text-zinc-600"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Compact Filters Card */}
+                    <div className="bg-white rounded-2xl p-3 mb-4 mt-10 border border-zinc-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-center gap-2 text-zinc-400 font-bold text-[10px] uppercase tracking-widest mr-1">
+                                <Filter size={12} /> Filters:
                             </div>
 
                             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                                <SelectTrigger className="w-[180px] h-11 rounded-xl bg-zinc-50/50 border-zinc-100 text-sm font-medium hover:bg-zinc-100/50 transition-colors">
+                                <SelectTrigger className="w-[160px] h-9 rounded-xl bg-zinc-50/50 border-zinc-100/80 text-[11px] font-semibold hover:bg-zinc-100 transition-all">
                                     <SelectValue placeholder="All Sectors" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-2xl border-zinc-100 shadow-2xl">
+                                <SelectContent className="rounded-xl border-zinc-100 shadow-2xl">
                                     <SelectItem value="all">All Sectors</SelectItem>
                                     {categories.map(cat => (
                                         <SelectItem key={cat.slug} value={cat.name}>{cat.name}</SelectItem>
@@ -153,10 +159,10 @@ export function StartupsContent() {
                             </Select>
 
                             <Select value={selectedCity} onValueChange={setSelectedCity}>
-                                <SelectTrigger className="w-[180px] h-11 rounded-xl bg-zinc-50/50 border-zinc-100 text-sm font-medium hover:bg-zinc-100/50 transition-colors">
+                                <SelectTrigger className="w-[160px] h-9 rounded-xl bg-zinc-50/50 border-zinc-100/80 text-[11px] font-semibold hover:bg-zinc-100 transition-all">
                                     <SelectValue placeholder="All Cities" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-2xl border-zinc-100 shadow-2xl">
+                                <SelectContent className="rounded-xl border-zinc-100 shadow-2xl">
                                     <SelectItem value="all">All Cities</SelectItem>
                                     {cities.map(city => (
                                         <SelectItem key={city.slug} value={city.name}>{city.name}</SelectItem>
@@ -165,10 +171,10 @@ export function StartupsContent() {
                             </Select>
 
                             <Select value={selectedStage} onValueChange={setSelectedStage}>
-                                <SelectTrigger className="w-[180px] h-11 rounded-xl bg-zinc-50/50 border-zinc-100 text-sm font-medium hover:bg-zinc-100/50 transition-colors">
+                                <SelectTrigger className="w-[160px] h-9 rounded-xl bg-zinc-50/50 border-zinc-100/80 text-[11px] font-semibold hover:bg-zinc-100 transition-all">
                                     <SelectValue placeholder="All Stages" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-2xl border-zinc-100 shadow-2xl">
+                                <SelectContent className="rounded-xl border-zinc-100 shadow-2xl">
                                     <SelectItem value="all">All Stages</SelectItem>
                                     <SelectItem value="Bootstrapped">Bootstrapped</SelectItem>
                                     <SelectItem value="Pre-Seed">Pre-Seed</SelectItem>
@@ -180,52 +186,46 @@ export function StartupsContent() {
                             </Select>
 
                             {hasActiveFilters && (
-                                <Button
+                                <button
                                     onClick={clearFilters}
-                                    variant="ghost"
-                                    className="h-11 rounded-xl text-zinc-400 hover:text-orange-600 hover:bg-orange-50 text-sm font-medium px-4"
+                                    className="px-4 h-9 rounded-xl bg-rose-50 text-rose-600 text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all"
                                 >
                                     Clear All
-                                </Button>
+                                </button>
                             )}
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* Results Grid */}
-            <section className="container-wide py-12">
-                <div className="max-w-7xl mx-auto space-y-10">
-                    <div className="flex items-center justify-between">
-                        {!isLoading && (
-                            <div className="flex items-center gap-2 text-zinc-500 font-medium">
-                                <span>Showing <span className="text-zinc-900 font-bold">{startups.length}</span> startups</span>
-                            </div>
-                        )}
-                    </div>
+                    {/* Showing Text */}
+                    {!isLoading && (
+                        <div className="flex items-center gap-2 mb-6 ml-2">
+                            <span className="text-sm font-medium text-zinc-400">
+                                Showing <span className="text-zinc-900 font-bold">{startups.length}</span> startups
+                            </span>
+                        </div>
+                    )}
 
+                    {/* Results Grid */}
                     {isLoading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                                <div key={i} className="h-[300px] rounded-[2.5rem] bg-white border border-zinc-100 animate-pulse shadow-sm" />
+                                <div key={i} className="h-[220px] rounded-2xl bg-white border border-zinc-100 animate-pulse" />
                             ))}
                         </div>
                     ) : startups.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             {startups.map((startup) => (
                                 <StartupCard key={startup.slug} {...startup} />
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-zinc-100">
-                            <div className="w-20 h-20 rounded-3xl bg-zinc-50 flex items-center justify-center mx-auto mb-6">
-                                <Rocket className="h-10 w-10 text-zinc-200" />
-                            </div>
-                            <h3 className="text-2xl font-bold text-zinc-900 mb-2">No startups found</h3>
-                            <p className="text-zinc-500 max-w-sm mx-auto mb-8">
+                        <div className="text-center py-24 bg-white rounded-3xl border-2 border-dashed border-zinc-100">
+                            <Rocket className="h-10 w-10 text-zinc-200 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-zinc-900 mb-1">No startups found</h3>
+                            <p className="text-zinc-500 text-sm max-w-xs mx-auto mb-6">
                                 Try adjusting your search or filters to find what you're looking for.
                             </p>
-                            <Button onClick={clearFilters} variant="outline" className="rounded-xl px-8 h-12 font-bold">
+                            <Button onClick={clearFilters} variant="outline" className="rounded-2xl px-6 h-12 font-bold uppercase tracking-wider text-xs">
                                 Reset Filters
                             </Button>
                         </div>
@@ -233,56 +233,33 @@ export function StartupsContent() {
 
                     {/* Simple Pagination */}
                     {!isLoading && startups.length > 0 && (
-                        <div className="flex items-center justify-center gap-2 pt-12">
-                            <Button variant="outline" className="h-11 px-6 rounded-xl border-zinc-100 font-medium text-zinc-600 hover:bg-zinc-50">
+                        <div className="flex items-center justify-center gap-2 pt-16">
+                            <Button variant="outline" className="h-11 px-6 rounded-xl border-zinc-100 font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:bg-zinc-50 transition-all">
                                 Previous
                             </Button>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-2">
                                 {[1, 2, 3].map(p => (
                                     <Button
                                         key={p}
                                         variant={p === 1 ? "default" : "ghost"}
                                         className={cn(
-                                            "h-11 w-11 rounded-xl font-bold",
-                                            p === 1 ? "bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-600/20" : "text-zinc-500"
+                                            "h-11 w-11 rounded-xl font-black text-xs",
+                                            p === 1
+                                                ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/20"
+                                                : "text-zinc-400 hover:bg-zinc-100"
                                         )}
                                     >
                                         {p}
                                     </Button>
                                 ))}
                             </div>
-                            <Button variant="outline" className="h-11 px-6 rounded-xl border-zinc-100 font-medium text-zinc-600 hover:bg-zinc-50">
+                            <Button variant="outline" className="h-11 px-6 rounded-xl border-zinc-100 font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:bg-zinc-50 transition-all">
                                 Next
                             </Button>
                         </div>
                     )}
                 </div>
-            </section>
-
-            {/* Submit CTA */}
-            <section className="container-wide pb-24 pt-12">
-                <div className="max-w-7xl mx-auto bg-[#0F172A] rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden">
-                    {/* Abstract decorative circles */}
-                    <div className="absolute top-[-10%] right-[-5%] w-96 h-96 rounded-full bg-orange-600/20 blur-[100px]" />
-                    <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 rounded-full bg-blue-600/10 blur-[100px]" />
-
-                    <div className="relative z-10 max-w-3xl mx-auto space-y-8">
-                        <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
-                            Build the next big thing?
-                        </h2>
-                        <p className="text-zinc-400 text-lg md:text-xl leading-relaxed">
-                            Join 5,000+ startups already listed on India's most active startup network.
-                            Showcase your company to investors, potential hires, and partners.
-                        </p>
-                        <Button size="lg" className="h-16 px-10 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg shadow-xl shadow-orange-600/20 transition-all hover:scale-105 active:scale-95" asChild>
-                            <Link href="/submit">
-                                Submit Your Startup
-                            </Link>
-                        </Button>
-                    </div>
-                </div>
-            </section>
+            </main>
         </div>
     );
 }
-

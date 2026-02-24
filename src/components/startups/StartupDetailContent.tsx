@@ -2,32 +2,26 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { StoryCard } from "@/components/cards/StoryCard";
+// import { StoryCard } from "@/components/cards/StoryCard";
 import { StartupCard } from "@/components/cards/StartupCard";
-import { Button } from "@/components/ui/button";
 import {
     ExternalLink,
     MapPin,
     Tag,
-    Calendar,
     TrendingUp,
-    Users,
-    ShieldCheck,
-    Star,
     Linkedin,
     Share2,
-    ChevronRight,
-    CircleDashed,
-    Layers,
-    Pocket,
+    // Layers,
     Edit3,
-    Folder,
-    FolderKanban,
-    BookOpen
+    // BookOpen,
+    List,
+    ArrowRight,
+    Sparkles,
+    Lightbulb
 } from "lucide-react";
 import { getSafeImageSrc } from "@/lib/images";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
 
 interface StartupDetailContentProps {
     startup: any;
@@ -39,286 +33,352 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
     const logoSrc = getSafeImageSrc(startup.logo || startup.og_image);
     const isSvgLogo = logoSrc.toLowerCase().endsWith(".svg");
 
-    const founders = startup.founders_data && Array.isArray(startup.founders_data) ? startup.founders_data : (startup.founder_name ? [{
-        name: startup.founder_name,
-        role: "Founder",
-        linkedin: startup.founder_linkedin,
-        initials: startup.founder_name.split(' ').map((n: string) => n[0]).join('')
-    }] : []);
+    const founders: any[] =
+        startup.founders_data && Array.isArray(startup.founders_data)
+            ? startup.founders_data
+            : startup.founder_name
+                ? [{
+                    name: startup.founder_name,
+                    role: "Founder",
+                    linkedin: startup.founder_linkedin,
+                    initials: startup.founder_name.split(" ").map((n: string) => n[0]).join(""),
+                }]
+                : [];
 
     const handleShare = () => {
-        if (typeof navigator !== 'undefined' && navigator.share) {
-            navigator.share({
-                title: startup.name,
-                text: startup.tagline,
-                url: window.location.href,
-            }).catch(() => {
-                navigator.clipboard.writeText(window.location.href);
-                toast.success("Link copied!");
-            });
+        if (typeof navigator !== "undefined" && navigator.share) {
+            navigator.share({ title: startup.name, text: startup.tagline, url: window.location.href })
+                .catch(() => { navigator.clipboard.writeText(window.location.href); toast.success("Link copied!"); });
         } else {
             navigator.clipboard.writeText(window.location.href);
             toast.success("Link copied!");
         }
     };
 
+    // Parse H2/H3 headings from HTML description for TOC
+    const [tableOfContents, setTableOfContents] = useState<Array<{ id: number; title: string; anchor: string }>>([]);
+    const [activeSection, setActiveSection] = useState<string>("");
+
+    useEffect(() => {
+        let toc: Array<{ id: number; title: string; anchor: string }> = [];
+
+        if (startup.description && typeof startup.description === "string") {
+            const headingRegex = /<(h2)[^>]*>([\s\S]*?)<\/\1>/gi;
+            const matches = [...startup.description.matchAll(headingRegex)];
+            if (matches.length > 0) {
+                toc = matches.map((m, i) => {
+                    const title = m[2].replace(/<[^>]*>/g, '').trim();
+                    return {
+                        id: i + 1,
+                        title: title,
+                        anchor: title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-'),
+                    };
+                }).filter(item => {
+                    const ut = item.title.toUpperCase();
+                    return ut !== 'TL;DR' && ut !== 'INTRODUCTION' && ut !== 'THE STARTUP JOURNEY' && ut !== 'OVERVIEW' && ut !== 'ABOUT';
+                });
+            }
+        }
+
+        setTableOfContents(toc);
+    }, [startup.description]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => { entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); }); },
+            { rootMargin: "-100px 0px -70% 0px" }
+        );
+        tableOfContents.forEach((item) => {
+            const el = document.getElementById(item.anchor);
+            if (el) observer.observe(el);
+        });
+        return () => observer.disconnect();
+    }, [tableOfContents]);
+
+    const getDisplayName = (field: any, fallbackField: string) => {
+        if (typeof field === "object" && field?.name) return field.name;
+        if (startup[fallbackField]) return startup[fallbackField];
+        if (typeof field === "string" && !/^\d+$/.test(field)) return field;
+        return "";
+    };
+
+    const cityName = getDisplayName(startup.city, "city_name");
+    const categoryName = getDisplayName(startup.category, "category_name");
+    const foundersString = founders.map((f: any) => f.name).join(", ");
+
+    const infoRows = [
+        { label: "Founded", value: startup.founded_year },
+        { label: "Employees", value: startup.team_size },
+        { label: "Founders", value: foundersString },
+    ].filter((r) => r.value);
+
+    const websiteUrl = startup.website_url || (startup as any).website;
+    const industryTags: string[] = (startup as any).industry_tags ?? [];
+    const displayCategory = typeof startup.category === 'object' ? startup.category.name : (startup.category || 'this sector');
+
     return (
-        <div className="bg-[#FAFBFD] min-h-screen font-sans selection:bg-orange-100 selection:text-orange-900 pb-20">
-            {/* Hero Section */}
-            <div className="bg-white border-b border-zinc-100 pt-8 pb-10 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-orange-50/20 to-transparent pointer-events-none" />
+        <div className="bg-white min-h-screen font-sans pb-16">
+
+            {/* ── Compact Hero Strip ── */}
+            <div className="bg-white relative z-10 pt-8 pb-8">
                 <div className="container-wide">
-                    <div className="flex flex-col lg:flex-row gap-8 items-start relative z-10">
-                        {/* Logo / Image */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="flex-shrink-0"
-                        >
-                            <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl bg-white border border-zinc-100 flex items-center justify-center p-6 overflow-hidden shadow-sm">
-                                <Image
-                                    src={logoSrc}
-                                    alt={`${startup.name} logo`}
-                                    width={128}
-                                    height={128}
-                                    className="object-contain w-full h-full"
-                                    unoptimized={isSvgLogo}
-                                />
-                            </div>
-                        </motion.div>
+                    <div className="flex flex-col lg:flex-row items-start gap-7">
 
-                        {/* Middle Content */}
-                        <div className="flex-1 space-y-4">
-                            <div className="space-y-1">
-                                <h1 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight leading-tight pt-2">
-                                    {startup.name}
-                                </h1>
-                                <p className="text-lg text-zinc-500 font-medium max-w-2xl">
-                                    {startup.tagline}
-                                </p>
+                        {/* Brand Info Wrapper */}
+                        <div className="flex flex-col sm:flex-row items-start gap-6 flex-1 w-full">
+                            {/* Logo */}
+                            <div className="w-24 h-24 rounded-[20px] border border-zinc-100 bg-white flex items-center justify-center p-4 shadow-sm shrink-0 overflow-hidden">
+                                <Image src={logoSrc} alt={startup.name} width={96} height={96}
+                                    className="object-contain w-full h-full" unoptimized={isSvgLogo} />
                             </div>
 
-                            {/* Badges Row */}
-                            <div className="flex flex-wrap items-center gap-2">
-                                <div className="bg-orange-50/50 text-orange-700 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border border-orange-100 flex items-center gap-1.5 shadow-sm">
-                                    <MapPin size={10} className="text-orange-400" />
-                                    {startup.city}
+                            {/* Name + badges + founders */}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-3 flex-wrap mb-2">
+                                    <h1 className="text-3xl md:text-5xl font-serif font-semibold text-zinc-900 tracking-tight leading-none">{startup.name}</h1>
+                                    {cityName && (
+                                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-zinc-500 bg-white border border-zinc-200 px-2.5 py-1 rounded-full shadow-sm">
+                                            <MapPin size={10} className="text-[#FF4F18]" strokeWidth={2.5} />{cityName}
+                                        </span>
+                                    )}
+                                    {categoryName && (
+                                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-zinc-500 bg-white border border-zinc-200 px-2.5 py-1 rounded-full shadow-sm">
+                                            <Tag size={10} className="text-[#FF4F18]" strokeWidth={2.5} />{categoryName}
+                                        </span>
+                                    )}
+                                    {((startup as any).funding_stage ?? startup.stage) && (
+                                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-zinc-500 bg-white border border-zinc-200 px-2.5 py-1 rounded-full shadow-sm">
+                                            <TrendingUp size={10} className="text-[#FF4F18]" strokeWidth={2.5} />{(startup as any).funding_stage ?? startup.stage}
+                                        </span>
+                                    )}
+                                    {startup.founded_year && (
+                                        <span className="text-[11px] font-medium text-zinc-400">Est. {startup.founded_year}</span>
+                                    )}
                                 </div>
-                                <div className="bg-zinc-50 text-zinc-600 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border border-zinc-200 flex items-center gap-1.5 shadow-sm">
-                                    <Tag size={10} className="text-zinc-400" />
-                                    {startup.category}
-                                </div>
-                                <div className="bg-zinc-50 text-zinc-600 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border border-zinc-200 flex items-center gap-1.5 shadow-sm">
-                                    <Calendar size={10} className="text-zinc-400" />
-                                    Founded {startup.founded_year || '2021'}
-                                </div>
-                                <div className="bg-zinc-50 text-zinc-600 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border border-zinc-200 flex items-center gap-1.5 shadow-sm">
-                                    <TrendingUp size={10} className="text-zinc-400" />
-                                    {(startup as any).funding_stage ?? startup.stage ?? 'Seed'}
-                                </div>
-                                <div className="bg-emerald-50/50 text-emerald-700 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border border-emerald-100 flex items-center gap-1.5 shadow-sm">
-                                    <Pocket size={10} className="text-emerald-400" />
-                                    {(startup as any).business_model ?? startup.sector ?? 'B2B'}
-                                </div>
-                                <div className="bg-zinc-50 text-zinc-600 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border border-zinc-200 flex items-center gap-1.5 shadow-sm">
-                                    <Users size={10} className="text-zinc-400" />
-                                    {startup.team_size || '10-50'} members
-                                </div>
-                            </div>
 
-                            {/* Founders Summary in Hero */}
-                            {founders.length > 0 && (
-                                <div className="flex items-center gap-3 py-2 border-y border-zinc-50">
-                                    <div className="flex -space-x-1.5">
-                                        {founders.map((founder: any, idx: number) => (
-                                            <div key={idx} className="w-7 h-7 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center overflow-hidden" title={founder.name}>
-                                                {founder.image ? (
-                                                    <Image src={getSafeImageSrc(founder.image)} alt={founder.name} width={28} height={28} className="object-cover" />
-                                                ) : (
-                                                    <span className="text-[9px] font-bold text-zinc-400">{founder.initials || founder.name[0]}</span>
-                                                )}
-                                            </div>
+                                {startup.tagline && (
+                                    <p className="text-[15px] md:text-lg text-zinc-500 mt-3 leading-relaxed max-w-2xl font-normal">{startup.tagline}</p>
+                                )}
+
+                                {industryTags.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 mt-3">
+                                        {industryTags.map((tag: string) => (
+                                            <span key={tag} className="inline-flex items-center gap-1 text-[10px] font-semibold text-zinc-400 bg-zinc-50 border border-zinc-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                                #{tag}
+                                            </span>
                                         ))}
                                     </div>
-                                    <div className="text-[11px]">
-                                        <p className="font-bold text-zinc-900 leading-none mb-0.5">Founders</p>
-                                        <p className="text-zinc-500 leading-none">{founders.map((f: any) => f.name).join(', ')}</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Action Buttons */}
-                            <div className="flex flex-wrap items-center gap-3 pt-4">
-                                {startup.website_url && (
-                                    <Button asChild className="bg-[#FF5C00] hover:bg-[#E65300] text-white rounded-xl h-10 px-5 text-sm font-black uppercase tracking-wider flex items-center gap-2 transition-all hover:scale-[1.02] shadow-md shadow-orange-200">
-                                        <a href={startup.website_url} target="_blank" rel="noopener noreferrer">
-                                            Visit Website
-                                            <ExternalLink className="h-3.5 w-3.5" />
-                                        </a>
-                                    </Button>
                                 )}
-                                <Button variant="outline" size="icon" onClick={handleShare} className="h-10 w-10 rounded-xl border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 transition-all shadow-sm">
-                                    <Share2 className="h-4 w-4" />
-                                </Button>
+
+                                {founders.length > 0 && (
+                                    <div className="flex items-center gap-3 mt-4 pt-1">
+                                        <div className="flex -space-x-2">
+                                            {founders.map((f: any, i: number) => (
+                                                <div key={i} title={f.name}
+                                                    className="w-7 h-7 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center text-[10px] font-semibold text-zinc-600 overflow-hidden shadow-sm">
+                                                    {f.image
+                                                        ? <Image src={getSafeImageSrc(f.image)} alt={f.name} width={28} height={28} className="object-cover" />
+                                                        : f.name?.[0]}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <span className="text-[13px] font-semibold text-zinc-900">{founders.map((f: any) => f.name).join(", ")}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
-                        {/* Right Side Tools */}
-                        <div className="flex flex-col gap-2 lg:items-end">
-                            <Button variant="outline" className="rounded-xl border-zinc-200 text-zinc-500 font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 h-10 px-4 hover:bg-zinc-50 hover:text-zinc-900 transition-all shadow-sm">
-                                <Edit3 className="h-3.5 w-3.5" />
-                                Claim Profile
-                            </Button>
+                        {/* Actions */}
+                        <div className="flex items-center gap-2.5 w-full lg:w-auto mt-4 lg:mt-0 pt-6 lg:pt-0 border-t lg:border-none border-zinc-100">
+                            {websiteUrl && (
+                                <a href={websiteUrl} target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-[#FF4F18] hover:bg-[#E54316] text-white text-[11px] font-bold uppercase tracking-wider transition-all shadow-md shadow-orange-100 hover:shadow-lg hover:shadow-orange-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-95">
+                                    Visit Now <ExternalLink size={14} />
+                                </a>
+                            )}
+                            <button onClick={handleShare}
+                                className="h-11 w-11 rounded-xl border border-zinc-200 bg-white flex items-center justify-center text-zinc-400 hover:text-[#FF4F18] hover:border-orange-100 transition-all shadow-sm">
+                                <Share2 size={16} />
+                            </button>
+                            <button className="h-11 px-6 rounded-xl border border-zinc-200 bg-white flex items-center gap-2 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 transition-all shadow-sm uppercase tracking-wider">
+                                <Edit3 size={14} /> Claim
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Main Content Grid */}
-            <main className="container-wide py-10">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {/* Left Column: About */}
-                    <div className="lg:col-span-8 space-y-8">
-                        <div className="bg-white rounded-2xl border border-zinc-100 p-8 md:p-10 shadow-[0_4px_20px_rgb(0,0,0,0.02)] relative overflow-hidden">
-                            {/* Subtle background decoration */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50/20 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none" />
+            {/* ── Main Grid ── */}
+            <main className="container-wide py-7">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-7">
 
-                            <div className="flex items-center gap-3 mb-6 relative z-10">
-                                <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center border border-orange-100/50">
-                                    <BookOpen size={16} className="text-orange-600" />
+                    {/* Left — Content */}
+                    <div className="lg:col-span-8 space-y-5">
+
+                        {/* Table of Contents */}
+                        {tableOfContents.length > 0 && (
+                            <div className="bg-white rounded-xl border border-zinc-100 p-6 shadow-sm pb-5">
+                                <div className="flex items-center gap-2.5 mb-6">
+                                    <List size={16} className="text-[#FF4F18]" />
+                                    <h2 className="text-base font-serif font-bold text-[#0F172A] mb-0">Table of Contents</h2>
                                 </div>
-                                <h2 className="text-xl font-black text-zinc-900 uppercase tracking-tight">
-                                    About {startup.name}
-                                </h2>
+                                <nav>
+                                    <ol className="flex flex-col gap-y-3">
+                                        {tableOfContents.map((item, idx) => (
+                                            <li key={item.anchor} className="flex items-start gap-2 group">
+                                                <span className="text-[#FF4F18] font-medium text-[13px] shrink-0 font-serif">
+                                                    {idx + 1}.
+                                                </span>
+                                                <a href={`#${item.anchor}`}
+                                                    className={`text-[13px] font-medium leading-snug transition-all ${activeSection === item.anchor ? "text-[#FF4F18]" : "text-zinc-500 group-hover:text-[#FF4F18]"}`}>
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ol>
+                                </nav>
                             </div>
-                            <div className="prose prose-zinc prose-sm md:prose-base max-w-none text-zinc-600 font-medium leading-relaxed relative z-10">
-                                {startup.description?.split('\n\n').map((para: string, idx: number) => (
-                                    <p key={idx} className="mb-4">{para}</p>
-                                ))}
+                        )}
+
+                        {/* TL;DR Section */}
+                        <div id="tldr" className="bg-[#FEF6F2] rounded-xl border border-orange-100 p-4 shadow-sm relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <Lightbulb className="h-16 w-16 text-[#D94111]" />
+                            </div>
+                            <div className="flex items-center gap-2 mb-2 relative z-10">
+                                <Sparkles className="h-3.5 w-3.5 fill-[#FF4F18] text-[#FF4F18]" />
+                                <h2 className="text-[16px] font-serif font-bold text-[#D94111] mb-0 tracking-tight">TL;DR</h2>
+                            </div>
+                            <div className="text-zinc-700 text-[13px] md:text-[14px] leading-relaxed font-normal relative z-10">
+                                <p>
+                                    {startup.tagline} As a leading {categoryName} player based in {cityName}, {startup.name} operates as an {startup.funding_stage || startup.stage} venture with a team of {startup.team_size} employees. Since its founding in {startup.founded_year}, the company has maintained a strong focus on {startup.business_model || startup.sector} solutions.
+                                </p>
                             </div>
                         </div>
 
-                        {/* Section: News & Stories */}
-                        {relatedStories.length > 0 && (
-                            <section className="space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
-                                        <Layers className="h-5 w-5 text-orange-500" />
-                                        Stories & Updates
-                                    </h3>
-                                    <Link href="/stories" className="text-xs font-bold text-orange-600 hover:text-orange-700 uppercase tracking-widest transition-colors">View All</Link>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {relatedStories.map((story) => (
-                                        <StoryCard key={story.slug} {...story} />
-                                    ))}
-                                </div>
-                            </section>
-                        )}
+                        {/* About / Description (Journey) */}
+                        <div id="introduction" className="bg-transparent p-0">
+                            <div className="flex items-center gap-2 mb-4">
+                                <TrendingUp size={14} className="text-indigo-600" />
+                                <h2 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 font-serif">The Startup Journey</h2>
+                            </div>
+                            <div
+                                id="journey"
+                                className="prose prose-zinc max-w-none leading-relaxed
+                                    prose-headings:font-semibold prose-headings:text-[#0F172A] prose-headings:tracking-tight
+                                    prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:font-serif prose-h2:leading-[1.2]
+                                    prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-h3:font-serif
+                                    prose-p:text-zinc-600 prose-p:mb-5 prose-p:text-[15px] prose-p:leading-relaxed prose-p:font-medium
+                                    prose-strong:text-[#0F172A] prose-strong:font-semibold
+                                    prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8"
+                                dangerouslySetInnerHTML={{
+                                    __html: (startup.description || "")
+                                        .replace(
+                                            /<(h[23])([^>]*)>([^<]*)<\/\1>/gi,
+                                            (match: string, tag: string, attrs: string, content: string) => {
+                                                const title = content.replace(/<[^>]*>/g, '').trim();
+                                                const id = title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
+                                                return `<${tag}${attrs} id="${id}">${content}</${tag}>`;
+                                            }
+                                        )
+                                }}
+                            />
+                        </div>
+
+                        {/* Share actions */}
+                        <div className="flex items-center gap-4">
+                            <button onClick={handleShare}
+                                className="inline-flex items-center justify-center gap-3 h-12 px-8 rounded-xl border border-zinc-100 bg-white text-[13px] font-bold text-zinc-600 hover:bg-zinc-50 transition-all shadow-sm">
+                                <Share2 size={16} /> Share
+                            </button>
+                            <button
+                                onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, "_blank")}
+                                className="inline-flex items-center justify-center gap-3 h-12 px-8 rounded-xl border border-zinc-100 bg-white text-[13px] font-bold text-zinc-600 hover:bg-zinc-50 transition-all shadow-sm">
+                                <Linkedin size={16} /> LinkedIn
+                            </button>
+                        </div>
+
+
                     </div>
 
-                    {/* Right Column: Sidebar */}
-                    <aside className="lg:col-span-4 space-y-6">
-                        {/* Founders Card */}
-                        {founders.length > 0 && (
-                            <div className="bg-white rounded-2xl border border-zinc-100 p-6 md:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.02)] space-y-5">
-                                <h3 className="text-sm font-black text-zinc-900 uppercase tracking-widest flex items-center gap-2">
-                                    <Users size={14} className="text-orange-600" />
-                                    Founders
-                                </h3>
-                                <div className="space-y-5">
-                                    {founders.map((founder: any, idx: number) => (
-                                        <div key={idx} className="flex items-center justify-between group">
-                                            <div className="flex items-center gap-3.5">
-                                                <div className="w-11 h-11 rounded-xl bg-zinc-100 border border-zinc-100 overflow-hidden relative shrink-0 flex items-center justify-center font-bold text-zinc-400 text-xs italic shadow-sm group-hover:scale-105 transition-transform duration-300">
-                                                    {founder.image ? (
-                                                        <Image src={founder.image} alt={founder.name} fill className="object-cover" />
-                                                    ) : (
-                                                        founder.initials || founder.name[0]
-                                                    )}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <h4 className="font-bold text-sm text-zinc-900 truncate leading-tight">{founder.name}</h4>
-                                                    <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mt-0.5">{founder.role}</p>
-                                                </div>
+                    {/* Right — Infobox */}
+                    <aside className="lg:col-span-4">
+                        <div className="sticky top-24 space-y-4">
+
+                            {/* Main Info Card — Balanced Design */}
+                            <div className="rounded-xl border border-zinc-100 overflow-hidden bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 font-sans">
+
+                                {/* Header - More compact */}
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-16 h-16 rounded-xl border border-zinc-100 bg-white shadow-inner flex items-center justify-center overflow-hidden shrink-0">
+                                        <Image src={logoSrc} alt={startup.name} width={64} height={64}
+                                            className="object-contain w-full h-full" unoptimized={isSvgLogo} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[20px] font-serif font-bold text-zinc-900 leading-tight tracking-tight">{startup.name}</p>
+                                        {cityName && <p className="text-[14px] text-zinc-500 mt-1 font-medium">{cityName}</p>}
+                                    </div>
+                                </div>
+
+                                {/* Divider & Info Rows - Increased verticality */}
+                                <div className="space-y-4 pt-4 border-t border-zinc-100">
+                                    <div className="space-y-3.5">
+                                        {infoRows.map((row, i) => (
+                                            <div key={i} className="flex items-start justify-between text-[14px]">
+                                                <span className="text-zinc-500 font-medium">{row.label}</span>
+                                                <span className="font-serif font-bold text-zinc-900 text-right max-w-[170px]">{String(row.value)}</span>
                                             </div>
-                                            {founder.linkedin && (
-                                                <a href={founder.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 text-[#0077B5] hover:scale-110 transition-transform opacity-60 hover:opacity-100">
-                                                    <Linkedin size={16} className="fill-current" />
-                                                </a>
-                                            )}
+                                        ))}
+                                    </div>
+
+                                    {/* Industry Tags for Sidebar - Moved below info rows per reference */}
+                                    {industryTags.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 pt-2">
+                                            {industryTags.map((tag: string) => (
+                                                <span key={tag} className="px-3 py-1.5 rounded-full bg-zinc-100 text-zinc-600 text-[11px] font-medium">
+                                                    {tag}
+                                                </span>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                                    )}
 
-                        {/* Quick Stats Grid */}
-                        <div className="bg-white rounded-2xl border border-zinc-100 p-6 shadow-[0_4px_20px_rgb(0,0,0,0.02)] space-y-5 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50/50 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-                            <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] pb-3 border-b border-zinc-50 flex items-center gap-2 relative z-10">
-                                <Folder size={12} className="text-orange-600" />
-                                Company Profile
-                            </h3>
-                            <div className="grid grid-cols-1 gap-4 relative z-10">
-                                <div className="flex items-center gap-3 group transition-all">
-                                    <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center shrink-0 border border-orange-100/50 group-hover:bg-orange-100 transition-colors">
-                                        <Calendar size={14} className="text-orange-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Founded</p>
-                                        <p className="text-[12px] font-bold text-zinc-900">{startup.founded_year || '2014'}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 group transition-all">
-                                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100/50 group-hover:bg-blue-100 transition-colors">
-                                        <TrendingUp size={14} className="text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Funding Stage</p>
-                                        <p className="text-[12px] font-bold text-zinc-900">{(startup as any).funding_stage ?? startup.stage ?? 'Bootstrapped'}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 group transition-all">
-                                    <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0 border border-purple-100/50 group-hover:bg-purple-100 transition-colors">
-                                        <Users size={14} className="text-purple-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Team Size</p>
-                                        <p className="text-[12px] font-bold text-zinc-900">{startup.team_size || '1000+'} Members</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 group transition-all">
-                                    <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100/50 group-hover:bg-emerald-100 transition-colors">
-                                        <FolderKanban size={14} className="text-emerald-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Business Model</p>
-                                        <p className="text-[12px] font-bold text-zinc-900">{(startup as any).business_model ?? startup.sector ?? 'B2B'} • {startup.category}</p>
-                                    </div>
+                                    {/* Action Button - Balanced height */}
+                                    {websiteUrl && (
+                                        <div className="pt-3">
+                                            <a href={websiteUrl} target="_blank" rel="noopener noreferrer"
+                                                className="flex items-center justify-center gap-2.5 w-full h-12 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 hover:border-zinc-300 text-zinc-900 text-[15px] font-bold transition-all hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]">
+                                                <ExternalLink size={18} />
+                                                Visit Website
+                                            </a>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
-
-                        {/* Discover Similar */}
-                        {similarStartups.length > 0 && (
-                            <div className="space-y-4 pt-4">
-                                <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Layers className="h-3.5 w-3.5 text-zinc-300" />
-                                    Similar Startups
-                                </h3>
-                                <div className="space-y-4">
-                                    {similarStartups.slice(0, 3).map((s) => (
-                                        <StartupCard key={s.slug} {...s} />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </aside>
                 </div>
+
+                {/* Similar Startups */}
+                {similarStartups.length > 0 && (
+                    <div id="similar-ventures" className="mt-16 pt-12 border-t border-zinc-100">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="space-y-1">
+                                <h2 className="text-xl md:text-2xl font-serif font-semibold text-zinc-900 tracking-tight">
+                                    Discover Similar Startups
+                                </h2>
+                                <p className="text-zinc-500 text-sm font-medium">Explore more ventures in {displayCategory}.</p>
+                            </div>
+                            <Link href="/startups" className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest flex items-center gap-1">
+                                View Directory <ArrowRight className="h-2.5 w-2.5" />
+                            </Link>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {similarStartups.map((s) => (
+                                <StartupCard key={s.slug} {...s} />
+                            ))}
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );

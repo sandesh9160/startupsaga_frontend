@@ -65,10 +65,23 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             notFound();
         }
 
-        const relatedStories = (Array.isArray(allStories) ? allStories : (allStories as any)?.results || [])
-            .filter((s: any) => s.slug !== story.slug).slice(0, 3);
-        const cityStartups = (Array.isArray(allStartups) ? allStartups : [])
-            .filter((s: any) => s.citySlug === story.citySlug).slice(0, 4);
+        const stories = Array.isArray(allStories) ? allStories : (allStories as any)?.results || [];
+        const startups = Array.isArray(allStartups) ? allStartups : (allStartups as any)?.results || [];
+
+        // Related stories: same category or same city, excluding current story
+        const relatedStories = stories
+            .filter((s: any) => s.slug !== story.slug && (s.categorySlug === story.categorySlug || s.citySlug === story.citySlug))
+            .slice(0, 3);
+
+        // Fallback to latest stories if none related
+        if (relatedStories.length === 0) {
+            relatedStories.push(...stories.filter((s: any) => s.slug !== story.slug).slice(0, 3));
+        }
+
+        // Startups by category
+        const categoryStartups = startups
+            .filter((s: any) => s.categorySlug === story.categorySlug)
+            .slice(0, 4);
 
         const canonical = `${SITE_URL}/stories/${story.slug}`;
         const description = story.meta_description || story.excerpt || (story.content?.slice(0, 160) ?? "Startup story on StartupSaga.in");
@@ -130,7 +143,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
                     <StoryDetailContent
                         story={story}
                         relatedStories={relatedStories}
-                        cityStartups={cityStartups}
+                        categoryStartups={categoryStartups}
                     />
                 </Layout>
             </>

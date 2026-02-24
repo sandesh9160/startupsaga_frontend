@@ -21,7 +21,7 @@ export default async function IndexPage() {
     let featuredStartups: any[] = [];
     let topCities: any[] = [];
     let topCategories: any[] = [];
-    let platformStats = { total_startups: 3160, total_stories: 861 };
+    let platformStats = { total_startups: 0, total_stories: 0 };
     let hasError = false;
 
     try {

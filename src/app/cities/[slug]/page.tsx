@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { CityDetailContent } from "@/components/cities/CityDetailContent";
-import { getCityBySlug, getCategories } from "@/lib/api";
+import { getCityBySlug, getCategories, getCities } from "@/lib/api";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
@@ -53,9 +53,10 @@ export default async function CityDetailPage({ params }: { params: Promise<{ slu
     const redirectTo = await resolveRedirect(`/cities/${slug}`);
     if (redirectTo) redirect(redirectTo);
     try {
-        const [cityData, allCategories] = await Promise.all([
+        const [cityData, allCategories, allCities] = await Promise.all([
             getCityBySlug(slug),
-            getCategories()
+            getCategories(),
+            getCities()
         ]);
 
         if (!cityData) {
@@ -98,6 +99,7 @@ export default async function CityDetailPage({ params }: { params: Promise<{ slu
                         cityStartups={cityStartups}
                         cityStories={cityStories}
                         topCategories={topCategories}
+                        allCities={allCities}
                     />
                 </Layout>
             </>

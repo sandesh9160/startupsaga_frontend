@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { StoryCard } from "@/components/cards/StoryCard";
+import { StartupCard } from "@/components/cards/StartupCard";
 import { CompanyInfoSidebar } from "@/components/stories/CompanyInfoSidebar";
 import { Button } from "@/components/ui/button";
 import {
     ArrowLeft,
     Calendar,
-    Twitter,
-    Linkedin,
     Link as LinkIcon,
     Share2,
     MapPin,
@@ -18,9 +17,15 @@ import {
     List,
     Clock,
     TrendingUp,
-    Share
+    Share,
+    Linkedin,
+    Twitter,
+    Tag,
+    User,
+    Sparkles
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { getSafeImageSrc } from "@/lib/images";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -28,36 +33,51 @@ import { cn } from "@/lib/utils";
 interface StoryDetailContentProps {
     story: any;
     relatedStories: any[];
-    cityStartups: any[];
+    categoryStartups: any[];
 }
 
-export function StoryDetailContent({ story, relatedStories, cityStartups }: StoryDetailContentProps) {
+export function StoryDetailContent({ story, relatedStories, categoryStartups }: StoryDetailContentProps) {
     const [tableOfContents, setTableOfContents] = useState<Array<{ id: number; title: string; anchor: string }>>([]);
     const [activeSection, setActiveSection] = useState<string>("");
 
+    const handleShare = () => {
+        if (typeof navigator !== "undefined" && navigator.share) {
+            navigator.share({ title: story.title, text: story.excerpt, url: window.location.href })
+                .catch(() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success("Link copied!");
+                });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            toast.success("Link copied!");
+        }
+    };
+
     useEffect(() => {
+        let toc: Array<{ id: number; title: string; anchor: string }> = [];
+
         if (story.sections && Array.isArray(story.sections) && story.sections.length > 0) {
-            const toc = story.sections.map((section: any, idx: number) => ({
+            const sectionToc = story.sections.map((section: any, idx: number) => ({
                 id: idx + 1,
                 title: section.title || section.heading || '',
-                anchor: (section.title || section.heading || '').toLowerCase().replace(/\s+/g, '-')
+                anchor: (section.title || section.heading || '').toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')
             }));
-            setTableOfContents(toc);
+            toc = [...toc, ...sectionToc];
         } else if (story.content && typeof story.content === 'string') {
-            // Support both h2 and h3 for TOC
             const headingRegex = /<h[23][^>]*>(.*?)<\/h[23]>/gi;
             const matches = [...story.content.matchAll(headingRegex)];
-            const toc = matches.map((match, idx) => {
+            const contentToc = matches.map((match, idx) => {
                 const title = match[1].replace(/<[^>]*>/g, '').trim();
                 return {
                     id: idx + 1,
                     title,
-                    anchor: title.toLowerCase().replace(/\s+/g, '-')
+                    anchor: title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')
                 };
             }).filter(item => item.title.length > 0);
-            setTableOfContents(toc);
+            toc = [...toc, ...contentToc];
         }
-    }, [story.content, story.sections]);
+        setTableOfContents(toc);
+    }, [story.content, story.excerpt, story.sections]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -80,88 +100,100 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
     }, [tableOfContents]);
 
     return (
-        <article className="bg-[#FAFBFD] min-h-screen font-sans selection:bg-orange-100 selection:text-orange-900 pb-20">
+        <article className="bg-white min-h-screen font-sans selection:bg-orange-100 selection:text-orange-900 pb-12">
             {/* Header / Hero Section */}
-            <header className="bg-white pt-16 pb-12">
-                <div className="container max-w-[1400px] mx-auto px-4">
+            <header className="bg-white pt-10 pb-8">
+                <div className="container-wide">
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-8 max-w-5xl lg:pl-10"
+                        className="space-y-4 max-w-5xl"
                     >
                         {/* Category Label */}
-                        <div>
-                            <span className="inline-flex items-center px-4 py-1.5 bg-[#F97316] text-white text-[11px] font-extrabold uppercase tracking-wide rounded-full shadow-sm">
+                        <div className="mb-2">
+                            <span className="inline-flex items-center px-2.5 py-1 bg-[#FF4F18] text-white text-[10px] font-bold uppercase tracking-wider rounded-md">
                                 {story.category || 'Funding'}
                             </span>
                         </div>
 
                         {/* Story Title */}
-                        <h1 className="text-3xl md:text-5xl lg:text-[3.5rem] font-serif font-bold tracking-tight text-zinc-900 leading-[1.15] text-pretty">
+                        <h1 className="text-4xl md:text-5xl lg:text-[56px] font-serif font-semibold tracking-tight text-[#0F172A] leading-[1.05] max-w-5xl">
                             {story.title}
                         </h1>
 
                         {/* Excerpt / Subheading */}
                         {story.excerpt && (
-                            <p className="text-xl md:text-2xl text-zinc-500 leading-relaxed font-medium max-w-4xl">
+                            <p className="text-lg md:text-xl text-zinc-500 leading-relaxed max-w-4xl font-normal">
                                 {story.excerpt}
                             </p>
                         )}
 
                         {/* Meta Detailed Row */}
-                        <div className="flex flex-wrap items-center gap-y-5 gap-x-10 text-[13px] font-semibold text-zinc-500">
+                        <div className="flex flex-wrap items-center gap-y-3 gap-x-5 text-[13px] font-medium text-zinc-400 pt-2">
                             {story.city && (
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="h-4 w-4 text-orange-500" />
+                                <div className="flex items-center gap-1.5">
+                                    <MapPin className="h-4 w-4 text-[#FF4F18]" />
                                     <span>{story.city}</span>
                                 </div>
                             )}
                             {story.category && (
-                                <div className="flex items-center gap-2">
-                                    <Layers className="h-4 w-4 text-orange-500" />
+                                <div className="flex items-center gap-1.5">
+                                    <Tag className="h-4 w-4 text-[#FF4F18]" />
                                     <span>{story.category}</span>
                                 </div>
                             )}
                             {story.related_startup?.founded_year && (
-                                <div className="flex items-center gap-2">
-                                    <Calendar className="h-4 w-4 text-orange-500" />
+                                <div className="flex items-center gap-1.5">
+                                    <Calendar className="h-4 w-4 text-[#FF4F18]" />
                                     <span>Founded {story.related_startup.founded_year}</span>
                                 </div>
                             )}
                             {story.stage && (
-                                <div className="flex items-center gap-2">
-                                    <TrendingUp className="h-4 w-4 text-orange-500" />
+                                <div className="flex items-center gap-1.5">
+                                    <TrendingUp className="h-4 w-4 text-[#FF4F18]" />
                                     <span>{story.stage}</span>
                                 </div>
                             )}
                             {story.read_time && (
-                                <div className="flex items-center gap-2">
-                                    <Clock className="h-4 w-4 text-orange-500" />
+                                <div className="flex items-center gap-1.5">
+                                    <Clock className="h-4 w-4 text-[#FF4F18]" />
                                     <span>{story.read_time} min read</span>
                                 </div>
                             )}
                         </div>
 
                         {/* Author & Status */}
-                        <div className="pt-2 flex items-center gap-4">
-                            <p className="text-sm font-extrabold text-zinc-900">
-                                By {story.author || 'Priya Sharma'}
-                                <span className="text-zinc-400 font-semibold ml-4">{story.publishDate || 'Feb 4, 2026'}</span>
-                            </p>
+                        <div className="flex items-center gap-3 pt-1">
+                            <div className="flex items-center gap-2">
+                                <User className="h-4 w-4 text-[#FF4F18]" />
+                                <span className="text-[15px] font-semibold text-zinc-900">By {story.author_name || story.author || 'Priya Sharma'}</span>
+                            </div>
+                            <span className="text-zinc-400 text-sm font-medium">{story.publishDate || story.publish_date || 'Feb 4, 2026'}</span>
                         </div>
 
                         {/* Share Links */}
-                        <div className="flex items-center gap-4 pt-2">
-                            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Share:</span>
+                        <div className="flex items-center gap-3 pt-4">
+                            <span className="text-[13px] font-medium text-zinc-500">Share:</span>
                             <div className="flex gap-2">
-                                <button className="h-10 w-10 rounded-full border border-zinc-100 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-orange-600 transition-all shadow-sm">
-                                    <Linkedin className="h-4.5 w-4.5" />
+                                <button
+                                    onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`, '_blank')}
+                                    className="h-9 w-9 rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
+                                    title="Share on LinkedIn"
+                                >
+                                    <Linkedin className="h-[18px] w-[18px]" />
                                 </button>
-                                <button className="h-10 w-10 rounded-full border border-zinc-100 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-orange-600 transition-all shadow-sm">
-                                    <Twitter className="h-4.5 w-4.5" />
+                                <button
+                                    className="h-9 w-9 rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
+                                    title="Share on Twitter"
+                                >
+                                    <Twitter className="h-[18px] w-[18px]" />
                                 </button>
-                                <button className="h-10 w-10 rounded-full border border-zinc-100 flex items-center justify-center text-zinc-600 hover:bg-zinc-50 hover:text-orange-600 transition-all shadow-sm">
-                                    <Share2 className="h-4.5 w-4.5" />
+                                <button
+                                    onClick={handleShare}
+                                    className="h-9 w-9 rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
+                                    title="More Options"
+                                >
+                                    <Share2 className="h-[18px] w-[18px]" />
                                 </button>
                             </div>
                         </div>
@@ -170,17 +202,20 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
             </header>
 
             {/* Main Content Area */}
-            <main className="container max-w-[1400px] mx-auto py-4 px-4">
+            <main className="container-wide py-4">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-14">
 
                     {/* Left Column: Story Content */}
-                    <div className="lg:col-span-8 space-y-8 lg:pl-10">
+                    <div className={cn(
+                        "space-y-8 max-w-4xl",
+                        story.related_startup ? "lg:col-span-8" : "lg:col-span-12"
+                    )}>
                         {/* Featured Image */}
                         {(story.thumbnail || story.og_image) && (
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="relative aspect-[16/9] w-full rounded-[2rem] overflow-hidden bg-zinc-100 shadow-xl shadow-zinc-200/50"
+                                className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-zinc-100 shadow-lg shadow-zinc-200/50"
                             >
                                 <img
                                     src={getSafeImageSrc(story.thumbnail || story.og_image)}
@@ -190,14 +225,18 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
                             </motion.div>
                         )}
 
+
                         {/* TL;DR / Summary */}
                         {story.excerpt && (
-                            <section className="bg-[#FEF6F2] rounded-2xl p-6 md:p-7 border border-orange-100/50 shadow-sm relative overflow-hidden">
-                                <h2 className="text-sm font-bold text-[#D94111] mb-4 flex items-center gap-2 tracking-tight">
-                                    <Lightbulb className="h-4 w-4 fill-[#D94111]" />
+                            <section id="tldr" className="bg-[#FEF6F2] rounded-xl p-4 border border-orange-100 shadow-sm relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
+                                    <Lightbulb className="h-16 w-16 text-[#D94111]" />
+                                </div>
+                                <h2 className="text-[16px] font-serif font-bold text-[#D94111] mb-2 flex items-center gap-2 tracking-tight relative z-10">
+                                    <Sparkles className="h-3.5 w-3.5 fill-[#FF4F18] text-[#FF4F18]" />
                                     TL;DR
                                 </h2>
-                                <p className="text-zinc-600 text-sm md:text-base leading-relaxed">
+                                <p className="text-zinc-700 text-[13px] md:text-[14px] leading-relaxed font-normal relative z-10">
                                     {story.excerpt}
                                 </p>
                             </section>
@@ -205,48 +244,55 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
 
                         {/* In-Body Table of Contents */}
                         {tableOfContents.length > 0 && story.show_table_of_contents !== false && (
-                            <section className="bg-white rounded-2xl p-6 md:p-7 border border-zinc-100 shadow-sm">
-                                <h2 className="text-lg font-serif font-bold text-zinc-900 mb-6 flex items-center gap-2 tracking-tight">
-                                    <List className="h-5 w-5 text-orange-500" />
-                                    Table of Contents
-                                </h2>
-                                <ul className="space-y-4">
-                                    {tableOfContents.map((item, idx) => (
-                                        <li key={item.id} className="flex items-start gap-3">
-                                            <span className="text-orange-500 font-serif font-bold text-[15px] mt-px">{idx + 1}.</span>
-                                            <a
-                                                href={`#${item.anchor}`}
-                                                className="text-zinc-600 hover:text-orange-600 font-medium font-serif text-[17px] transition-colors"
-                                            >
-                                                {item.title}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </section>
+                            <div className="bg-white rounded-xl border border-zinc-100 p-4 shadow-sm">
+                                <div className="flex items-center gap-2.5 mb-4">
+                                    <List size={16} className="text-[#FF4F18]" />
+                                    <h2 className="text-base font-serif font-bold text-[#0F172A] mb-0">Table of Contents</h2>
+                                </div>
+                                <nav>
+                                    <ol className="flex flex-col gap-y-3">
+                                        {tableOfContents.map((item, idx) => (
+                                            <li key={item.anchor} className="flex items-start gap-2 group">
+                                                <span className="text-[#FF4F18] font-medium text-[13px] shrink-0 font-serif">
+                                                    {idx + 1}.
+                                                </span>
+                                                <a href={`#${item.anchor}`}
+                                                    className={`text-[13px] font-medium leading-snug transition-all ${activeSection === item.anchor ? "text-[#FF4F18]" : "text-zinc-500 group-hover:text-[#FF4F18]"}`}>
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ol>
+                                </nav>
+                            </div>
                         )}
 
                         {/* Narrative Content */}
-                        <section className="prose prose-zinc prose-lg max-w-none 
-                            prose-headings:font-serif prose-headings:font-bold prose-headings:text-zinc-900 prose-headings:tracking-tight
-                            prose-h2:text-3xl md:prose-h2:text-[2.2rem] prose-h2:mt-16 prose-h2:mb-8 prose-h2:scroll-mt-24
-                            prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-6
-                            prose-p:text-zinc-600 prose-p:leading-relaxed prose-p:mb-10 prose-p:font-normal prose-p:text-[1.1rem]
-                            prose-a:text-orange-600 prose-a:no-underline hover:prose-a:underline
-                            prose-strong:text-zinc-900 prose-strong:font-bold
-                            prose-ul:my-10 prose-li:text-zinc-600 prose-li:mb-2
-                            prose-img:rounded-[2rem] prose-img:my-16 prose-img:border prose-img:border-zinc-100 shadow-lg shadow-zinc-200/50"
-                        >
+                        <section className="prose prose-zinc max-w-none leading-relaxed
+                            prose-headings:font-semibold prose-headings:text-[#0F172A] prose-headings:tracking-tight
+                            prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:font-serif prose-h2:leading-[1.4]
+                            prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3 prose-h3:font-serif
+                            prose-p:text-zinc-600 prose-p:mb-5 prose-p:text-[15px] prose-p:leading-relaxed prose-p:font-medium
+                            prose-strong:text-[#0F172A] prose-strong:font-semibold
+                            prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8
+                            prose-table:text-[13px] prose-table:border-collapse prose-th:bg-zinc-50 prose-th:border prose-th:border-zinc-200 prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-zinc-200 prose-td:px-3 prose-td:py-2">
                             {story.content ? (
                                 <div dangerouslySetInnerHTML={{
-                                    __html: story.content.replace(
-                                        /<(h[23])([^>]*)>(.*?)<\/\1>/gi,
-                                        (match: string, tag: string, attrs: string, content: string) => {
-                                            const title = content.replace(/<[^>]*>/g, '').trim();
-                                            const id = title.toLowerCase().replace(/\s+/g, '-');
-                                            return `<${tag}${attrs} id="${id}">${content}</${tag}>`;
-                                        }
-                                    )
+                                    __html: story.content
+                                        .replace(
+                                            /<(h[23])([^>]*)>(.*?)<\/\1>/gi,
+                                            (match: string, tag: string, attrs: string, content: string) => {
+                                                const title = content.replace(/<[^>]*>/g, '').trim();
+                                                const id = title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
+                                                return `<${tag}${attrs} id="${id}">${content}</${tag}>`;
+                                            }
+                                        )
+                                        .replace(
+                                            /<img([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi,
+                                            (match: string, p1: string, p2: string, p3: string) => {
+                                                return `<img${p1}src="${getSafeImageSrc(p2)}"${p3}>`;
+                                            }
+                                        )
                                 }} />
                             ) : (
                                 <div className="bg-zinc-50 rounded-2xl p-16 text-center border border-dashed border-zinc-200">
@@ -256,105 +302,147 @@ export function StoryDetailContent({ story, relatedStories, cityStartups }: Stor
                         </section>
 
                         {/* Actions */}
-                        <div className="pt-10 border-t border-zinc-100 flex flex-wrap items-center gap-3">
-                            <Button variant="outline" size="sm" className="h-10 rounded-xl bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 px-5 font-bold text-[11px] uppercase tracking-widest transition-all">
-                                <Share2 className="h-3.5 w-3.5 mr-2" />
+                        <div className="pt-10 border-t border-zinc-100 flex flex-wrap items-center gap-4">
+                            <Button
+                                onClick={handleShare}
+                                variant="outline"
+                                className="h-11 rounded-xl bg-white border-zinc-200 text-zinc-900 px-6 font-bold text-xs uppercase tracking-wider transition-all hover:bg-zinc-50 shadow-sm flex items-center gap-2.5"
+                            >
+                                <LinkIcon className="h-4 w-4 text-zinc-400" />
                                 Copy Link
                             </Button>
                             <Button
-                                onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}
-                                variant="outline" size="sm" className="h-10 rounded-xl bg-white border-zinc-200 text-[#0077B5] hover:bg-[#0077B5]/5 px-5 font-bold text-[11px] uppercase tracking-widest transition-all"
+                                onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`, '_blank')}
+                                variant="outline"
+                                className="h-11 rounded-xl bg-white border-zinc-200 text-[#0077B5] hover:bg-zinc-50 px-6 font-bold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-2.5"
                             >
-                                <Linkedin className="h-3.5 w-3.5 mr-2 fill-current" />
+                                <Linkedin className="h-4 w-4 fill-current" />
                                 Share on LinkedIn
                             </Button>
                         </div>
                     </div>
 
-                    {/* Right Column: Sidebar */}
-                    <aside className="lg:col-span-4 space-y-10">
-                        {story.related_startup && (
+                    {/* Right Column: Sidebar (if related startup) */}
+                    {story.related_startup && (
+                        <div className="lg:col-span-4 space-y-8">
                             <div className="sticky top-24">
-                                <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                                    <Building2 className="h-3.5 w-3.5 text-zinc-300" />
-                                    Profile Focus
-                                </h2>
                                 <CompanyInfoSidebar
                                     company={{
-                                        name: story.related_startup?.name || 'Company',
-                                        logo: getSafeImageSrc(story.related_startup?.logo),
-                                        city: story.related_startup?.city || story.city,
-                                        founded: story.related_startup?.founded_year,
-                                        employees: story.related_startup?.team_size,
-                                        founders: story.related_startup?.founders_data?.map((f: any) => f.name),
-                                        categories: story.related_startup?.category ? [story.related_startup.category] : (story.category ? [story.category] : []),
-                                        website: story.related_startup?.website_url,
-                                        slug: story.related_startup?.slug,
+                                        name: story.related_startup.name,
+                                        logo: getSafeImageSrc(story.related_startup.logo),
+                                        city: story.related_startup.city,
+                                        founded: story.related_startup.founded_year,
+                                        employees: story.related_startup.team_size,
+                                        founders: story.related_startup.founders_data?.map((f: any) => f.name) || [],
+                                        categories: [story.related_startup.category].filter(Boolean),
+                                        website: story.related_startup.website_url,
+                                        slug: story.related_startup.slug
                                     }}
                                 />
-                            </div>
-                        )}
 
-                        {/* City Context if no startup focus */}
-                        {!story.related_startup && cityStartups.length > 0 && (
-                            <div className="sticky top-24 space-y-6">
-                                <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Layers className="h-3.5 w-3.5 text-zinc-300" />
-                                    Local Ecosystem
-                                </h2>
-                                <div className="space-y-3">
-                                    {cityStartups.slice(0, 3).map((startup) => (
-                                        <Link
-                                            key={startup.slug}
-                                            href={`/startups/${startup.slug}`}
-                                            className="block p-4 bg-white rounded-2xl border border-zinc-100 hover:shadow-lg hover:shadow-zinc-200/30 transition-all group"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 p-1.5 flex flex-shrink-0 items-center justify-center">
-                                                    {startup.logo ? (
-                                                        <img src={startup.logo} alt={startup.name} className="w-full h-full object-contain" />
-                                                    ) : (
-                                                        <Building2 className="h-4 w-4 text-zinc-200" />
+                                {/* Quick TOC Sidebar for desktop */}
+                                {tableOfContents.length > 0 && (
+                                    <div className="mt-8 p-6 bg-white rounded-2xl border border-zinc-100 shadow-sm hidden lg:block">
+                                        <div className="flex items-center gap-2 mb-4 text-indigo-600">
+                                            <List className="h-4 w-4" />
+                                            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 font-serif">
+                                                On this page
+                                            </h3>
+                                        </div>
+                                        <nav className="flex flex-col gap-3">
+                                            {tableOfContents.map((item) => (
+                                                <a
+                                                    key={item.id}
+                                                    href={`#${item.anchor}`}
+                                                    className={cn(
+                                                        "text-sm font-medium transition-colors hover:text-indigo-600",
+                                                        activeSection === item.anchor ? "text-indigo-600" : "text-zinc-500"
                                                     )}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <h4 className="font-bold text-xs text-zinc-900 group-hover:text-orange-600 transition-colors truncate">{startup.name}</h4>
-                                                    <p className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">{startup.category}</p>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            ))}
+                                        </nav>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </aside>
+                        </div>
+                    )}
                 </div>
             </main>
 
             {/* Recommendations Section */}
-            {relatedStories.length > 0 && (
-                <section className="bg-white border-t border-zinc-100 py-24">
-                    <div className="container max-w-7xl mx-auto px-4">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-                            <div className="space-y-4">
-                                <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 tracking-tight">Expand Your Horizon</h2>
-                                <p className="text-zinc-500 font-medium text-lg">More analysis from the {story.category} sector.</p>
-                            </div>
-                            <Button asChild variant="ghost" className="text-[10px] font-bold uppercase tracking-widest gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50">
-                                <Link href="/stories">
-                                    All Stories
-                                    <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
-                                </Link>
-                            </Button>
+            {
+                (relatedStories.length > 0 || categoryStartups.length > 0) && (
+                    <section className="bg-transparent border-t border-zinc-100 py-16 md:py-20">
+                        <div className="container-wide space-y-20">
+
+                            {/* Related Stories */}
+                            {relatedStories.length > 0 && (
+                                <div className="space-y-10">
+                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                                        <div className="space-y-2">
+                                            <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#0F172A] tracking-tight font-serif">Explore Related Stories</h2>
+                                            <p className="text-zinc-500 font-medium text-lg">More insights from the {story.category} ecosystem.</p>
+                                        </div>
+                                        <Button asChild variant="ghost" className="text-xs font-bold uppercase tracking-wider gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
+                                            <Link href="/stories">
+                                                All Stories
+                                                <ArrowLeft className="h-4 w-4 rotate-180" />
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                        {relatedStories.map((s) => (
+                                            <StoryCard
+                                                key={s.slug}
+                                                slug={s.slug}
+                                                title={s.title}
+                                                excerpt={s.excerpt}
+                                                thumbnail={s.thumbnail}
+                                                og_image={s.og_image}
+                                                category={s.category}
+                                                categorySlug={s.category_slug}
+                                                city={s.city}
+                                                citySlug={s.city_slug}
+                                                publishDate={s.publishDate || s.publish_date}
+                                                author_name={s.author_name || s.author}
+                                                read_time={s.read_time}
+                                                featured={false}
+                                                isFeatured={false}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Category Startups */}
+                            {categoryStartups.length > 0 && (
+                                <div className="space-y-10">
+                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-10 border-t border-zinc-50">
+                                        <div className="space-y-2">
+                                            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#0F172A] tracking-tight font-serif">Companies in this Sector</h2>
+                                            <p className="text-zinc-500 font-medium text-lg">Explore ventures shaping the future of {story.category}.</p>
+                                        </div>
+                                        <Button asChild variant="ghost" className="text-xs font-bold uppercase tracking-wider gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
+                                            <Link href="/startups">
+                                                Manage Directory
+                                                <ArrowLeft className="h-4 w-4 rotate-180" />
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                        {categoryStartups.map((s) => (
+                                            <StartupCard key={s.slug} {...s} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                            {relatedStories.map((s) => (
-                                <StoryCard key={s.slug} {...s} />
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
-        </article>
+                    </section>
+                )
+            }
+        </article >
     );
 }
