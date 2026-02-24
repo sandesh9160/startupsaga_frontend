@@ -46,7 +46,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
                 </div>
 
                 <div className="relative z-10 container-wide text-center">
-                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold font-serif mb-8 text-white tracking-tight">
+                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-semibold font-serif mb-8 text-white tracking-tight">
                         Startups in {city.name}
                     </h1>
 
@@ -76,10 +76,16 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
             {/* Ecosystem Description Card */}
             <section className="container-wide mt-4 relative z-20 mb-6">
                 <div className="bg-white rounded-md p-4 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-zinc-100 max-w-[1400px] mx-auto">
-                    <h2 className="text-lg md:text-xl font-bold text-zinc-900 mb-3 font-serif">
+                    <h2 className="text-lg md:text-xl font-semibold text-zinc-900 mb-3 font-serif">
                         The {city.name} Startup Ecosystem
                     </h2>
-                    <div className="prose prose-sm md:prose-base max-w-none text-zinc-600/90 leading-relaxed font-medium">
+                    <div className="prose prose-zinc max-w-none leading-relaxed
+                                    prose-headings:font-semibold prose-headings:text-[#0F172A] prose-headings:tracking-tight
+                                    prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:font-serif prose-h2:leading-[1.2]
+                                    prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-h3:font-serif
+                                    prose-p:text-zinc-600 prose-p:mb-5 prose-p:text-[15px] prose-p:leading-relaxed prose-p:font-medium
+                                    prose-strong:text-[#0F172A] prose-strong:font-semibold
+                                    prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8">
                         {city.description ? (
                             <div dangerouslySetInnerHTML={{ __html: city.description }} />
                         ) : (
@@ -101,7 +107,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
 
             {/* Explore Header */}
             <section className="container-wide py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <h2 className="text-2xl md:text-3xl font-bold font-serif text-zinc-900 tracking-tight">
+                <h2 className="text-2xl md:text-3xl font-semibold font-serif text-zinc-900 tracking-tight">
                     Explore Startups in {city.name}
                 </h2>
 
@@ -133,7 +139,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
             {/* Featured Startups Section */}
             <section className="container-wide py-4">
                 <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-xl font-bold text-zinc-900 font-serif">Featured Startups</h2>
+                    <h2 className="text-xl font-semibold text-zinc-900 font-serif">Featured Startups</h2>
                     <Link href="/startups" className="text-orange-600 font-black text-[10px] uppercase tracking-[0.15em] flex items-center gap-1.5 hover:opacity-70 transition-opacity">
                         View all startups <ArrowRight className="h-3 w-3" />
                     </Link>
@@ -155,7 +161,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
             {/* Latest Stories Section */}
             <section className="container-wide py-6 border-t border-zinc-50 mt-6">
                 <div className="flex items-center justify-between mb-10">
-                    <h2 className="text-lg font-bold text-zinc-900 font-serif">Latest Stories from {city.name}</h2>
+                    <h2 className="text-lg font-semibold text-zinc-900 font-serif">Latest Stories from {city.name}</h2>
                     <Link href="/stories" className="text-orange-600 font-black text-[9px] uppercase tracking-[0.15em] flex items-center gap-1.5 hover:opacity-70 transition-opacity">
                         View all stories <ArrowRight className="h-3 w-3" />
                     </Link>
@@ -193,25 +199,25 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
             <section className="container-wide py-8 bg-[#FDFDFD] border-y border-zinc-100/50">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 text-center">
                     <div>
-                        <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-1 font-serif">
+                        <div className="text-3xl md:text-4xl font-semibold text-orange-600 mb-1 font-serif">
                             {(city.startupCount || cityStartups.length || 0).toLocaleString()}+
                         </div>
                         <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Active Startups</div>
                     </div>
                     <div>
-                        <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-1 font-serif">
+                        <div className="text-3xl md:text-4xl font-semibold text-orange-600 mb-1 font-serif">
                             {city.unicornCount || 0}
                         </div>
                         <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Unicorns</div>
                     </div>
                     <div>
-                        <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-1 font-serif">
+                        <div className="text-3xl md:text-4xl font-semibold text-orange-600 mb-1 font-serif">
                             {city.fundingAmount || "$1.2B"}
                         </div>
                         <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Total Funding</div>
                     </div>
                     <div>
-                        <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-1 font-serif">
+                        <div className="text-3xl md:text-4xl font-semibold text-orange-600 mb-1 font-serif">
                             {city.investorCount || "50+"}
                         </div>
                         <div className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Active Investors</div>
@@ -221,7 +227,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
 
             {/* Other Hubs Section */}
             <section className="container-wide py-8">
-                <h2 className="text-xl font-bold text-zinc-900 font-serif mb-8">Explore Other Startup Hubs</h2>
+                <h2 className="text-xl font-semibold text-zinc-900 font-serif mb-8">Explore Other Startup Hubs</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                     {(allCities.length > 0 ? allCities : []).filter(c => c.slug !== city.slug).slice(0, 7).map((otherCity) => (
                         <Link
@@ -243,7 +249,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
             <section className="container-wide pb-8">
                 <div className="bg-[#FFF5F1] rounded-3xl p-4 md:p-6 border border-orange-100/50 relative overflow-hidden">
                     <div className="relative z-10 max-w-2xl">
-                        <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 font-serif mb-3 tracking-tight">
+                        <h2 className="text-2xl md:text-3xl font-semibold text-zinc-900 font-serif mb-3 tracking-tight">
                             Building a startup in {city.name}?
                         </h2>
                         <p className="text-zinc-600 text-base md:text-lg mb-8 leading-relaxed">

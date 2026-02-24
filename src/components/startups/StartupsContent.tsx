@@ -24,7 +24,17 @@ import { getStartups, getCategories, getCities } from "@/lib/api";
 import { Startup, Category, City } from "@/types";
 import { cn } from "@/lib/utils";
 
-export function StartupsContent() {
+interface StartupsContentProps {
+    title?: string;
+    description?: string;
+    content?: string;
+}
+
+export function StartupsContent({
+    title,
+    description,
+    content
+}: StartupsContentProps) {
     const [startups, setStartups] = useState<Startup[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [cities, setCities] = useState<City[]>([]);
@@ -72,60 +82,65 @@ export function StartupsContent() {
     const hasActiveFilters = searchQuery || selectedCategory !== "all" || selectedCity !== "all" || selectedStage !== "all";
 
     return (
-        <div className="bg-[#FAF9FB] min-h-screen font-sans" suppressHydrationWarning>
-            {/* Elegant Hero Section — */}
-            <section className="relative pt-24 pb-20 overflow-hidden bg-[#FAF5F2]">
-                <div className="container-wide relative z-10">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <div className="space-y-6">
-                            <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold text-[#1a1a1a] tracking-tight leading-tight font-serif">
-                                India Startup Directory - Discover <br />
-                                5,000+ Companies
-                            </h1>
-
-                            <div className="max-w-3xl mx-auto space-y-4">
-                                <p className="text-base md:text-lg text-zinc-500 leading-relaxed font-medium">
-                                    The most comprehensive directory of Indian startups—from early-stage disruptors to
-                                    established unicorns. Browse companies across fintech, SaaS, D2C, healthtech, and more,
-                                    all building the future of India's digital economy.
-                                </p>
-                                <p className="text-zinc-500 text-sm md:text-base px-10">
-                                    Filter by sector, city, or funding stage to find startups that match your interests, whether you're an investor, job seeker, or fellow entrepreneur.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Compact Search Bar */}
-                        <div className="max-w-2xl mx-auto mt-8">
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                                    <Search className="h-4 w-4 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
-                                </div>
-                                <Input
-                                    placeholder="Search startups by name or description..."
-                                    className="w-full h-12 pl-12 pr-12 rounded-2xl bg-white border-zinc-200 shadow-lg shadow-zinc-200/10 focus:ring-0 focus:border-zinc-300 text-zinc-700 text-sm transition-all"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                                {searchQuery && (
-                                    <button
-                                        onClick={() => setSearchQuery("")}
-                                        className="absolute right-5 inset-y-0 flex items-center text-zinc-400 hover:text-zinc-600"
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
+        <div className="bg-white min-h-screen font-sans" suppressHydrationWarning>
+            {/* Elegant Hero Section */}
+            {(title || description || content) && (
+                <section className="relative pt-20 overflow-hidden bg-white">
+                    <div className="container-wide relative z-10">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <div className="space-y-6">
+                                {title && (
+                                    <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold text-[#1a1a1a] tracking-tight leading-tight font-serif"
+                                        dangerouslySetInnerHTML={{ __html: title }}
+                                    />
                                 )}
+
+                                <div className="max-w-3xl mx-auto space-y-4">
+                                    {description && (
+                                        <div className="text-base md:text-lg text-zinc-500 leading-relaxed font-medium"
+                                            dangerouslySetInnerHTML={{ __html: description }}
+                                        />
+                                    )}
+                                    {content && (
+                                        <div className="text-zinc-500 text-sm md:text-base px-10"
+                                            dangerouslySetInnerHTML={{ __html: content }}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* Content Section with Filters and Cards */}
-            <main className="container-wide -mt-4 relative z-20 pb-20">
+            <main className="container-wide relative z-20 pb-20">
                 <div className="max-w-7xl mx-auto">
+                    {/* Compact Search Bar */}
+                    <div className="max-w-2xl mx-auto mb-8 mt-6">
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                                <Search className="h-4 w-4 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
+                            </div>
+                            <Input
+                                placeholder="Search startups by name or description..."
+                                className="w-full h-12 pl-12 pr-12 rounded-2xl bg-white border-zinc-200 shadow-lg shadow-zinc-200/10 focus:ring-0 focus:border-zinc-300 text-zinc-700 text-sm transition-all"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery("")}
+                                    className="absolute right-5 inset-y-0 flex items-center text-zinc-400 hover:text-zinc-600"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Compact Filters Card */}
-                    <div className="bg-white rounded-2xl p-3 mb-4 mt-8 border border-zinc-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
+                    <div className="bg-white rounded-2xl p-3 mb-4 mt-10 border border-zinc-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
                         <div className="flex flex-wrap items-center gap-3">
                             <div className="flex items-center gap-2 text-zinc-400 font-bold text-[10px] uppercase tracking-widest mr-1">
                                 <Filter size={12} /> Filters:
@@ -192,13 +207,13 @@ export function StartupsContent() {
 
                     {/* Results Grid */}
                     {isLoading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
                                 <div key={i} className="h-[220px] rounded-2xl bg-white border border-zinc-100 animate-pulse" />
                             ))}
                         </div>
                     ) : startups.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             {startups.map((startup) => (
                                 <StartupCard key={startup.slug} {...startup} />
                             ))}
@@ -245,7 +260,6 @@ export function StartupsContent() {
                     )}
                 </div>
             </main>
-
         </div>
     );
 }

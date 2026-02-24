@@ -135,5 +135,10 @@ export const iconMap: Record<string, LucideIcon> = {
 };
 
 export function getIcon(name: string): LucideIcon {
-    return iconMap[name.toLowerCase()] || HelpCircle;
+    if (!name) return HelpCircle;
+    const n = name.toLowerCase().trim();
+    return iconMap[n] ||
+        iconMap[n.replace(/\s+|-/g, '')] ||
+        iconMap[n.replace(/\s+/g, '-')] ||
+        HelpCircle;
 }

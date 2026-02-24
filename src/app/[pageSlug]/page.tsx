@@ -84,9 +84,15 @@ export default async function StaticPageRoute({ params }: { params: Promise<{ pa
                     ) : (
                         <div className="container-wide py-12 md:py-20">
                             <article>
-                                <h1 className="text-4xl font-bold font-serif text-foreground mb-8">{page.title}</h1>
+                                <h1 className="text-4xl font-semibold font-serif text-foreground mb-8">{page.title}</h1>
                                 <div
-                                    className="prose prose-lg max-w-none dark:prose-invert"
+                                    className="prose prose-zinc prose-sm max-w-none leading-relaxed
+                                        prose-headings:font-semibold prose-headings:text-zinc-900 prose-headings:tracking-tight
+                                        prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-5 prose-h2:font-serif prose-h2:leading-[1.2]
+                                        prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:font-serif
+                                        prose-p:text-zinc-600 prose-p:mb-6 prose-p:text-[18px] prose-p:leading-relaxed
+                                        prose-strong:text-zinc-900 prose-strong:font-bold
+                                        prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-10"
                                     dangerouslySetInnerHTML={{ __html: page.content || "" }}
                                 />
                             </article>

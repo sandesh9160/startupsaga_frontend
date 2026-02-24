@@ -12,7 +12,7 @@ export function TrendingStories({ stories }: TrendingStoriesProps) {
     return (
         <div className="bg-white rounded-2xl border border-zinc-100 p-8 shadow-sm sticky top-24">
             <div className="flex items-center gap-3 mb-8">
-                <TrendingUp className="h-5 w-5 text-[#F2542D]" />
+                <TrendingUp className="h-5 w-5 text-[#FF4F18]" />
                 <h2 className="font-serif text-xl font-bold text-[#0F172A] mb-0">Trending This Week</h2>
             </div>
 
@@ -27,15 +27,15 @@ export function TrendingStories({ stories }: TrendingStoriesProps) {
                             href={`/stories/${story.slug}`}
                             className="group flex gap-5 items-start"
                         >
-                            <div className="flex-shrink-0 text-3xl font-black text-zinc-100 group-hover:text-[#F2542D]/20 transition-colors font-serif leading-none pt-1">
+                            <div className="flex-shrink-0 text-3xl font-black text-zinc-100 group-hover:text-[#FF4F18]/20 transition-colors font-serif leading-none pt-1">
                                 {index + 1}
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <h3 className="font-bold text-[#0F172A] text-[15px] line-clamp-2 leading-snug group-hover:text-[#D94111] transition-colors mb-2">
+                                <h3 className="font-bold text-[#0F172A] text-[15px] line-clamp-2 leading-snug group-hover:text-[#FF4F18] transition-colors mb-2">
                                     {story.title}
                                 </h3>
-                                <p className="text-[11px] text-[#F2542D] font-black uppercase tracking-widest">
+                                <p className="text-[10px] text-[#FF4F18] font-bold tracking-wider">
                                     {story.category}
                                 </p>
                             </div>

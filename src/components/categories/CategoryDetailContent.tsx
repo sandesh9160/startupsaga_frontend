@@ -86,7 +86,13 @@ export function CategoryDetailContent({ category, categoryStartups, categoryStor
             <div className="container-wide py-8 relative z-20">
                 <div className="bg-white rounded-2xl border border-zinc-200/60 shadow-sm p-6 md:p-8 mb-8">
                     <h2 className="text-xl md:text-2xl font-bold text-zinc-900 font-serif mb-4">About {category.name} Startups in India</h2>
-                    <div className="prose prose-zinc prose-sm max-w-none text-zinc-500 leading-relaxed space-y-4">
+                    <div className="prose prose-zinc max-w-none leading-relaxed
+                                    prose-headings:font-semibold prose-headings:text-[#0F172A] prose-headings:tracking-tight
+                                    prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:font-serif prose-h2:leading-[1.2]
+                                    prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-h3:font-serif
+                                    prose-p:text-zinc-600 prose-p:mb-5 prose-p:text-[15px] prose-p:leading-relaxed prose-p:font-medium
+                                    prose-strong:text-[#0F172A] prose-strong:font-semibold
+                                    prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8">
                         <p>{category.description || `The Indian ${category.name} ecosystem is undergoing a massive transformation, driven by digital adoption, innovative business models, and significant venture capital activity. From early-stage disruptors to established giants, these companies are redefining the landscape of the Indian economy.`}</p>
                         <p>Whether you're an entrepreneur exploring the {category.name} model, an investor scouting opportunities, or a professional considering joining a high-growth startup, StartupSaga's {category.name} category provides comprehensive coverage of funding announcements, founder stories, market analysis, and startup profiles.</p>
                     </div>

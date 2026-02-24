@@ -59,8 +59,8 @@ export function Banner({
                             viewport={{ once: true }}
                             className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20"
                         >
-                            <Sparkles className="h-3 w-3" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">{subtitle}</span>
+                            <Sparkles className="h-4 w-4" />
+                            <span className="text-xs font-semibold uppercase tracking-wider">{subtitle}</span>
                         </motion.div>
                     )}
 
@@ -69,7 +69,7 @@ export function Banner({
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6 tracking-tight leading-[1.2] font-serif"
+                        className="text-3xl md:text-4xl lg:text-5xl font-serif font-semibold mb-6 tracking-tight leading-[1.2]"
                     >
                         {title}
                     </motion.h2>
@@ -80,7 +80,7 @@ export function Banner({
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.2 }}
-                            className="text-lg md:text-xl opacity-80 mb-8 max-w-2xl mx-auto leading-relaxed"
+                            className="text-xl md:text-2xl opacity-90 mb-8 max-w-2xl mx-auto leading-relaxed font-medium"
                         >
                             {description}
                         </motion.p>
@@ -99,8 +99,8 @@ export function Banner({
                                 asChild
                             >
                                 <Link href={link_url}>
-                                    <span className="font-bold">{link_text || "Learn More"}</span>
-                                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                    <span className="text-lg font-bold">{link_text || "Learn More"}</span>
+                                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                             </Button>
                         </motion.div>

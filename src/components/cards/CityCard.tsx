@@ -96,7 +96,7 @@ export function CityCard({
 
           {/* Bottom Content Section */}
           <div className="p-5 flex flex-col flex-grow">
-            <p className="text-zinc-500 text-sm leading-relaxed mb-4 line-clamp-2 font-medium">
+            <p className="text-zinc-600 text-[15px] leading-relaxed mb-4 line-clamp-2 font-medium">
               {description || `Discover the thriving startup ecosystem of ${name}, home to innovative founders and high-growth companies.`}
             </p>
 
@@ -124,7 +124,7 @@ export function CityCard({
   return (
     <Link href={`/cities/${slug}`} className={cn("block group h-full", className)}>
       <article
-        className="relative rounded-2xl h-40 md:h-48 border overflow-hidden flex flex-col justify-end text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+        className="relative rounded-2xl h-32 md:h-40 border overflow-hidden flex flex-col justify-end text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
         style={{ borderColor: image ? 'transparent' : palette.border, backgroundColor: palette.bg }}
       >
         {/* Full Background Image */}
@@ -158,10 +158,10 @@ export function CityCard({
             </div>
           )}
 
-          <h3 className={cn("font-bold text-lg md:text-xl leading-tight mb-1", image ? "text-white" : "text-[#0F172A]")}>
+          <h3 className={cn("font-serif font-bold text-2xl leading-snug mb-1.5", image ? "text-white" : "text-[#0F172A]")}>
             {name}
           </h3>
-          <p className={cn("text-xs font-semibold", image ? "text-white/80" : "text-zinc-500")}>
+          <p className={cn("text-[13px] font-medium leading-relaxed", image ? "text-white/80" : "text-zinc-500")}>
             {startupCount} startups
           </p>
         </div>

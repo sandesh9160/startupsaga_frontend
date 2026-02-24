@@ -188,7 +188,7 @@ export function Header({ initialNav = [] }: HeaderProps) {
             aria-label="Toggle menu"
             suppressHydrationWarning
           >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileMenuOpen ? <X className="h-5 w-5" strokeWidth={1.5} /> : <Menu className="h-5 w-5" strokeWidth={1.5} />}
           </button>
         </div>
 

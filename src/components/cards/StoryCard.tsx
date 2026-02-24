@@ -56,16 +56,31 @@ export function StoryCard({
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           unoptimized={isSvg}
         />
-        <div className="absolute inset-0 p-10 flex flex-col justify-end bg-gradient-to-t from-[#0F172A]/90 via-[#0F172A]/40 to-transparent">
+        <div className="absolute inset-0 p-8 lg:p-10 flex flex-col justify-end bg-gradient-to-t from-[#0F172A]/95 via-[#0F172A]/40 to-transparent">
           {category && (
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#F2542D] mb-2 block">
+            <span className="text-[10px] font-bold text-[#FF4F18] mb-2 block tracking-wider">
               {category}
             </span>
           )}
-          <Link href={`/stories/${slug}`} className="font-serif font-bold text-3xl lg:text-4xl mb-3 text-white hover:text-orange-200 transition-colors line-clamp-2 leading-tight block">
+          <Link href={`/stories/${slug}`} className="font-serif font-semibold text-3xl lg:text-4xl mb-4 text-white hover:text-orange-200 transition-colors line-clamp-2 leading-[1.1] block">
             {title}
           </Link>
-          <time className="text-[10px] font-bold text-zinc-300 opacity-70">{publishDate}</time>
+
+          <div className="flex items-center gap-4 text-[12px] font-medium text-white/70">
+            {authorDisplay && (
+              <span className="flex items-center gap-1.5 truncate">
+                <User size={13} className="text-[#FF4F18]" />
+                <span className="truncate">{authorDisplay}</span>
+              </span>
+            )}
+            {readTimeDisplay && (
+              <span className="flex items-center gap-1.5 flex-shrink-0">
+                <Clock size={13} className="text-[#FF4F18]" />
+                {readTimeDisplay}
+              </span>
+            )}
+            <span className="opacity-40 ml-1 font-bold tracking-widest uppercase text-[10px]">{publishDate}</span>
+          </div>
         </div>
       </article>
     );
@@ -73,57 +88,58 @@ export function StoryCard({
 
   // Standard card
   return (
-    <article className="flex flex-col bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
+    <article className="flex flex-col bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden hover:shadow-xl hover:shadow-zinc-200/50 hover:-translate-y-1 transition-all duration-300 group">
       {/* Thumbnail */}
-      <Link href={`/stories/${slug}`} className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100 block flex-shrink-0">
+      <Link href={`/stories/${slug}`} className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-50 block flex-shrink-0">
         <Image
           src={thumbnailSrc}
           alt={title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
           unoptimized={isSvg}
         />
       </Link>
 
       {/* Body */}
-      <div className="p-5 flex flex-col flex-1">
+      <div className="p-7 flex flex-col flex-1">
         {category && (
-          <span className="text-[11px] font-bold uppercase tracking-widest text-[#D94111] mb-2 block">
+          <span className="text-[11px] font-bold text-[#FF4F18] mb-2 block tracking-wider">
             {category}
           </span>
         )}
 
         <Link
           href={`/stories/${slug}`}
-          className="font-bold text-[#0F172A] text-[15px] leading-snug line-clamp-2 hover:text-[#D94111] transition-colors mb-2 block"
+          className="font-serif font-semibold text-[#0F172A] text-xl leading-snug line-clamp-2 hover:text-[#FF4F18] transition-colors mb-2 block"
         >
           {title}
         </Link>
 
+        {/* Meta Info */}
+        <div className="flex items-center gap-4 text-[12px] font-medium text-zinc-500 mb-4">
+          {authorDisplay && (
+            <span className="flex items-center gap-1.5 truncate">
+              <User size={14} className="text-[#FF4F18]/80" />
+              <span className="truncate text-zinc-700 font-semibold">{authorDisplay}</span>
+            </span>
+          )}
+          {readTimeDisplay && (
+            <span className="flex items-center gap-1.5 flex-shrink-0">
+              <Clock size={14} className="text-[#FF4F18]/80" />
+              {readTimeDisplay}
+            </span>
+          )}
+        </div>
+
         {excerpt && (
-          <p className="text-sm text-zinc-500 line-clamp-2 leading-relaxed flex-1">
+          <p className="text-[14px] text-zinc-400 font-medium leading-relaxed line-clamp-2 mb-4 flex-1">
             {excerpt}
           </p>
         )}
 
         {/* Footer */}
-        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-zinc-100 text-[11px] text-zinc-400 font-medium">
-          {authorDisplay && (
-            <span className="flex items-center gap-1 truncate">
-              <User className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate">{authorDisplay}</span>
-            </span>
-          )}
-          {authorDisplay && readTimeDisplay && <span className="flex-shrink-0">·</span>}
-          {readTimeDisplay && (
-            <span className="flex items-center gap-1 flex-shrink-0">
-              <Clock className="h-3 w-3" />
-              {readTimeDisplay}
-            </span>
-          )}
-          {!authorDisplay && !readTimeDisplay && publishDate && (
-            <time className="text-zinc-400">{publishDate}</time>
-          )}
+        <div className="mt-auto flex items-center justify-between pt-4 border-t border-zinc-50">
+          <time className="text-[11px] font-bold text-zinc-300 uppercase tracking-widest">{publishDate}</time>
         </div>
       </div>
     </article>

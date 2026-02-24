@@ -9,7 +9,17 @@ import { cn } from "@/lib/utils";
 import { Building2, TrendingUp, Filter, ArrowRight, MapPin } from "lucide-react";
 import Link from "next/link";
 
-export function CitiesContent() {
+interface CitiesContentProps {
+    title?: string;
+    description?: string;
+    content?: string;
+}
+
+export function CitiesContent({
+    title,
+    description,
+    content
+}: CitiesContentProps) {
     const [cities, setCities] = useState<any[]>([]);
     const [stories, setStories] = useState<any[]>([]);
     const [filter, setFilter] = useState<'all' | '1' | '2' | '3'>('all');
@@ -46,47 +56,51 @@ export function CitiesContent() {
     return (
         <div className="bg-[#FAF9FB] min-h-screen font-sans">
             {/* Elegant Hero Section — Exact Match to Screenshot */}
-            <section className="relative pt-24 pb-16 overflow-hidden bg-[#FAF5F2]">
-                <div className="container-wide relative z-10 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] mb-6 font-serif tracking-tight max-w-4xl mx-auto leading-tight">
-                        Startup Cities in India - Bengaluru, <br className="hidden md:block" />
-                        Mumbai, Delhi NCR & More
-                    </h1>
+            {(title || description || content) && (
+                <section className="relative pt-24 pb-16 overflow-hidden bg-[#FAF5F2]">
+                    <div className="container-wide relative z-10 text-center">
+                        {title && (
+                            <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] mb-6 font-serif tracking-tight max-w-4xl mx-auto leading-tight"
+                                dangerouslySetInnerHTML={{ __html: title }}
+                            />
+                        )}
 
-                    <div className="max-w-3xl mx-auto space-y-4 mb-10">
-                        <p className="text-base md:text-lg text-zinc-500 leading-relaxed font-medium">
-                            India's startup revolution extends far beyond Bengaluru. Explore thriving entrepreneurial
-                            ecosystems in metros, emerging Tier 2 cities, and ambitious Tier 3 cities building the next wave
-                            of innovation.
-                        </p>
-                        <p className="text-sm md:text-base text-zinc-500 leading-relaxed mb-6">
-                            Each city profile features local unicorns, top-funded startups, leading investors, co-working spaces, and the
-                            unique strengths shaping its startup culture.
-                        </p>
-                    </div>
-
-                    {/* Stats Section exactly as in screenshot */}
-                    <div className="flex items-center justify-center gap-6 py-2 px-4 mx-auto w-fit">
-                        <div className="flex items-center gap-2">
-                            <Building2 className="w-5 h-5 text-[#FF5C00]" strokeWidth={2} />
-                            <div className="text-left font-medium text-sm text-zinc-500 flex items-center gap-1.5">
-                                <span className="font-bold text-zinc-900">{formattedStartups}</span>
-                                <span>Startups</span>
-                            </div>
+                        <div className="max-w-3xl mx-auto space-y-4 mb-10">
+                            {description && (
+                                <div className="text-base md:text-lg text-zinc-500 leading-relaxed font-medium"
+                                    dangerouslySetInnerHTML={{ __html: description }}
+                                />
+                            )}
+                            {content && (
+                                <div className="text-sm md:text-base text-zinc-500 leading-relaxed mb-6"
+                                    dangerouslySetInnerHTML={{ __html: content }}
+                                />
+                            )}
                         </div>
 
-                        <div className="h-4 w-px bg-zinc-300" />
+                        {/* Stats Section exactly as in screenshot */}
+                        <div className="flex items-center justify-center gap-6 py-2 px-4 mx-auto w-fit">
+                            <div className="flex items-center gap-2">
+                                <Building2 className="w-5 h-5 text-[#FF5C00]" strokeWidth={2} />
+                                <div className="text-left font-medium text-sm text-zinc-500 flex items-center gap-1.5">
+                                    <span className="font-bold text-zinc-900">{formattedStartups}</span>
+                                    <span>Startups</span>
+                                </div>
+                            </div>
 
-                        <div className="flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-[#FF5C00]" strokeWidth={2} />
-                            <div className="text-left font-medium text-sm text-zinc-500 flex items-center gap-1.5">
-                                <span className="font-bold text-zinc-900">{formattedUnicorns}</span>
-                                <span>Unicorns</span>
+                            <div className="h-4 w-px bg-zinc-300" />
+
+                            <div className="flex items-center gap-2">
+                                <TrendingUp className="w-5 h-5 text-[#FF5C00]" strokeWidth={2} />
+                                <div className="text-left font-medium text-sm text-zinc-500 flex items-center gap-1.5">
+                                    <span className="font-bold text-zinc-900">{formattedUnicorns}</span>
+                                    <span>Unicorns</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* Sticky Filters Bar */}
             <div className="sticky top-[64px] z-30 bg-transparent py-4 pb-8 mt-8">

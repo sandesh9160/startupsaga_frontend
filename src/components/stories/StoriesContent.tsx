@@ -22,7 +22,17 @@ import { getStoriesPage, getCategories, getCities } from "@/lib/api";
 import { Story, Category, City } from "@/types";
 import { cn } from "@/lib/utils";
 
-export function StoriesContent() {
+interface StoriesContentProps {
+    title?: string;
+    description?: string;
+    content?: string;
+}
+
+export function StoriesContent({
+    title,
+    description,
+    content
+}: StoriesContentProps) {
     const searchParams = useSearchParams();
     const [stories, setStories] = useState<Story[]>([]);
     const [totalCount, setTotalCount] = useState(0);
@@ -113,23 +123,28 @@ export function StoriesContent() {
     const hasActiveFilters = searchQuery || selectedCategory !== "all" || selectedCity !== "all" || selectedStage !== "all";
 
     return (
-        <div className="bg-background min-h-screen">
-            <section className="container-wide py-12 md:py-16 border-b border-border/60">
-                <div className="max-w-4xl space-y-5">
-                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground font-serif tracking-tight">
-                        Latest Indian Startup Stories & Founder Journeys
-                    </h1>
-                    <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                        Your window into India's startup revolution. From bootstrapped beginnings to billion-dollar exits,
-                        we bring you the untold stories of founders who are reshaping industries.
-                    </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                        Explore in-depth features on funding rounds, pivot moments, growth strategies, and the people behind
-                        India's most ambitious ventures. Updated regularly with the latest from Bengaluru, Mumbai, Delhi NCR,
-                        and emerging startup hubs nationwide.
-                    </p>
-                </div>
-            </section>
+        <div className="bg-transparent min-h-screen">
+            {(title || description || content) && (
+                <section className="container-wide py-12 md:py-16 border-b border-border/60">
+                    <div className="max-w-4xl space-y-5">
+                        {title && (
+                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground font-serif tracking-tight"
+                                dangerouslySetInnerHTML={{ __html: title }}
+                            />
+                        )}
+                        {description && (
+                            <div className="text-base md:text-lg text-muted-foreground leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: description }}
+                            />
+                        )}
+                        {content && (
+                            <div className="text-sm text-muted-foreground leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: content }}
+                            />
+                        )}
+                    </div>
+                </section>
+            )}
 
             <section className="container-wide py-8 border-b border-border/60">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">

@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { JsonLd } from "@/components/seo/JsonLd";
-
-const inter = Inter({
-    subsets: ["latin"],
-    variable: "--font-inter",
-});
 
 const playfair = Playfair_Display({
     subsets: ["latin"],
@@ -76,7 +71,7 @@ export default function RootLayout({
 
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`} suppressHydrationWarning>
+            <body className={`${playfair.variable} font-sans antialiased`} suppressHydrationWarning>
                 <JsonLd data={orgSchema} />
                 <JsonLd data={websiteSchema} />
                 <Providers>{children}</Providers>

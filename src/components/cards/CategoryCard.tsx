@@ -2,19 +2,24 @@
 
 import Link from "next/link";
 import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// Pastel background palette — cycles through colors per card
-const CARD_PALETTES = [
-  { bg: "#EDF7ED", icon: "#4CAF50", border: "#D4EDDA" },  // green
-  { bg: "#FFF3E0", icon: "#FF7043", border: "#FFE0B2" },  // orange
-  { bg: "#E8F4FD", icon: "#1E88E5", border: "#BBDEFB" },  // blue
-  { bg: "#F3E5F5", icon: "#7B1FA2", border: "#E1BEE7" },  // purple
-  { bg: "#FCE4EC", icon: "#E91E63", border: "#F8BBD0" },  // pink
-  { bg: "#E0F2F1", icon: "#00796B", border: "#B2DFDB" },  // teal
-  { bg: "#FFFDE7", icon: "#F57F17", border: "#FFF9C4" },  // yellow
-  { bg: "#E8EAF6", icon: "#3949AB", border: "#C5CAE9" },  // indigo
-  { bg: "#FBE9E7", icon: "#BF360C", border: "#FFCCBC" },  // deep orange
-  { bg: "#E0F7FA", icon: "#00838F", border: "#B2EBF2" },  // cyan
+// Brand-consistent palette for categories (used on homepage)
+const BRAND_STYLE = {
+  bg: "bg-[#FFF5F0]", // Very light orange/peach
+  text: "text-[#0F172A]", // Dark navy for text
+  icon: "text-[#FF5C00]", // High-contrast brand orange
+  border: "border-[#FF5C00]/10"
+};
+
+// Pastel background palette — cycles through colors per card (used on categories page)
+const PALETTES = [
+  { bg: "bg-[#EBF7F5]", text: "text-[#006953]", icon: "text-[#00A884]" }, // Mint/Green
+  { bg: "bg-[#F0F5FF]", text: "text-[#174EA6]", icon: "text-[#1A73E8]" }, // Blue
+  { bg: "bg-[#FFF4ED]", text: "text-[#B05500]", icon: "text-[#E67E22]" }, // Orange
+  { bg: "bg-[#F3E8FF]", text: "text-[#6A1B9A]", icon: "text-[#8E44AD]" }, // Purple
+  { bg: "bg-[#FEF2F2]", text: "text-[#C62828]", icon: "text-[#E74C3C]" }, // Red
+  { bg: "bg-[#E6F9F9]", text: "text-[#00838F]", icon: "text-[#00BCD4]" }, // Teal
 ];
 
 interface CategoryCardProps {
@@ -24,7 +29,7 @@ interface CategoryCardProps {
   startupCount?: number;
   storyCount?: number;
   description?: string;
-  variant?: "card" | "banner";
+  variant?: "compact" | "horizontal";
   paletteIndex?: number;
 }
 
@@ -35,41 +40,41 @@ export function CategoryCard({
   startupCount = 0,
   storyCount = 0,
   description,
-  variant = "card",
+  variant = "compact",
   paletteIndex = 0,
 }: CategoryCardProps) {
-  const palette = CARD_PALETTES[paletteIndex % CARD_PALETTES.length];
+  // Choose style based on paletteIndex for rotation
+  const style = PALETTES[paletteIndex % PALETTES.length];
 
-  // Banner variant — used on /categories page
-  if (variant === "banner") {
+  // Horizontal variant — Used on Categories page ("exact style")
+  if (variant === "horizontal") {
     return (
       <Link href={`/categories/${slug}`} className="block group h-full">
         <article
-          className="rounded-2xl p-5 h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-md border flex flex-col gap-3"
-          style={{ backgroundColor: palette.bg, borderColor: palette.border }}
+          className={cn(
+            "rounded-2xl p-6 h-full transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/5 flex flex-col gap-5",
+            style.bg
+          )}
         >
-          {/* Icon + Name row */}
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
-              style={{ backgroundColor: "rgba(255,255,255,0.7)" }}
-            >
-              <Icon className="h-5 w-5" style={{ color: palette.icon }} strokeWidth={1.8} />
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-sm shrink-0 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3">
+              <Icon className={cn("h-7 w-7", style.icon)} strokeWidth={2} />
             </div>
-            <h3 className="font-bold text-[#0F172A] text-base group-hover:text-[#D94111] transition-colors leading-tight">
-              {name}
-            </h3>
+            <div className="flex flex-col min-w-0">
+              <h3 className="font-serif font-semibold text-2xl text-[#0F172A] leading-none tracking-tight mb-2 truncate">
+                {name}
+              </h3>
+              <p className="text-[12px] font-semibold text-zinc-500 flex items-center gap-2 whitespace-nowrap">
+                <span className="text-[#0F172A]">{startupCount.toLocaleString()}</span> startups
+                <span className="w-1 h-1 rounded-full bg-zinc-300" />
+                <span className="text-[#0F172A]">{storyCount.toLocaleString()}</span> stories
+              </p>
+            </div>
           </div>
 
-          {/* Counts */}
-          <p className="text-[11px] font-semibold text-zinc-500">
-            {startupCount} startups &nbsp;•&nbsp; {storyCount} stories
-          </p>
-
-          {/* Description */}
           {description && (
-            <p className="text-[12px] text-zinc-500 leading-relaxed line-clamp-2">
-              {description}
+            <p className="text-zinc-500 text-[14px] leading-relaxed line-clamp-2 font-medium">
+              {description.replace(/<[^>]*>/g, '')}
             </p>
           )}
         </article>
@@ -77,25 +82,26 @@ export function CategoryCard({
     );
   }
 
-  // Compact vertical card (used on homepage / category grid)
+  // Compact vertical card — Used on homepage (Previous orange style)
   return (
     <Link href={`/categories/${slug}`} className="block group h-full">
       <article
-        className="rounded-2xl p-4 h-full border flex flex-col items-center justify-center text-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
-        style={{ backgroundColor: palette.bg, borderColor: palette.border }}
+        className="bg-white rounded-xl p-4 h-full border border-zinc-100 shadow-sm hover:shadow-md hover:shadow-orange-50/50 transition-all duration-300 flex flex-col items-center justify-center text-center gap-3"
       >
         <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-          style={{ backgroundColor: "rgba(255,255,255,0.7)" }}
+          className={cn(
+            "w-12 h-12 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-inner",
+            BRAND_STYLE.bg
+          )}
         >
-          <Icon className="h-6 w-6" style={{ color: palette.icon }} strokeWidth={1.8} />
+          <Icon className={cn("h-5 w-5", BRAND_STYLE.icon)} strokeWidth={1.5} />
         </div>
-        <div>
-          <h3 className="font-bold text-[13px] text-[#0F172A] group-hover:text-[#D94111] transition-colors leading-tight">
+        <div className="space-y-1 px-2">
+          <h3 className="font-serif font-semibold text-xl text-[#0F172A] leading-snug tracking-tight">
             {name}
           </h3>
-          <p className="text-[10px] text-zinc-400 font-semibold mt-0.5">
-            {storyCount} stories
+          <p className="text-[13px] text-zinc-500 font-medium">
+            {storyCount || 0} stories
           </p>
         </div>
       </article>
