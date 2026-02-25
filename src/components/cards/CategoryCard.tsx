@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 const BRAND_STYLE = {
   bg: "bg-[#FFF5F0]", // Very light orange/peach
   text: "text-[#0F172A]", // Dark navy for text
-  icon: "text-[#FF5C00]", // High-contrast brand orange
-  border: "border-[#FF5C00]/10"
+  icon: "text-[#FF4F18]", // High-contrast brand orange
+  border: "border-[#FF4F18]/10"
 };
 
 // Pastel background palette — cycles through colors per card (used on categories page)

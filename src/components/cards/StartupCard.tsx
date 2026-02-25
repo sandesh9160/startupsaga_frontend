@@ -66,7 +66,7 @@ export function StartupCard({
           )}
         </div>
         <div className="flex-1 min-w-0 pt-0.5">
-          <h3 className="font-bold text-[18px] md:text-[20px] leading-tight text-[#0F172A] mb-1 transition-colors truncate">
+          <h3 className="font-serif font-bold text-[18px] md:text-[20px] leading-tight text-[#0F172A] mb-1 transition-colors truncate">
             {name}
           </h3>
           <p className="text-[13px] text-zinc-400 font-medium leading-tight line-clamp-2">

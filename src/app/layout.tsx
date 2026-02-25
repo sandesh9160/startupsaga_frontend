@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -7,6 +7,11 @@ import { JsonLd } from "@/components/seo/JsonLd";
 const playfair = Playfair_Display({
     subsets: ["latin"],
     variable: "--font-playfair",
+});
+
+const inter = Inter({
+    subsets: ["latin"],
+    variable: "--font-inter",
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -71,7 +76,7 @@ export default function RootLayout({
 
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${playfair.variable} font-sans antialiased`} suppressHydrationWarning>
+            <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
                 <JsonLd data={orgSchema} />
                 <JsonLd data={websiteSchema} />
                 <Providers>{children}</Providers>
