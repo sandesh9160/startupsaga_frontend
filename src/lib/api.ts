@@ -93,7 +93,10 @@ export async function fetchList<T>(endpoint: string, options: RequestInit = {}):
 
 /** Get merged theme settings (global + page overrides) */
 export async function getThemeSettings(params: { pageKey?: string; pageSlug?: string }) {
-  const query = new URLSearchParams(params as any).toString();
+  const clean: Record<string, string> = {};
+  if (params.pageKey) clean.pageKey = params.pageKey;
+  if (params.pageSlug) clean.pageSlug = params.pageSlug;
+  const query = new URLSearchParams(clean).toString();
   return fetchAPI(`/theme/${query ? `?${query}` : ""}`);
 }
 
