@@ -58,7 +58,7 @@ export function CityCard({
   if (variant === 'featured') {
     return (
       <Link href={`/cities/${slug}`} className={cn("block group h-full", className)}>
-        <article className="bg-white rounded-2xl overflow-hidden border border-zinc-100 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col">
+        <article className="bg-white rounded-2xl overflow-hidden border border-zinc-300 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col">
           {/* Top Image Section */}
           <div className="relative h-48 md:h-56 w-full overflow-hidden">
             {image ? (
@@ -75,7 +75,7 @@ export function CityCard({
 
             {/* Tier Badge */}
             {tier && (
-              <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#F2542D] text-white text-[10px] font-bold tracking-wider uppercase z-20">
+              <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#FF4F18] text-white text-[10px] font-bold tracking-wider uppercase z-20">
                 Tier {tier}
               </div>
             )}
@@ -83,7 +83,7 @@ export function CityCard({
             {/* Overlaid Info */}
             <div className="absolute bottom-6 left-6 right-6 text-white z-20">
               <div className="flex items-center gap-2 mb-1">
-                <MapPin className="h-5 w-5 text-[#F2542D] fill-[#F2542D]" />
+                <MapPin className="h-5 w-5 text-[#FF4F18] fill-[#FF4F18]" />
                 <h3 className="text-2xl md:text-3xl font-bold font-serif">{name}</h3>
               </div>
               <div className="flex items-center gap-3 text-[12px] font-medium text-white/90">
@@ -111,7 +111,7 @@ export function CityCard({
                   ))}
                 </div>
               </div>
-              <div className="text-[#F2542D] font-black text-sm tracking-tight">
+              <div className="text-[#FF4F18] font-black text-sm tracking-tight">
                 {fundingAmount || "$1.2B+"}
               </div>
             </div>

@@ -50,6 +50,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CityDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
+    if (slug === "cities") redirect("/cities");
+    if (slug === "startups") redirect("/startups");
+    if (slug === "categories") redirect("/categories");
+    if (slug === "stories") redirect("/stories");
+
     const redirectTo = await resolveRedirect(`/cities/${slug}`);
     if (redirectTo) redirect(redirectTo);
     try {

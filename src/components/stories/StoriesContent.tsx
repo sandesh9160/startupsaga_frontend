@@ -125,20 +125,20 @@ export function StoriesContent({
     return (
         <div className="bg-transparent min-h-screen">
             {(title || description || content) && (
-                <section className="container-wide py-12 md:py-16 border-b border-border/60">
-                    <div className="max-w-4xl space-y-5">
+                <section className="container-wide py-12 md:py-16 border-b border-border/60 text-center">
+                    <div className="max-w-4xl mx-auto space-y-5">
                         {title && (
-                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground font-serif tracking-tight"
+                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground font-serif tracking-tight leading-[1.1] mb-4"
                                 dangerouslySetInnerHTML={{ __html: title }}
                             />
                         )}
                         {description && (
-                            <div className="text-base md:text-lg text-muted-foreground leading-relaxed"
+                            <div className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto"
                                 dangerouslySetInnerHTML={{ __html: description }}
                             />
                         )}
                         {content && (
-                            <div className="text-sm text-muted-foreground leading-relaxed"
+                            <div className="text-sm text-muted-foreground leading-relaxed max-w-2xl mx-auto opacity-80"
                                 dangerouslySetInnerHTML={{ __html: content }}
                             />
                         )}
@@ -146,99 +146,101 @@ export function StoriesContent({
                 </section>
             )}
 
-            <section className="container-wide py-8 border-b border-border/60">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                    <div className="lg:col-span-4">
-                        <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search stories..."
-                                className="h-10 pl-10 rounded-xl border-border/60 bg-card text-sm"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery("")}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            <section className="sticky top-[72px] z-30 bg-white/90 backdrop-blur-md border-b border-zinc-200 py-6 mb-8">
+                <div className="container-wide">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        <div className="lg:col-span-4">
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search stories..."
+                                    className="h-10 pl-10 rounded-xl border-border/60 bg-card text-sm"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery("")}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="lg:col-span-2">
+                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                                <SelectTrigger className="h-10 rounded-xl border-border/60 bg-card text-xs">
+                                    <SelectValue placeholder="All Categories" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-border/60 shadow-2xl">
+                                    <SelectItem value="all">All Categories</SelectItem>
+                                    {categories.map(cat => (
+                                        <SelectItem key={cat.slug} value={cat.name}>{cat.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="lg:col-span-2">
+                            <Select value={selectedCity} onValueChange={setSelectedCity}>
+                                <SelectTrigger className="h-10 rounded-xl border-border/60 bg-card text-xs">
+                                    <SelectValue placeholder="All Cities" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-border/60 shadow-2xl">
+                                    <SelectItem value="all">All Cities</SelectItem>
+                                    {cities.map(city => (
+                                        <SelectItem key={city.slug} value={city.name}>{city.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="lg:col-span-2">
+                            <Select value={selectedStage} onValueChange={setSelectedStage}>
+                                <SelectTrigger className="h-10 rounded-xl border-border/60 bg-card text-xs">
+                                    <SelectValue placeholder="All Stages" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-border/60 shadow-2xl">
+                                    <SelectItem value="all">All Stages</SelectItem>
+                                    <SelectItem value="Bootstrapped">Bootstrapped</SelectItem>
+                                    <SelectItem value="Pre-Seed">Pre-Seed</SelectItem>
+                                    <SelectItem value="Seed">Seed</SelectItem>
+                                    <SelectItem value="Series A">Series A</SelectItem>
+                                    <SelectItem value="Series B+">Series B+</SelectItem>
+                                    <SelectItem value="IPO">IPO</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="lg:col-span-2 flex items-center justify-between lg:justify-end gap-2 text-xs">
+                            <span className="text-muted-foreground hidden lg:inline">Sort:</span>
+                            <div className="flex items-center gap-1.5">
+                                <Button
+                                    variant={sortKey === "latest" ? "accent" : "ghost"}
+                                    className={cn("h-8 rounded-full px-3 text-[10px] font-bold", sortKey === "latest" && "shadow-md shadow-accent/10")}
+                                    onClick={() => { setSortKey("latest"); setPage(1); }}
                                 >
-                                    <X className="h-4 w-4" />
-                                </button>
-                            )}
+                                    Latest
+                                </Button>
+                                <Button
+                                    variant={sortKey === "trending" ? "accent" : "ghost"}
+                                    className="h-8 rounded-full px-3 text-[10px] font-bold"
+                                    onClick={() => { setSortKey("trending"); setPage(1); }}
+                                >
+                                    Trending
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                    <div className="lg:col-span-2">
-                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                            <SelectTrigger className="h-10 rounded-xl border-border/60 bg-card text-xs">
-                                <SelectValue placeholder="All Categories" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-xl border-border/60 shadow-2xl">
-                                <SelectItem value="all">All Categories</SelectItem>
-                                {categories.map(cat => (
-                                    <SelectItem key={cat.slug} value={cat.name}>{cat.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="lg:col-span-2">
-                        <Select value={selectedCity} onValueChange={setSelectedCity}>
-                            <SelectTrigger className="h-10 rounded-xl border-border/60 bg-card text-xs">
-                                <SelectValue placeholder="All Cities" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-xl border-border/60 shadow-2xl">
-                                <SelectItem value="all">All Cities</SelectItem>
-                                {cities.map(city => (
-                                    <SelectItem key={city.slug} value={city.name}>{city.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="lg:col-span-2">
-                        <Select value={selectedStage} onValueChange={setSelectedStage}>
-                            <SelectTrigger className="h-10 rounded-xl border-border/60 bg-card text-xs">
-                                <SelectValue placeholder="All Stages" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-xl border-border/60 shadow-2xl">
-                                <SelectItem value="all">All Stages</SelectItem>
-                                <SelectItem value="Bootstrapped">Bootstrapped</SelectItem>
-                                <SelectItem value="Pre-Seed">Pre-Seed</SelectItem>
-                                <SelectItem value="Seed">Seed</SelectItem>
-                                <SelectItem value="Series A">Series A</SelectItem>
-                                <SelectItem value="Series B+">Series B+</SelectItem>
-                                <SelectItem value="IPO">IPO</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="lg:col-span-2 flex items-center justify-between lg:justify-end gap-2 text-xs">
-                        <span className="text-muted-foreground hidden lg:inline">Sort:</span>
-                        <div className="flex items-center gap-1.5">
-                            <Button
-                                variant={sortKey === "latest" ? "accent" : "ghost"}
-                                className={cn("h-8 rounded-full px-3 text-[10px] font-bold", sortKey === "latest" && "shadow-md shadow-accent/10")}
-                                onClick={() => { setSortKey("latest"); setPage(1); }}
-                            >
-                                Latest
-                            </Button>
-                            <Button
-                                variant={sortKey === "trending" ? "accent" : "ghost"}
-                                className="h-8 rounded-full px-3 text-[10px] font-bold"
-                                onClick={() => { setSortKey("trending"); setPage(1); }}
-                            >
-                                Trending
-                            </Button>
-                        </div>
-                    </div>
-                </div>
 
-                <div className="flex items-center justify-between mt-4">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                        Showing <span className="text-foreground">{stories.length}</span> of {totalCount} stories
-                    </p>
-                    {hasActiveFilters && (
-                        <Button variant="ghost" className="h-8 px-3 rounded-full text-[10px] font-bold text-red-500 hover:text-red-600 hover:bg-red-50 uppercase tracking-widest" onClick={clearFilters}>
-                            Clear filters
-                        </Button>
-                    )}
+                    <div className="flex items-center justify-between mt-4">
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                            Showing <span className="text-foreground">{stories.length}</span> of {totalCount} stories
+                        </p>
+                        {hasActiveFilters && (
+                            <Button variant="ghost" className="h-8 px-3 rounded-full text-[10px] font-bold text-red-500 hover:text-red-600 hover:bg-red-50 uppercase tracking-widest" onClick={clearFilters}>
+                                Clear filters
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </section>
 

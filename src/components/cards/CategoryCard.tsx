@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { LucideIcon } from "lucide-react";
+import { LucideIcon, Building2, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Brand-consistent palette for categories (used on homepage)
 const BRAND_STYLE = {
   bg: "bg-[#FFF5F0]", // Very light orange/peach
   text: "text-[#0F172A]", // Dark navy for text
-  icon: "text-[#FF5C00]", // High-contrast brand orange
-  border: "border-[#FF5C00]/10"
+  icon: "text-[#FF4F18]", // High-contrast brand orange
+  border: "border-[#FF4F18]/10"
 };
 
 // Pastel background palette — cycles through colors per card (used on categories page)
@@ -64,11 +64,18 @@ export function CategoryCard({
               <h3 className="font-serif font-semibold text-2xl text-[#0F172A] leading-none tracking-tight mb-2 truncate">
                 {name}
               </h3>
-              <p className="text-[12px] font-semibold text-zinc-500 flex items-center gap-2 whitespace-nowrap">
-                <span className="text-[#0F172A]">{startupCount.toLocaleString()}</span> startups
-                <span className="w-1 h-1 rounded-full bg-zinc-300" />
-                <span className="text-[#0F172A]">{storyCount.toLocaleString()}</span> stories
-              </p>
+              <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg border border-zinc-200/60 bg-white/40 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                  <Building2 className="w-3.5 h-3.5 text-zinc-400" />
+                  <span className="text-[12px] font-bold text-[#0F172A]">{startupCount.toLocaleString()}</span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400">Startups</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg border border-zinc-200/60 bg-white/40 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                  <TrendingUp className="w-3.5 h-3.5 text-zinc-400" />
+                  <span className="text-[12px] font-bold text-[#0F172A]">{storyCount.toLocaleString()}</span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400">Stories</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -86,7 +93,7 @@ export function CategoryCard({
   return (
     <Link href={`/categories/${slug}`} className="block group h-full">
       <article
-        className="bg-white rounded-xl p-4 h-full border border-zinc-100 shadow-sm hover:shadow-md hover:shadow-orange-50/50 transition-all duration-300 flex flex-col items-center justify-center text-center gap-3"
+        className="bg-white rounded-xl p-4 h-full border border-zinc-300 shadow-sm hover:shadow-md hover:shadow-orange-50/50 transition-all duration-300 flex flex-col items-center justify-center text-center gap-3"
       >
         <div
           className={cn(

@@ -15,10 +15,12 @@ export interface Story {
     citySlug?: string;
     publishDate: string;
     author: string;
+    author_name?: string;
     content: string;
     read_time?: number;
     isFeatured?: boolean;
     published_at?: string;
+    publish_date?: string;
     updated_at?: string;
     stage?: string;
     views?: number;
@@ -30,13 +32,24 @@ export interface Story {
     og_image?: string;
     image_alt?: string;
     show_table_of_contents?: boolean;
+    category_name?: string;
+    category_slug?: string;
+    city_slug?: string;
+    sections?: any[];
     related_startup?: {
         name: string;
         slug: string;
         logo: string;
         category?: string;
+        category_name?: string;
         city?: string;
         citySlug?: string;
+        founded_year?: number;
+        team_size?: string;
+        founders_data?: any[];
+        website_url?: string;
+        funding_stage?: string;
+        stage?: string;
     };
 }
 
@@ -118,4 +131,17 @@ export interface PaginatedResponse<T> {
     next: string | null;
     previous: string | null;
     results: T[];
+}
+
+export interface NavItem {
+    id: string;
+    label: string;
+    url: string;
+    children?: NavItem[];
+    settings?: Record<string, any>;
+}
+
+export interface SiteSettings {
+    site_name?: string;
+    site_logo?: string;
 }

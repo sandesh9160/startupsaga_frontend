@@ -10,7 +10,7 @@ interface TrendingStoriesProps {
 
 export function TrendingStories({ stories }: TrendingStoriesProps) {
     return (
-        <div className="bg-white rounded-2xl border border-zinc-100 p-8 shadow-sm sticky top-24">
+        <div className="bg-white rounded-2xl border border-zinc-300 p-8 shadow-sm sticky top-24">
             <div className="flex items-center gap-3 mb-8">
                 <TrendingUp className="h-5 w-5 text-[#FF4F18]" />
                 <h2 className="font-serif text-xl font-bold text-[#0F172A] mb-0">Trending This Week</h2>
@@ -40,7 +40,7 @@ export function TrendingStories({ stories }: TrendingStoriesProps) {
                                 </p>
                             </div>
 
-                            <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-50 border border-zinc-100">
+                            <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-50 border border-zinc-300">
                                 <Image
                                     src={thumbnailSrc}
                                     alt={story.title}

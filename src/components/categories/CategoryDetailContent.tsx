@@ -5,7 +5,7 @@ import Link from "next/link";
 import { StoryCard } from "@/components/cards/StoryCard";
 import { StartupCard } from "@/components/cards/StartupCard";
 import { CityCard } from "@/components/cards/CityCard";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import {
     Building2,
     BookOpen,
@@ -43,15 +43,17 @@ export function CategoryDetailContent({ category, categoryStartups, categoryStor
                 <div className="container-wide">
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 text-center md:text-left">
                         {/* Icon */}
+
                         <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm", theme.iconBg)}>
                             {category.icon && typeof category.icon === "string" ? (
                                 <img
                                     src={category.icon.startsWith("http") ? category.icon : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000"}${category.icon}`}
-                                    alt=""
+                                    alt={category.name || "Category Icon"}
                                     className="w-8 h-8 object-contain"
                                 />
                             ) : <Sparkles className={cn("h-7 w-7", theme.icon)} />}
                         </div>
+
 
                         <div className="space-y-4">
                             <div className="space-y-1">

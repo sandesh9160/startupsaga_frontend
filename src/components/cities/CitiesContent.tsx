@@ -1,13 +1,12 @@
 "use client";
 
 import { CityCard } from "@/components/cards/CityCard";
-import { StoryCard } from "@/components/cards/StoryCard";
+
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useMemo } from "react";
-import { getCities, getStories, getPlatformStats } from "@/lib/api";
+import { getCities, getPlatformStats } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Building2, TrendingUp, Filter, ArrowRight, MapPin } from "lucide-react";
-import Link from "next/link";
 
 interface CitiesContentProps {
     title?: string;
@@ -21,7 +20,6 @@ export function CitiesContent({
     content
 }: CitiesContentProps) {
     const [cities, setCities] = useState<any[]>([]);
-    const [stories, setStories] = useState<any[]>([]);
     const [filter, setFilter] = useState<'all' | '1' | '2' | '3'>('all');
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +31,6 @@ export function CitiesContent({
         setIsLoading(true);
         Promise.all([
             getCities().then(setCities),
-            getStories({ limit: 8, is_city_focused: true }).then(setStories),
             getPlatformStats().then(setPlatformStats)
         ])
             .catch(err => console.error(err))
@@ -55,31 +52,33 @@ export function CitiesContent({
 
     return (
         <div className="bg-[#FAF9FB] min-h-screen font-sans">
-            {/* Elegant Hero Section — Exact Match to Screenshot */}
+            {/* Elegant Hero Section */}
             {(title || description || content) && (
-                <section className="relative pt-24 pb-16 overflow-hidden bg-[#FAF5F2]">
+                <section className="relative py-12 md:py-16 overflow-hidden bg-[#FAF5F2] border-b border-border/60">
                     <div className="container-wide relative z-10 text-center">
-                        {title && (
-                            <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] mb-6 font-serif tracking-tight max-w-4xl mx-auto leading-tight"
-                                dangerouslySetInnerHTML={{ __html: title }}
-                            />
-                        )}
+                        <div className="max-w-4xl mx-auto space-y-6 mb-10">
+                            {title && (
+                                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#1a1a1a] font-serif tracking-tight leading-[1.1]"
+                                    dangerouslySetInnerHTML={{ __html: title }}
+                                />
+                            )}
 
-                        <div className="max-w-3xl mx-auto space-y-4 mb-10">
-                            {description && (
-                                <div className="text-base md:text-lg text-zinc-500 leading-relaxed font-medium"
-                                    dangerouslySetInnerHTML={{ __html: description }}
-                                />
-                            )}
-                            {content && (
-                                <div className="text-sm md:text-base text-zinc-500 leading-relaxed mb-6"
-                                    dangerouslySetInnerHTML={{ __html: content }}
-                                />
-                            )}
+                            <div className="max-w-3xl mx-auto space-y-4">
+                                {description && (
+                                    <div className="text-base md:text-lg text-zinc-500 leading-relaxed max-w-2xl mx-auto"
+                                        dangerouslySetInnerHTML={{ __html: description }}
+                                    />
+                                )}
+                                {content && (
+                                    <div className="text-sm text-muted-foreground leading-relaxed max-w-2xl mx-auto opacity-80"
+                                        dangerouslySetInnerHTML={{ __html: content }}
+                                    />
+                                )}
+                            </div>
                         </div>
 
                         {/* Stats Section exactly as in screenshot */}
-                        <div className="flex items-center justify-center gap-6 py-2 px-4 mx-auto w-fit">
+                        <div className="flex items-center justify-center gap-6 py-2 px-4 mx-auto w-fit bg-white/50 backdrop-blur-sm rounded-2xl border border-white/50">
                             <div className="flex items-center gap-2">
                                 <Building2 className="w-5 h-5 text-[#FF5C00]" strokeWidth={2} />
                                 <div className="text-left font-medium text-sm text-zinc-500 flex items-center gap-1.5">
@@ -103,7 +102,7 @@ export function CitiesContent({
             )}
 
             {/* Sticky Filters Bar */}
-            <div className="sticky top-[64px] z-30 bg-transparent py-4 pb-8 mt-8">
+            <div className="sticky top-[72px] z-30 bg-white/90 backdrop-blur-md border-b border-zinc-200 py-5 mb-8">
                 <div className="container-wide">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 max-w-7xl mx-auto">
                         <div className="flex flex-wrap items-center gap-3">
@@ -179,30 +178,6 @@ export function CitiesContent({
                 </div>
             </main>
 
-            {/* RELATED SECTIONS START */}
-            <div className="bg-[#FDFDFD] border-t border-zinc-100 mt-8">
-                <section className="container-wide py-16">
-                    {/* Emerging Cities grid */}
-                    <div className="max-w-7xl mx-auto">
-                        <h2 className="text-2xl font-bold font-serif text-zinc-900 mb-10">Explore Emerging Cities</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                            {cities.filter(c => (String(c.tier) === '2' || String(c.tier) === '3') && !filteredCities.some(fc => fc.slug === c.slug)).slice(0, 7).map((city) => (
-                                <Link
-                                    key={city.slug}
-                                    href={`/cities/${city.slug}`}
-                                    className="bg-white border border-zinc-100 p-4 rounded-xl text-center group hover:border-orange-200 hover:shadow-md transition-all"
-                                >
-                                    <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center mx-auto mb-3 text-orange-600 group-hover:scale-110 transition-transform">
-                                        <MapPin size={16} />
-                                    </div>
-                                    <h3 className="text-xs font-bold text-zinc-700 truncate">{city.name}</h3>
-                                    <p className="text-[8px] text-zinc-400 mt-1 uppercase font-bold tracking-widest">{(city.startupCount || 0).toLocaleString()}+ startups</p>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            </div>
         </div>
     );
 }

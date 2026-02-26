@@ -6,6 +6,7 @@ import { getSections, getCities, getPlatformStats } from "@/lib/api";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+
 export const metadata: Metadata = {
     title: "Startup Cities in India | StartupSaga.in",
     description:
@@ -13,7 +14,22 @@ export const metadata: Metadata = {
     alternates: {
         canonical: `${SITE_URL}/cities`,
     },
+    openGraph: {
+        title: "Startup Cities in India | StartupSaga.in",
+        description: "Explore India’s thriving startup hubs. From Bengaluru to Mumbai, discover where innovation happens.",
+        url: `${SITE_URL}/cities`,
+        siteName: "StartupSaga.in",
+        type: "website",
+        images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Startup Cities in India on StartupSaga.in" }],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Startup Cities in India | StartupSaga.in",
+        description: "Explore India’s thriving startup hubs. From Bengaluru to Mumbai, discover where innovation happens.",
+        images: ["/og-image.jpg"],
+    },
 };
+
 
 export default async function CitiesPage() {
     let pageSections: any[] = [];

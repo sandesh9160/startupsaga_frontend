@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StoryDetailContent } from "@/components/stories/StoryDetailContent";
 import { getStoryBySlug, getStories, getStartups } from "@/lib/api";
+import { Story, Startup } from "@/types";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
@@ -21,8 +22,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         const story = await getStoryBySlug(slug);
         if (!story) return { title: "Story Not Found" };
         const canonical = `${SITE_URL}/stories/${story.slug}`;
-        const description = story.meta_description || story.excerpt || (story.content?.slice(0, 160) ?? "Startup story on StartupSaga.in");
-        const ogImage = getAbsoluteImageUrl(story.thumbnail);
+        const cleanContent = story.content?.replace(/<[^>]*>?/gm, '') || "";
+        const description = story.meta_description || story.excerpt || (cleanContent.slice(0, 160) || "Startup story on StartupSaga.in");
+        const ogImage = getAbsoluteImageUrl(story.og_image || story.thumbnail);
         const title = story.meta_title || `${story.title} | StartupSaga.in`;
         return {
             title,
@@ -52,6 +54,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function StoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
+    if (slug === "stories") redirect("/stories");
+    if (slug === "startups") redirect("/startups");
+    if (slug === "categories") redirect("/categories");
+    if (slug === "cities") redirect("/cities");
+
     const redirectTo = await resolveRedirect(`/stories/${slug}`);
     if (redirectTo) redirect(redirectTo);
     try {
@@ -65,50 +72,54 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             notFound();
         }
 
-        const stories = Array.isArray(allStories) ? allStories : (allStories as any)?.results || [];
-        const startups = Array.isArray(allStartups) ? allStartups : (allStartups as any)?.results || [];
+        const stories = (Array.isArray(allStories) ? allStories : (allStories as any)?.results || []) as Story[];
+        const startups = (Array.isArray(allStartups) ? allStartups : (allStartups as any)?.results || []) as Startup[];
 
         // Related stories: same category or same city, excluding current story
         const relatedStories = stories
-            .filter((s: any) => s.slug !== story.slug && (s.categorySlug === story.categorySlug || s.citySlug === story.citySlug))
+            .filter((s: Story) => s.slug !== story.slug && (s.categorySlug === story.categorySlug || s.citySlug === story.citySlug))
             .slice(0, 3);
 
         // Fallback to latest stories if none related
         if (relatedStories.length === 0) {
-            relatedStories.push(...stories.filter((s: any) => s.slug !== story.slug).slice(0, 3));
+            relatedStories.push(...stories.filter((s: Story) => s.slug !== story.slug).slice(0, 3));
         }
 
         // Startups by category
         const categoryStartups = startups
-            .filter((s: any) => s.categorySlug === story.categorySlug)
+            .filter((s: Startup) => s.categorySlug === story.categorySlug)
             .slice(0, 4);
 
         const canonical = `${SITE_URL}/stories/${story.slug}`;
-        const description = story.meta_description || story.excerpt || (story.content?.slice(0, 160) ?? "Startup story on StartupSaga.in");
+        const cleanContent = story.content?.replace(/<[^>]*>?/gm, '') || "";
+        const description = story.meta_description || story.excerpt || (cleanContent.slice(0, 160) || "Startup story on StartupSaga.in");
         const ogImage = getAbsoluteImageUrl(story.thumbnail);
+
 
         const articleSchema = {
             "@context": "https://schema.org",
             "@type": "Article",
+            "@id": `${canonical}/#article`,
             headline: story.title,
             description,
             image: ogImage,
+            articleSection: story.category_name || (typeof story.category === 'object' ? story.category?.name : undefined),
             author: {
                 "@type": "Person",
                 name: story.author || "Editorial Team",
+                url: `${SITE_URL}/about`
             },
             publisher: {
-                "@type": "Organization",
-                name: "StartupSaga.in",
-                logo: {
-                    "@type": "ImageObject",
-                    url: `${SITE_URL}/og-image.jpg`,
-                },
+                "@id": `${SITE_URL}/#organization`
             },
             datePublished: story.published_at || undefined,
             dateModified: story.updated_at || undefined,
-            mainEntityOfPage: canonical,
+            mainEntityOfPage: {
+                "@type": "WebPage",
+                "@id": canonical
+            },
         };
+
 
         const breadcrumbSchema = {
             "@context": "https://schema.org",

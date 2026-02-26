@@ -75,7 +75,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
 
             {/* Ecosystem Description Card */}
             <section className="container-wide mt-4 relative z-20 mb-6">
-                <div className="bg-white rounded-md p-4 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-zinc-100 max-w-[1400px] mx-auto">
+                <div className="bg-white rounded-xl p-4 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-zinc-200 max-w-[1400px] mx-auto">
                     <h2 className="text-lg md:text-xl font-semibold text-zinc-900 mb-3 font-serif">
                         The {city.name} Startup Ecosystem
                     </h2>
@@ -159,7 +159,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
             </section>
 
             {/* Latest Stories Section */}
-            <section className="container-wide py-6 border-t border-zinc-50 mt-6">
+            <section className="container-wide py-6 border-t border-zinc-200 mt-6">
                 <div className="flex items-center justify-between mb-10">
                     <h2 className="text-lg font-semibold text-zinc-900 font-serif">Latest Stories from {city.name}</h2>
                     <Link href="/stories" className="text-orange-600 font-black text-[9px] uppercase tracking-[0.15em] flex items-center gap-1.5 hover:opacity-70 transition-opacity">
@@ -196,7 +196,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
             </section>
 
             {/* Stats Section */}
-            <section className="container-wide py-8 bg-[#FDFDFD] border-y border-zinc-100/50">
+            <section className="container-wide py-8 bg-[#FDFDFD] border-y border-zinc-200">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 text-center">
                     <div>
                         <div className="text-3xl md:text-4xl font-semibold text-orange-600 mb-1 font-serif">
@@ -233,7 +233,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
                         <Link
                             key={otherCity.slug}
                             href={`/cities/${otherCity.slug}`}
-                            className="bg-zinc-50/50 border border-zinc-100 p-4 rounded-xl text-center group hover:border-orange-200 transition-all"
+                            className="bg-zinc-50/50 border border-zinc-200 p-4 rounded-xl text-center group hover:border-orange-200 transition-all"
                         >
                             <div className="w-8 h-8 rounded-lg bg-orange-100/50 flex items-center justify-center mx-auto mb-3 text-orange-600">
                                 <MapPin size={16} />
@@ -247,7 +247,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
 
             {/* CTA Banner Section */}
             <section className="container-wide pb-8">
-                <div className="bg-[#FFF5F1] rounded-3xl p-4 md:p-6 border border-orange-100/50 relative overflow-hidden">
+                <div className="bg-[#FFF5F1] rounded-3xl p-4 md:p-6 border border-orange-200/50 relative overflow-hidden">
                     <div className="relative z-10 max-w-2xl">
                         <h2 className="text-2xl md:text-3xl font-semibold text-zinc-900 font-serif mb-3 tracking-tight">
                             Building a startup in {city.name}?

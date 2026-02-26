@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { getCategories, getPlatformStats } from "@/lib/api";
 import { Category } from "@/types";
 import { getIcon } from "@/lib/icons";
+import { Building2, TrendingUp, Sparkles } from "lucide-react";
 
 interface CategoriesContentProps {
     title?: string;
@@ -37,40 +38,54 @@ export function CategoriesContent({
 
     return (
         <div className="bg-[#fafafa] min-h-screen">
-            {/* Header — same style as reference */}
-            <section className="container-wide py-10 md:py-14 text-center">
-                {title && (
-                    <h1 className="text-3xl md:text-5xl font-semibold text-zinc-900 mb-4 font-serif tracking-tight max-w-4xl mx-auto leading-tight"
-                        dangerouslySetInnerHTML={{ __html: title }}
-                    />
-                )}
-                <div className="max-w-3xl mx-auto space-y-3 mb-8">
-                    {description && (
-                        <div className="text-base md:text-lg text-zinc-500 leading-relaxed"
-                            dangerouslySetInnerHTML={{ __html: description }}
+            {/* Elegant Hero Section */}
+            <section className="container-wide py-12 md:py-16 text-center border-b border-border/60">
+                <div className="max-w-4xl mx-auto space-y-6 mb-10">
+                    {title && (
+                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-zinc-900 font-serif tracking-tight leading-[1.1]"
+                            dangerouslySetInnerHTML={{ __html: title }}
                         />
                     )}
-                    {content && (
-                        <div className="text-[13px] text-zinc-400 leading-relaxed"
-                            dangerouslySetInnerHTML={{ __html: content }}
-                        />
-                    )}
+                    <div className="max-w-3xl mx-auto space-y-4">
+                        {description && (
+                            <div className="text-base md:text-lg text-zinc-500 leading-relaxed max-w-2xl mx-auto"
+                                dangerouslySetInnerHTML={{ __html: description }}
+                            />
+                        )}
+                        {content && (
+                            <div className="text-sm text-muted-foreground leading-relaxed max-w-2xl mx-auto opacity-80"
+                                dangerouslySetInnerHTML={{ __html: content }}
+                            />
+                        )}
+                    </div>
                 </div>
 
-                <div className="flex justify-center items-center gap-10 text-sm text-zinc-500">
-                    <span>
-                        <span className="text-2xl font-semibold text-zinc-800 font-serif mr-1.5">
-                            {stats.total_startups.toLocaleString()}
-                        </span>
-                        Startups
-                    </span>
-                    <span className="w-px h-5 bg-zinc-200" />
-                    <span>
-                        <span className="text-2xl font-semibold text-zinc-800 font-serif mr-1.5">
-                            {stats.total_stories.toLocaleString()}
-                        </span>
-                        Stories
-                    </span>
+                <div className="flex justify-center items-center gap-6 text-sm text-zinc-500 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/50 py-2.5 px-5 w-fit mx-auto cursor-default">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600">
+                            <Building2 className="w-4 h-4" />
+                        </div>
+                        <div className="text-left leading-tight">
+                            <div className="text-xl font-bold text-zinc-900 font-serif leading-none">
+                                {stats.total_startups.toLocaleString()}
+                            </div>
+                            <div className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mt-0.5">Startups</div>
+                        </div>
+                    </div>
+
+                    <div className="w-px h-8 bg-zinc-200" />
+
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                            <TrendingUp className="w-4 h-4" />
+                        </div>
+                        <div className="text-left leading-tight">
+                            <div className="text-xl font-bold text-zinc-900 font-serif leading-none">
+                                {stats.total_stories.toLocaleString()}
+                            </div>
+                            <div className="text-[10px] uppercase tracking-widest font-black text-zinc-400 mt-0.5">Stories</div>
+                        </div>
+                    </div>
                 </div>
             </section>
 

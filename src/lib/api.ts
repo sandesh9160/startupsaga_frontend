@@ -9,7 +9,8 @@ import {
   Startup,
   City,
   Category,
-  PageSection
+  PageSection,
+  PaginatedResponse
 } from "@/types";
 
 export type {
@@ -105,8 +106,8 @@ export async function getThemeSettings(params: { pageKey?: string; pageSlug?: st
  */
 export const publicApi = {
   /** Get stories with filters */
-  getStories: (params?: any) => {
-    const query = new URLSearchParams(params).toString();
+  getStories: (params?: Record<string, string | number | boolean | undefined>): Promise<Story[]> => {
+    const query = new URLSearchParams(params as any).toString();
     return fetchList<Story>(`/stories/${query ? `?${query}` : ''}`);
   },
 
@@ -114,11 +115,11 @@ export const publicApi = {
   getStory: (slug: string) => fetchAPI(`/stories/${slug}/`),
 
   /** Get trending/featured stories */
-  getTrending: () => fetchList<Story>("/stories/trending/"),
+  getTrending: (): Promise<Story[]> => fetchList<Story>("/stories/trending/"),
 
   /** Get startups list */
-  getStartups: (params?: any) => {
-    const query = new URLSearchParams(params).toString();
+  getStartups: (params?: Record<string, string | number | boolean | undefined>): Promise<Startup[]> => {
+    const query = new URLSearchParams(params as any).toString();
     return fetchList<Startup>(`/startups/${query ? `?${query}` : ''}`);
   },
 
@@ -126,13 +127,13 @@ export const publicApi = {
   getStartup: (slug: string) => fetchAPI(`/startups/${slug}/`),
 
   /** Get hubs (cities) */
-  getHubs: () => fetchList<City>("/cities/"),
+  getHubs: (): Promise<City[]> => fetchList<City>("/cities/"),
 
   /** Get single hub (city) by slug */
   getHub: (slug: string) => fetchAPI(`/cities/${slug}/`),
 
   /** Get page content/sections */
-  getSections: (page: string = "homepage", pageSlug?: string) => {
+  getSections: (page: string = "homepage", pageSlug?: string): Promise<PageSection[]> => {
     let url = `/sections/?page=${page}`;
     if (pageSlug) url = `/sections/?page_slug=${pageSlug}`;
     return fetchList<PageSection>(url);
@@ -159,13 +160,14 @@ export const getCities = publicApi.getHubs;
 export const getCityBySlug = publicApi.getHub;
 export const getSections = publicApi.getSections;
 export const getNavigation = publicApi.getNav;
+export const getNav = publicApi.getNav;
 export const getLayoutSettings = publicApi.getLayout;
 export const getSEOSettings = publicApi.getSEO;
 export const getPlatformStats = publicApi.getPlatformStats;
 export const getPageBySlug = (slug: string) => fetchAPI(`/pages/${slug}/`);
 export const getCategories = () => fetchList<Category>("/categories/");
 export const getCategoryBySlug = (slug: string) => fetchAPI(`/categories/${slug}/`);
-export const getStoriesPage = (params?: any) => {
+export const getStoriesPage = (params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResponse<Story>> => {
 
   // Filter out undefined/null values to avoid sending "undefined" as string
   const cleanParams: Record<string, string> = {};
@@ -181,7 +183,7 @@ export const getStoriesPage = (params?: any) => {
 };
 
 /** Paginated startups with filters */
-export const getStartupsPage = (params?: any) => {
+export const getStartupsPage = (params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResponse<Startup>> => {
   const cleanParams: Record<string, string> = {};
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -195,27 +197,15 @@ export const getStartupsPage = (params?: any) => {
 };
 
 /**
- * Submit a new startup for review
+ * Submit a new startup/story for review
  */
-export const submitStartup = async (data: {
-  startupName: string;
-  founderName: string;
-  email: string;
-  website: string;
-  description: string;
-  fullStory: string;
-  city: string;
-  category: string;
-  fundingStage: string;
-  businessModel: string;
-  logo?: string;
-  coverImageUrl?: string;
-}) => {
+export const submitStartup = async (data: any) => {
   return fetchAPI('/submissions/create/', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 };
+
 export const subscribeNewsletter = async (email: string) => {
   return fetchAPI('/newsletter/subscribe/', {
     method: 'POST',
@@ -229,3 +219,4 @@ export const unsubscribeNewsletter = async (email: string, token: string) => {
     body: JSON.stringify({ email, token }),
   });
 };
+

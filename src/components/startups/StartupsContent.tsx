@@ -85,28 +85,26 @@ export function StartupsContent({
         <div className="bg-white min-h-screen font-sans" suppressHydrationWarning>
             {/* Elegant Hero Section */}
             {(title || description || content) && (
-                <section className="relative pt-20 overflow-hidden bg-white">
-                    <div className="container-wide relative z-10">
-                        <div className="max-w-4xl mx-auto text-center">
-                            <div className="space-y-6">
-                                {title && (
-                                    <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold text-[#1a1a1a] tracking-tight leading-tight font-serif"
-                                        dangerouslySetInnerHTML={{ __html: title }}
+                <section className="relative py-12 md:py-16 overflow-hidden bg-white border-b border-border/60">
+                    <div className="container-wide relative z-10 text-center">
+                        <div className="max-w-4xl mx-auto space-y-6">
+                            {title && (
+                                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight font-serif leading-[1.1]"
+                                    dangerouslySetInnerHTML={{ __html: title }}
+                                />
+                            )}
+
+                            <div className="max-w-3xl mx-auto space-y-4">
+                                {description && (
+                                    <div className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto"
+                                        dangerouslySetInnerHTML={{ __html: description }}
                                     />
                                 )}
-
-                                <div className="max-w-3xl mx-auto space-y-4">
-                                    {description && (
-                                        <div className="text-base md:text-lg text-zinc-500 leading-relaxed font-medium"
-                                            dangerouslySetInnerHTML={{ __html: description }}
-                                        />
-                                    )}
-                                    {content && (
-                                        <div className="text-zinc-500 text-sm md:text-base px-10"
-                                            dangerouslySetInnerHTML={{ __html: content }}
-                                        />
-                                    )}
-                                </div>
+                                {content && (
+                                    <div className="text-sm text-muted-foreground leading-relaxed max-w-2xl mx-auto opacity-80"
+                                        dangerouslySetInnerHTML={{ __html: content }}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>
@@ -116,94 +114,98 @@ export function StartupsContent({
             {/* Content Section with Filters and Cards */}
             <main className="container-wide relative z-20 pb-20">
                 <div className="max-w-7xl mx-auto">
-                    {/* Compact Search Bar */}
-                    <div className="max-w-2xl mx-auto mb-8 mt-6">
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                                <Search className="h-4 w-4 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
-                            </div>
-                            <Input
-                                placeholder="Search startups by name or description..."
-                                className="w-full h-12 pl-12 pr-12 rounded-2xl bg-white border-zinc-200 shadow-lg shadow-zinc-200/10 focus:ring-0 focus:border-zinc-300 text-zinc-700 text-sm transition-all"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery("")}
-                                    className="absolute right-5 inset-y-0 flex items-center text-zinc-400 hover:text-zinc-600"
-                                >
-                                    <X className="h-4 w-4" />
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Compact Filters Card */}
-                    <div className="bg-white rounded-2xl p-3 mb-4 mt-10 border border-zinc-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="flex items-center gap-2 text-zinc-400 font-bold text-[10px] uppercase tracking-widest mr-1">
-                                <Filter size={12} /> Filters:
+                    <section className="sticky top-[72px] z-30 bg-white/90 backdrop-blur-md border-b border-zinc-200 py-6 mb-8">
+                        <div className="container-wide">
+                            {/* Compact Search Bar */}
+                            <div className="max-w-2xl mx-auto mb-6">
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                                        <Search className="h-4 w-4 text-zinc-400 group-focus-within:text-zinc-600 transition-colors" />
+                                    </div>
+                                    <Input
+                                        placeholder="Search startups by name or description..."
+                                        className="w-full h-12 pl-12 pr-12 rounded-2xl bg-white border-zinc-200 shadow-lg shadow-zinc-200/10 focus:ring-0 focus:border-zinc-300 text-zinc-700 text-sm transition-all"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery("")}
+                                            className="absolute right-5 inset-y-0 flex items-center text-zinc-400 hover:text-zinc-600"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
-                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                                <SelectTrigger className="w-[160px] h-9 rounded-xl bg-zinc-50/50 border-zinc-100/80 text-[11px] font-semibold hover:bg-zinc-100 transition-all">
-                                    <SelectValue placeholder="All Sectors" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl border-zinc-100 shadow-2xl">
-                                    <SelectItem value="all">All Sectors</SelectItem>
-                                    {categories.map(cat => (
-                                        <SelectItem key={cat.slug} value={cat.name}>{cat.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            {/* Compact Filters Card */}
+                            <div className="bg-white rounded-2xl p-3 mb-4 border border-zinc-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <div className="flex items-center gap-2 text-zinc-400 font-bold text-[10px] uppercase tracking-widest mr-1">
+                                        <Filter size={12} /> Filters:
+                                    </div>
 
-                            <Select value={selectedCity} onValueChange={setSelectedCity}>
-                                <SelectTrigger className="w-[160px] h-9 rounded-xl bg-zinc-50/50 border-zinc-100/80 text-[11px] font-semibold hover:bg-zinc-100 transition-all">
-                                    <SelectValue placeholder="All Cities" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl border-zinc-100 shadow-2xl">
-                                    <SelectItem value="all">All Cities</SelectItem>
-                                    {cities.map(city => (
-                                        <SelectItem key={city.slug} value={city.name}>{city.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                                        <SelectTrigger className="w-[160px] h-9 rounded-xl bg-zinc-50/50 border-zinc-100/80 text-[11px] font-semibold hover:bg-zinc-100 transition-all">
+                                            <SelectValue placeholder="All Sectors" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl border-zinc-100 shadow-2xl">
+                                            <SelectItem value="all">All Sectors</SelectItem>
+                                            {categories.map(cat => (
+                                                <SelectItem key={cat.slug} value={cat.name}>{cat.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
 
-                            <Select value={selectedStage} onValueChange={setSelectedStage}>
-                                <SelectTrigger className="w-[160px] h-9 rounded-xl bg-zinc-50/50 border-zinc-100/80 text-[11px] font-semibold hover:bg-zinc-100 transition-all">
-                                    <SelectValue placeholder="All Stages" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl border-zinc-100 shadow-2xl">
-                                    <SelectItem value="all">All Stages</SelectItem>
-                                    <SelectItem value="Bootstrapped">Bootstrapped</SelectItem>
-                                    <SelectItem value="Pre-Seed">Pre-Seed</SelectItem>
-                                    <SelectItem value="Seed">Seed</SelectItem>
-                                    <SelectItem value="Series A">Series A</SelectItem>
-                                    <SelectItem value="Series B+">Series B+</SelectItem>
-                                    <SelectItem value="IPO">IPO</SelectItem>
-                                </SelectContent>
-                            </Select>
+                                    <Select value={selectedCity} onValueChange={setSelectedCity}>
+                                        <SelectTrigger className="w-[160px] h-9 rounded-xl bg-zinc-50/50 border-zinc-100/80 text-[11px] font-semibold hover:bg-zinc-100 transition-all">
+                                            <SelectValue placeholder="All Cities" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl border-zinc-100 shadow-2xl">
+                                            <SelectItem value="all">All Cities</SelectItem>
+                                            {cities.map(city => (
+                                                <SelectItem key={city.slug} value={city.name}>{city.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
 
-                            {hasActiveFilters && (
-                                <button
-                                    onClick={clearFilters}
-                                    className="px-4 h-9 rounded-xl bg-rose-50 text-rose-600 text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all"
-                                >
-                                    Clear All
-                                </button>
+                                    <Select value={selectedStage} onValueChange={setSelectedStage}>
+                                        <SelectTrigger className="w-[160px] h-9 rounded-xl bg-zinc-50/50 border-zinc-100/80 text-[11px] font-semibold hover:bg-zinc-100 transition-all">
+                                            <SelectValue placeholder="All Stages" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl border-zinc-100 shadow-2xl">
+                                            <SelectItem value="all">All Stages</SelectItem>
+                                            <SelectItem value="Bootstrapped">Bootstrapped</SelectItem>
+                                            <SelectItem value="Pre-Seed">Pre-Seed</SelectItem>
+                                            <SelectItem value="Seed">Seed</SelectItem>
+                                            <SelectItem value="Series A">Series A</SelectItem>
+                                            <SelectItem value="Series B+">Series B+</SelectItem>
+                                            <SelectItem value="IPO">IPO</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+
+                                    {hasActiveFilters && (
+                                        <button
+                                            onClick={clearFilters}
+                                            className="px-4 h-9 rounded-xl bg-rose-50 text-rose-600 text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all"
+                                        >
+                                            Clear All
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Showing Text */}
+                            {!isLoading && (
+                                <div className="flex items-center gap-2 ml-2">
+                                    <span className="text-sm font-medium text-zinc-400">
+                                        Showing <span className="text-zinc-900 font-bold">{startups.length}</span> startups
+                                    </span>
+                                </div>
                             )}
                         </div>
-                    </div>
-
-                    {/* Showing Text */}
-                    {!isLoading && (
-                        <div className="flex items-center gap-2 mb-6 ml-2">
-                            <span className="text-sm font-medium text-zinc-400">
-                                Showing <span className="text-zinc-900 font-bold">{startups.length}</span> startups
-                            </span>
-                        </div>
-                    )}
+                    </section>
 
                     {/* Results Grid */}
                     {isLoading ? (
