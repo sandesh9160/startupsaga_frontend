@@ -60,10 +60,29 @@ export default async function StoriesPage() {
     const displaySubtitle = headerSection?.subtitle || "";
     const displayContent = (headerSection?.description || headerSection?.content) || "";
 
+    // return (
+    //     <Layout>
+    //         <HomeContent
+    //             initialSections={pageSections.filter((s: any) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
+    //             initialStories={stories}
+    //             initialPlatformStats={platformStats}
+    //             hasError={hasError}
+    //             defaultView={
+    //                 <StoriesContent
+    //                     title={displayTitle}
+    //                     description={displaySubtitle}
+    //                     content={displayContent}
+    //                 />
+    //             }
+    //         />
+    //     </Layout>
     return (
-        <Layout>
+    <Layout>
+        <Suspense fallback={<div>Loading...</div>}>
             <HomeContent
-                initialSections={pageSections.filter((s: any) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
+                initialSections={pageSections.filter((s: any) =>
+                    s.id ? s.id !== headerSection?.id : s !== headerSection
+                )}
                 initialStories={stories}
                 initialPlatformStats={platformStats}
                 hasError={hasError}
@@ -75,6 +94,8 @@ export default async function StoriesPage() {
                     />
                 }
             />
-        </Layout>
+        </Suspense>
+    </Layout>
+// );
     );
 }
