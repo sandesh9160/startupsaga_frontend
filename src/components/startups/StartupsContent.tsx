@@ -85,12 +85,12 @@ export function StartupsContent({
         <div className="bg-white min-h-screen font-sans" suppressHydrationWarning>
             {/* Elegant Hero Section */}
             {(title || description || content) && (
-                <section className="relative pt-20 overflow-hidden bg-white">
+                <section className="relative pt-10 overflow-hidden bg-white">
                     <div className="container-wide relative z-10">
                         <div className="max-w-4xl mx-auto text-center">
                             <div className="space-y-6">
                                 {title && (
-                                    <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold text-[#1a1a1a] tracking-tight leading-tight font-serif"
+                                    <h1 className="text-4xl md:text-4xl lg:text-4xl font-bold text-[#1a1a1a] tracking-tight font-serif"
                                         dangerouslySetInnerHTML={{ __html: title }}
                                     />
                                 )}

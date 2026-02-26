@@ -7,6 +7,7 @@ import { getSections, getStories, getPlatformStats } from "@/lib/api";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+export const dynamic = "force-dynamic";
 export async function generateMetadata({
     searchParams,
 }: {
@@ -68,11 +69,21 @@ export default async function StoriesPage() {
                 initialPlatformStats={platformStats}
                 hasError={hasError}
                 defaultView={
-                    <StoriesContent
-                        title={displayTitle}
-                        description={displaySubtitle}
-                        content={displayContent}
-                    />
+                    <Suspense fallback={
+                        <div className="container-wide py-20">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {[1, 2, 3, 4].map(i => (
+                                    <div key={i} className="h-[240px] rounded-2xl bg-muted animate-pulse border border-border/50" />
+                                ))}
+                            </div>
+                        </div>
+                    }>
+                        <StoriesContent
+                            title={displayTitle}
+                            description={displaySubtitle}
+                            content={displayContent}
+                        />
+                    </Suspense>
                 }
             />
         </Layout>
