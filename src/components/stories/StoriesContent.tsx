@@ -279,9 +279,9 @@ export function StoriesContent({
                             <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent/5 text-accent mb-4">
                                 <X className="h-6 w-6 opacity-20" />
                             </div>
-                            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 tracking-tight leading-[1.2] font-serif">
+                            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 tracking-tight leading-[1.2] font-serif">
                                 No Results
-                            </h1>
+                            </h2>
                             <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
                                 We couldn't find any stories matching your current filters.
                             </p>

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { MapPin, Users, Sparkles, TrendingUp } from "lucide-react";
+import { MapPin, Users, TrendingUp } from "lucide-react";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { getSafeImageSrc } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import { Category, City } from "@/types";
@@ -52,9 +52,10 @@ export function StartupCard({
       <div className="flex items-start gap-4 mb-3 relative z-20">
         <div className="w-[50px] h-[50px] rounded-lg overflow-hidden bg-white border border-zinc-100 flex-shrink-0 relative flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-105">
           {logo || og_image ? (
-            <Image
+            <SafeImage
               src={logoSrc}
               alt={`${name} logo`}
+              fallbackLabel={name}
               fill
               className="object-contain p-1.5 transition-all duration-300"
               sizes="50px"

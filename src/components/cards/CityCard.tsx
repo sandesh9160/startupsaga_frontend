@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { LucideIcon, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { getSafeImageSrc } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
@@ -62,9 +62,10 @@ export function CityCard({
           {/* Top Image Section */}
           <div className="relative h-48 md:h-56 w-full overflow-hidden">
             {image ? (
-              <Image
+              <SafeImage
                 src={getSafeImageSrc(image)}
                 alt={name}
+                fallbackLabel={name}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700"
               />
@@ -129,9 +130,10 @@ export function CityCard({
       >
         {/* Full Background Image */}
         {image && (
-          <Image
+          <SafeImage
             src={getSafeImageSrc(image)}
             alt={name}
+            fallbackLabel={name}
             fill
             unoptimized={getSafeImageSrc(image).endsWith(".svg")}
             className="object-cover group-hover:scale-105 transition-transform duration-500"

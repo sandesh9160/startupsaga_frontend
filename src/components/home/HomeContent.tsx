@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/utils";
 import { ArrowRight, TrendingUp, Building2, MapPin, Sparkles, Image as ImageIcon, Briefcase, Cpu, GraduationCap, Heart, Wallet, Store, ShoppingBag } from "lucide-react";
 import { StoryCard } from "@/components/cards/StoryCard";
@@ -633,9 +634,10 @@ export function HomeContent({
                                                         <div className="lg:col-span-4 p-8 flex flex-col items-center justify-center text-center border-r border-orange-300/50">
                                                             <div className="w-32 h-32 rounded-3xl bg-white shadow-md flex items-center justify-center p-6 mb-6 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
                                                                 {(fs.logo || fs.og_image || fs.image || fs.imageUrl) ? (
-                                                                    <Image
+                                                                    <SafeImage
                                                                         src={getSafeImageSrc(fs.logo || fs.og_image || fs.image || fs.imageUrl)}
                                                                         alt={fs.name || fs.title}
+                                                                        fallbackLabel={fs.name || fs.title}
                                                                         fill
                                                                         className="object-contain p-6"
                                                                         sizes="128px"

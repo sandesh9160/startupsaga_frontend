@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     try {
         const city = await getCityBySlug(slug);
         if (!city) return { title: "City Not Found" };
-        const canonical = `${SITE_URL}/cities/${slug}`;
+        // Respect canonical_override from CMS if set
+        const canonical = city.canonical_override || `${SITE_URL}/cities/${slug}`;
         const description = city.meta_description || city.description || `Explore startups and stories from ${city.name}.`;
         const ogImage = getAbsoluteImageUrl(city.og_image || city.image);
         const title = city.meta_title || `Startups in ${city.name} | StartupSaga.in`;
@@ -29,12 +30,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             description,
             keywords: city.meta_keywords,
             alternates: { canonical },
+            // Respect noindex from CMS
+            ...(city.noindex ? { robots: { index: false, follow: false } } : {}),
             openGraph: {
                 title,
                 description,
                 url: canonical,
+                siteName: "StartupSaga.in",
                 type: "website",
-                images: [{ url: ogImage }],
+                locale: "en_IN",
+                images: [{ url: ogImage, width: 1200, height: 630, alt: city.name }],
             },
             twitter: {
                 card: "summary_large_image",
@@ -83,7 +88,6 @@ export default async function CityDetailPage({ params }: { params: Promise<{ slu
         }));
         const cityStories = cityData.stories || [];
         const topCategories = (Array.isArray(allCategories) ? allCategories : []).slice(0, 4);
-
         const canonical = `${SITE_URL}/cities/${slug}`;
         const breadcrumbSchema = {
             "@context": "https://schema.org",

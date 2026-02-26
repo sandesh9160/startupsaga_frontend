@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StartupDetailContent } from "@/components/startups/StartupDetailContent";
 import { getStartupBySlug, getStories, getStartups } from "@/lib/api";
-import { JsonLd } from "@/components/seo/JsonLd";
+import { StartupPageSchema } from "@/components/seo/StartupPageSchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
 
@@ -20,21 +20,28 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     try {
         const startup = await getStartupBySlug(slug);
         if (!startup) return { title: "Startup Not Found" };
-        const canonical = `${SITE_URL}/startups/${startup.slug}`;
+        // FIX-002: Respect canonical_override from CMS if set
+        const canonical = startup.canonical_override || `${SITE_URL}/startups/${startup.slug}`;
         const description = startup.meta_description || startup.tagline || startup.description;
-        const ogImage = getAbsoluteImageUrl(startup.logo);
+        // FIX-006: Prefer og_image over logo (logos are often small/square)
+        const ogImage = getAbsoluteImageUrl(startup.og_image || startup.logo);
         const title = startup.meta_title || `${startup.name} | StartupSaga.in`;
         return {
             title,
             description,
             keywords: startup.meta_keywords,
             alternates: { canonical },
+            // FIX-002: Respect noindex from CMS
+            ...(startup.noindex ? { robots: { index: false, follow: false } } : {}),
             openGraph: {
                 title,
                 description,
                 url: canonical,
+                siteName: "StartupSaga.in",
                 type: "website",
-                images: [{ url: ogImage }],
+                locale: "en_IN",
+                // FIX-005: Add width + height to OG image
+                images: [{ url: ogImage, width: 1200, height: 630, alt: startup.name }],
             },
             twitter: {
                 card: "summary_large_image",
@@ -106,58 +113,19 @@ export default async function StartupDetailPage({ params }: { params: Promise<{ 
             .map((s: any) => ({ ...s, tagline: s.tagline || s.description?.slice(0, 140) }));
 
 
-        const canonical = `${SITE_URL}/startups/${startup.slug}`;
+        const canonical = startup.canonical_override || `${SITE_URL}/startups/${startup.slug}`;
 
-        // Prepare sameAs array
-        const sameAs = [startup.website_url, (startup as any).linkedin_url].filter(Boolean);
-
-        // Resolve founders
+        // Resolve founders for schema
         const schemaFounders = (startup.founders_data && Array.isArray(startup.founders_data))
-            ? startup.founders_data.map((f: any) => ({
-                "@type": "Person",
-                "name": f.name,
-                "jobTitle": f.role || "Founder"
-            }))
-            : startup.founder_name ? [{
-                "@type": "Person",
-                "name": startup.founder_name,
-                "jobTitle": "Founder"
-            }] : [];
+            ? startup.founders_data.map((f: any) => ({ name: f.name, role: f.role, linkedin: f.linkedin }))
+            : startup.founder_name ? [{ name: startup.founder_name, role: "Founder" }] : [];
 
         const cityName = typeof startup.city === 'object' ? startup.city.name : (startup.city || "");
-
-        const orgSchema = {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "@id": `${canonical}/#organization`,
-            "name": startup.name,
-            "url": canonical,
-            "logo": startup.logo || startup.og_image || `${SITE_URL}/og-image.jpg`,
-            "description": startup.tagline || startup.description,
-            "foundingDate": startup.founded_year,
-            "location": cityName ? {
-                "@type": "Place",
-                "name": cityName
-            } : undefined,
-            "founders": schemaFounders.length > 0 ? schemaFounders : undefined,
-            "sameAs": sameAs.length > 0 ? sameAs : undefined,
-        };
-
-
-        const breadcrumbSchema = {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-                { "@type": "ListItem", position: 2, name: "Startups", item: `${SITE_URL}/startups` },
-                { "@type": "ListItem", position: 3, name: startup.name, item: canonical },
-            ],
-        };
+        const linkedinUrl = (startup as any).linkedin_url;
 
         return (
             <>
-                <JsonLd data={orgSchema} />
-                <JsonLd data={breadcrumbSchema} />
+                <StartupPageSchema startup={startup} canonical={canonical} />
                 <Layout>
                     <StartupDetailContent
                         startup={{ ...startup, tagline: startup.tagline || startup.description?.slice(0, 140) }}

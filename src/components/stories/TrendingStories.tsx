@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { TrendingUp } from "lucide-react";
 import { Story } from "@/lib/api";
 import { getSafeImageSrc } from "@/lib/images";
@@ -41,9 +41,10 @@ export function TrendingStories({ stories }: TrendingStoriesProps) {
                             </div>
 
                             <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-50 border border-zinc-300">
-                                <Image
+                                <SafeImage
                                     src={thumbnailSrc}
                                     alt={story.title}
+                                    fallbackLabel={story.title}
                                     fill
                                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                                     sizes="64px"

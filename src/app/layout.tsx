@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import { JsonLd } from "@/components/seo/JsonLd";
+import { WebSiteSchema } from "@/components/seo/WebSiteSchema";
+import { getSEOSettings } from "@/lib/api";
 
 const playfair = Playfair_Display({
     subsets: ["latin"],
@@ -16,7 +17,7 @@ const inter = Inter({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-import { getLayoutSettings, getSEOSettings } from "@/lib/api";
+import { getLayoutSettings } from "@/lib/api";
 
 export async function generateMetadata(): Promise<Metadata> {
     const [layout, seo] = await Promise.all([
@@ -62,62 +63,15 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default async function RootLayout({
+export default function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const layout = await getLayoutSettings().catch(() => ({}));
-
-    const siteName = layout.site_name || "StartupSaga.in";
-    const socials = layout.socials || [];
-    const sameAs = Array.isArray(socials) ? socials.map((s: any) => s.url).filter(Boolean) : [];
-
-    const orgSchema = {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "@id": `${SITE_URL}/#organization`,
-        name: siteName,
-        url: SITE_URL,
-        logo: layout.site_logo || `${SITE_URL}/og-image.jpg`,
-        sameAs: sameAs.length > 0 ? sameAs : [
-            "https://twitter.com/startupsaga",
-            "https://linkedin.com/company/startupsaga",
-            "https://instagram.com/startupsaga"
-        ],
-        contactPoint: {
-            "@type": "ContactPoint",
-            email: "hello@startupsaga.in",
-            contactType: "customer support"
-        }
-    };
-
-    const websiteSchema = {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "@id": `${SITE_URL}/#website`,
-        name: siteName,
-        url: SITE_URL,
-        description: "Discover inspiring Indian startup stories and founder journeys.",
-        publisher: {
-            "@id": `${SITE_URL}/#organization`
-        },
-        potentialAction: {
-            "@type": "SearchAction",
-            target: {
-                "@type": "EntryPoint",
-                urlTemplate: `${SITE_URL}/stories?search={search_term_string}`
-            },
-            "query-input": "required name=search_term_string",
-        },
-    };
-
-
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
-                <JsonLd data={orgSchema} />
-                <JsonLd data={websiteSchema} />
+                <WebSiteSchema />
                 <Providers>{children}</Providers>
             </body>
         </html>

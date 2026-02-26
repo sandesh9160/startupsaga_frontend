@@ -18,15 +18,29 @@ export async function generateMetadata({ params }: { params: Promise<{ pageSlug:
     try {
         const page = await getPageBySlug(pageSlug);
         if (!page) return { title: "Page Not Found" };
-        const canonical = `${SITE_URL}/${page.slug}`;
+        // Respect canonical_override from CMS if set
+        const canonical = page.canonical_override || `${SITE_URL}/${page.slug}`;
+        const title = page.meta_title || `${page.title} | StartupSaga.in`;
+        const description = page.meta_description || page.content?.replace(/<[^>]*>?/gm, '').slice(0, 160) || "";
         return {
-            title: page.meta_title || `${page.title} | StartupSaga.in`,
-            description: page.meta_description || page.content?.slice(0, 160) || "",
+            title,
+            description,
             alternates: { canonical },
+            // Respect noindex from CMS
+            ...(page.noindex ? { robots: { index: false, follow: false } } : {}),
             openGraph: {
-                title: page.meta_title || `${page.title} | StartupSaga.in`,
-                description: page.meta_description || "",
+                title,
+                description,
                 url: canonical,
+                siteName: "StartupSaga.in",
+                type: "website",
+                locale: "en_IN",
+                images: [{ url: `${SITE_URL}/og-image.jpg`, width: 1200, height: 630 }],
+            },
+            twitter: {
+                card: "summary_large_image",
+                title,
+                description,
             },
         };
     } catch {
@@ -64,7 +78,6 @@ export default async function StaticPageRoute({ params }: { params: Promise<{ pa
             : ((page as any).sections || []);
 
         const hasSections = sections && sections.length > 0;
-
         const canonical = `${SITE_URL}/${page.slug}`;
         const breadcrumbSchema = {
             "@context": "https://schema.org",

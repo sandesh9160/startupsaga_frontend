@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { StoryDetailContent } from "@/components/stories/StoryDetailContent";
 import { getStoryBySlug, getStories, getStartups } from "@/lib/api";
 import { Story, Startup } from "@/types";
-import { JsonLd } from "@/components/seo/JsonLd";
+import { StorySchema } from "@/components/seo/StorySchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
 
@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     try {
         const story = await getStoryBySlug(slug);
         if (!story) return { title: "Story Not Found" };
-        const canonical = `${SITE_URL}/stories/${story.slug}`;
+        // FIX-002: Respect canonical_override from CMS if set
+        const canonical = story.canonical_override || `${SITE_URL}/stories/${story.slug}`;
         const cleanContent = story.content?.replace(/<[^>]*>?/gm, '') || "";
         const description = story.meta_description || story.excerpt || (cleanContent.slice(0, 160) || "Startup story on StartupSaga.in");
         const ogImage = getAbsoluteImageUrl(story.og_image || story.thumbnail);
@@ -30,15 +31,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             title,
             description,
             keywords: story.meta_keywords,
-            alternates: {
-                canonical,
-            },
+            alternates: { canonical },
+            // FIX-002: Respect noindex from CMS
+            ...(story.noindex ? { robots: { index: false, follow: false } } : {}),
             openGraph: {
                 title,
                 description,
                 url: canonical,
+                siteName: "StartupSaga.in",
                 type: "article",
-                images: [{ url: ogImage }],
+                locale: "en_IN",
+                // FIX-005: Add width + height to OG image
+                images: [{ url: ogImage, width: 1200, height: 630, alt: story.title }],
             },
             twitter: {
                 card: "summary_large_image",
@@ -90,66 +94,14 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             .filter((s: Startup) => s.categorySlug === story.categorySlug)
             .slice(0, 4);
 
-        const canonical = `${SITE_URL}/stories/${story.slug}`;
+        const canonical = story.canonical_override || `${SITE_URL}/stories/${story.slug}`;
         const cleanContent = story.content?.replace(/<[^>]*>?/gm, '') || "";
         const description = story.meta_description || story.excerpt || (cleanContent.slice(0, 160) || "Startup story on StartupSaga.in");
         const ogImage = getAbsoluteImageUrl(story.thumbnail);
 
-
-        const articleSchema = {
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "@id": `${canonical}/#article`,
-            headline: story.title,
-            description,
-            image: ogImage,
-            articleSection: story.category_name || (typeof story.category === 'object' ? story.category?.name : undefined),
-            author: {
-                "@type": "Person",
-                name: story.author || "Editorial Team",
-                url: `${SITE_URL}/about`
-            },
-            publisher: {
-                "@id": `${SITE_URL}/#organization`
-            },
-            datePublished: story.published_at || undefined,
-            dateModified: story.updated_at || undefined,
-            mainEntityOfPage: {
-                "@type": "WebPage",
-                "@id": canonical
-            },
-        };
-
-
-        const breadcrumbSchema = {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-                {
-                    "@type": "ListItem",
-                    position: 1,
-                    name: "Home",
-                    item: SITE_URL,
-                },
-                {
-                    "@type": "ListItem",
-                    position: 2,
-                    name: "Stories",
-                    item: `${SITE_URL}/stories`,
-                },
-                {
-                    "@type": "ListItem",
-                    position: 3,
-                    name: story.title,
-                    item: canonical,
-                },
-            ],
-        };
-
         return (
             <>
-                <JsonLd data={articleSchema} />
-                <JsonLd data={breadcrumbSchema} />
+                <StorySchema story={story} canonical={canonical} />
                 <Layout>
                     <StoryDetailContent
                         story={story}

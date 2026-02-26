@@ -35,7 +35,8 @@ export async function generateMetadata(
       category.description ||
       `Explore top ${category.name} startups in India.`;
 
-    const canonical = `${BASE_URL}/categories/${slug}`;
+    // Respect canonical_override from CMS if set
+    const canonical = category.canonical_override || `${BASE_URL}/categories/${slug}`;
     const ogImage = getAbsoluteImageUrl(category.og_image);
 
     return {
@@ -43,13 +44,16 @@ export async function generateMetadata(
       description,
       keywords: category.meta_keywords,
       alternates: { canonical },
+      // Respect noindex from CMS
+      ...(category.noindex ? { robots: { index: false, follow: false } } : {}),
       openGraph: {
         title,
         description,
         url: canonical,
         siteName: "StartupSaga.in",
         type: "website",
-        images: [{ url: ogImage, width: 1200, height: 630 }],
+        locale: "en_IN",
+        images: [{ url: ogImage, width: 1200, height: 630, alt: category.name }],
       },
       twitter: {
         card: "summary_large_image",
@@ -103,7 +107,6 @@ export default async function CategoryDetailPage(
     }));
     const categoryStories = categoryData.stories || [];
     const topCities = (Array.isArray(allCities) ? allCities : []).slice(0, 4);
-
     const canonical = `${BASE_URL}/categories/${slug}`;
     const breadcrumbSchema = {
       "@context": "https://schema.org",
