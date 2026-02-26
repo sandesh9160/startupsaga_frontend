@@ -14,12 +14,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const resolved = searchParams ? await searchParams : undefined;
     const hasQuery = !!(resolved && Object.keys(resolved).length > 0);
+    const title = "Startup Stories in India | StartupSaga.in";
+    const description = "Explore the latest Indian startup stories, founder journeys, funding rounds, and growth strategies.";
     return {
-        title: "Startup Stories in India | StartupSaga.in",
-        description:
-            "Explore the latest Indian startup stories, founder journeys, funding rounds, and growth strategies.",
+        title,
+        description,
         alternates: {
             canonical: `${SITE_URL}/stories`,
+        },
+        openGraph: {
+            title,
+            description,
+            url: `${SITE_URL}/stories`,
+            siteName: "StartupSaga.in",
+            type: "website",
+            images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Startup Stories on StartupSaga.in" }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: ["/og-image.jpg"],
         },
         robots: hasQuery ? { index: false, follow: true } : undefined,
     };

@@ -11,29 +11,31 @@ import {
     Link as LinkIcon,
     Share2,
     MapPin,
-    Building2,
     Lightbulb,
-    Layers,
     List,
     Clock,
     TrendingUp,
-    Share,
     Linkedin,
     Twitter,
+    Facebook,
     Tag,
     User,
-    Sparkles
+    Sparkles,
+    MessageCircle
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getSafeImageSrc } from "@/lib/images";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
+import { API_BASE_URL } from "@/lib/api";
+import dynamic from "next/dynamic";
+import { Story, Startup } from "@/types";
+import Image from "next/image";
 interface StoryDetailContentProps {
-    story: any;
-    relatedStories: any[];
-    categoryStartups: any[];
+    story: Story;
+    relatedStories: Story[];
+    categoryStartups: Startup[];
 }
 
 export function StoryDetailContent({ story, relatedStories, categoryStartups }: StoryDetailContentProps) {
@@ -41,14 +43,18 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
     const [activeSection, setActiveSection] = useState<string>("");
 
     const handleShare = () => {
+        const shareTitle = story.meta_title || story.title;
+        const shareText = story.meta_description || story.excerpt || "";
+        const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
         if (typeof navigator !== "undefined" && navigator.share) {
-            navigator.share({ title: story.title, text: story.excerpt, url: window.location.href })
+            navigator.share({ title: shareTitle, text: shareText, url: shareUrl })
                 .catch(() => {
-                    navigator.clipboard.writeText(window.location.href);
+                    navigator.clipboard.writeText(shareUrl);
                     toast.success("Link copied!");
                 });
         } else {
-            navigator.clipboard.writeText(window.location.href);
+            navigator.clipboard.writeText(shareUrl);
             toast.success("Link copied!");
         }
     };
@@ -57,7 +63,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
         let toc: Array<{ id: number; title: string; anchor: string }> = [];
 
         if (story.sections && Array.isArray(story.sections) && story.sections.length > 0) {
-            const sectionToc = story.sections.map((section: any, idx: number) => ({
+            const sectionToc = story.sections.map((section: { title?: string; heading?: string }, idx: number) => ({
                 id: idx + 1,
                 title: section.title || section.heading || '',
                 anchor: (section.title || section.heading || '').toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')
@@ -171,26 +177,40 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                             <span className="text-zinc-400 text-sm font-medium">{story.publishDate || story.publish_date || 'Feb 4, 2026'}</span>
                         </div>
 
-                        {/* Share Links */}
                         <div className="flex items-center gap-3 pt-4">
                             <span className="text-[13px] font-medium text-zinc-500">Share:</span>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`, '_blank')}
-                                    className="h-9 w-9 rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
+                                    className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
                                     title="Share on LinkedIn"
                                 >
                                     <Linkedin className="h-[18px] w-[18px]" />
                                 </button>
                                 <button
-                                    className="h-9 w-9 rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
+                                    onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${encodeURIComponent(story.meta_title || story.title || '')}`, '_blank')}
+                                    className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
                                     title="Share on Twitter"
                                 >
                                     <Twitter className="h-[18px] w-[18px]" />
                                 </button>
                                 <button
+                                    onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`, '_blank')}
+                                    className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
+                                    title="Share on Facebook"
+                                >
+                                    <Facebook className="h-[18px] w-[18px]" />
+                                </button>
+                                <button
+                                    onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${story.title} - ${story.excerpt || ''} ${window.location.href}`)}`, '_blank')}
+                                    className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-green-600 hover:border-green-200 transition-all bg-white shadow-sm"
+                                    title="Share on WhatsApp"
+                                >
+                                    <MessageCircle className="h-[18px] w-[18px]" />
+                                </button>
+                                <button
                                     onClick={handleShare}
-                                    className="h-9 w-9 rounded-xl border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
+                                    className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-orange-600 hover:border-orange-200 transition-all bg-white shadow-sm"
                                     title="More Options"
                                 >
                                     <Share2 className="h-[18px] w-[18px]" />
@@ -217,10 +237,12 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                 animate={{ opacity: 1 }}
                                 className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-zinc-100 shadow-lg shadow-zinc-200/50"
                             >
-                                <img
+                                <Image
                                     src={getSafeImageSrc(story.thumbnail || story.og_image)}
                                     alt={story.image_alt || story.title}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    priority
+                                    className="object-cover"
                                 />
                             </motion.div>
                         )}
@@ -279,14 +301,14 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                             {story.content ? (
                                 <div dangerouslySetInnerHTML={{
                                     __html: story.content
-                                        .replace(
-                                            /<(h[23])([^>]*)>(.*?)<\/\1>/gi,
-                                            (match: string, tag: string, attrs: string, content: string) => {
-                                                const title = content.replace(/<[^>]*>/g, '').trim();
-                                                const id = title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
-                                                return `<${tag}${attrs} id="${id}">${content}</${tag}>`;
-                                            }
-                                        )
+                                        // .replace(
+                                        //     /<(h[23])([^>]*)>(.*?)<\/\1>/gi,
+                                        //     (match: string, tag: string, attrs: string, content: string) => {
+                                        //         const title = content.replace(/<[^>]*>/g, '').trim();
+                                        //         const id = title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
+                                        //         return `<${tag}${attrs} id="${id}">${content}</${tag}>`;
+                                        //     }
+                                        // )
                                         .replace(
                                             /<img([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi,
                                             (match: string, p1: string, p2: string, p3: string) => {
@@ -302,23 +324,25 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                         </section>
 
                         {/* Actions */}
-                        <div className="pt-10 border-t border-zinc-100 flex flex-wrap items-center gap-4">
-                            <Button
-                                onClick={handleShare}
-                                variant="outline"
-                                className="h-11 rounded-xl bg-white border-zinc-200 text-zinc-900 px-6 font-bold text-xs uppercase tracking-wider transition-all hover:bg-zinc-50 shadow-sm flex items-center gap-2.5"
-                            >
-                                <LinkIcon className="h-4 w-4 text-zinc-400" />
-                                Copy Link
-                            </Button>
-                            <Button
-                                onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`, '_blank')}
-                                variant="outline"
-                                className="h-11 rounded-xl bg-white border-zinc-200 text-[#0077B5] hover:bg-zinc-50 px-6 font-bold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-2.5"
-                            >
-                                <Linkedin className="h-4 w-4 fill-current" />
-                                Share on LinkedIn
-                            </Button>
+                        {/* Share actions - Card Style per reference */}
+                        <div className="mt-16 p-8 bg-white rounded-2xl border border-zinc-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                            <p className="text-[14px] text-zinc-500 mb-6 font-medium">Enjoyed this story? Share this journey with your network.</p>
+                            <div className="flex flex-wrap gap-4">
+                                <button
+                                    onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`, '_blank')}
+                                    className="inline-flex items-center gap-3 px-8 h-12 bg-white border border-zinc-200 rounded-xl text-zinc-900 font-bold hover:bg-zinc-50 transition-all shadow-sm group"
+                                >
+                                    <Linkedin className="h-5 w-5 text-[#0077B5]" />
+                                    LinkedIn
+                                </button>
+                                <button
+                                    onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${encodeURIComponent(story.meta_title || story.title || '')}`, '_blank')}
+                                    className="inline-flex items-center gap-3 px-8 h-12 bg-white border border-zinc-200 rounded-xl text-zinc-900 font-bold hover:bg-zinc-50 transition-all shadow-sm group"
+                                >
+                                    <Twitter className="h-5 w-5 text-[#1DA1F2]" />
+                                    Twitter
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -333,10 +357,12 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                         city: story.related_startup.city,
                                         founded: story.related_startup.founded_year,
                                         employees: story.related_startup.team_size,
-                                        founders: story.related_startup.founders_data?.map((f: any) => f.name) || [],
-                                        categories: [story.related_startup.category].filter(Boolean),
+                                        founders: story.related_startup.founders_data?.map((f: { name?: string }) => f.name || "") || [],
+                                        categories: ([story.related_startup.category] as string[]).filter(Boolean),
                                         website: story.related_startup.website_url,
-                                        slug: story.related_startup.slug
+                                        slug: story.related_startup.slug,
+                                        stage: story.related_startup.funding_stage || story.related_startup.stage,
+                                        sector: story.related_startup.category_name || story.related_startup.category
                                     }}
                                 />
 

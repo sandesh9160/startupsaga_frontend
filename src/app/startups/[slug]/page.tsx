@@ -50,6 +50,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function StartupDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
+
+    // Cleanup routing for common accidental paths
+    if (slug === 'startups') redirect('/startups');
+    if (slug === 'categories') redirect('/categories');
+    if (slug === 'cities') redirect('/cities');
+    if (slug === 'stories') redirect('/stories');
+
     const redirectTo = await resolveRedirect(`/startups/${slug}`);
     if (redirectTo) redirect(redirectTo);
     try {
@@ -98,14 +105,44 @@ export default async function StartupDetailPage({ params }: { params: Promise<{ 
             .slice(0, 4)
             .map((s: any) => ({ ...s, tagline: s.tagline || s.description?.slice(0, 140) }));
 
+
         const canonical = `${SITE_URL}/startups/${startup.slug}`;
+
+        // Prepare sameAs array
+        const sameAs = [startup.website_url, (startup as any).linkedin_url].filter(Boolean);
+
+        // Resolve founders
+        const schemaFounders = (startup.founders_data && Array.isArray(startup.founders_data))
+            ? startup.founders_data.map((f: any) => ({
+                "@type": "Person",
+                "name": f.name,
+                "jobTitle": f.role || "Founder"
+            }))
+            : startup.founder_name ? [{
+                "@type": "Person",
+                "name": startup.founder_name,
+                "jobTitle": "Founder"
+            }] : [];
+
+        const cityName = typeof startup.city === 'object' ? startup.city.name : (startup.city || "");
+
         const orgSchema = {
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: startup.name,
-            url: canonical,
-            description: startup.description,
+            "@id": `${canonical}/#organization`,
+            "name": startup.name,
+            "url": canonical,
+            "logo": startup.logo || startup.og_image || `${SITE_URL}/og-image.jpg`,
+            "description": startup.tagline || startup.description,
+            "foundingDate": startup.founded_year,
+            "location": cityName ? {
+                "@type": "Place",
+                "name": cityName
+            } : undefined,
+            "founders": schemaFounders.length > 0 ? schemaFounders : undefined,
+            "sameAs": sameAs.length > 0 ? sameAs : undefined,
         };
+
 
         const breadcrumbSchema = {
             "@context": "https://schema.org",

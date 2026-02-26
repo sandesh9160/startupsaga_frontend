@@ -10,21 +10,16 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Home } from "lucide-react";
+// import { Home } from "lucide-react";
 import { Fragment, useEffect, useState } from "react";
 
 export function FrontendBreadcrumbs() {
     const pathname = usePathname();
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
     // Normalize pathname (remove trailing slash)
     const cleanPath = pathname.replace(/\/$/, "");
 
-    const hiddenRoutes = ["", "/stories", "/startups", "/categories", "/cities"];
+    // 1. List of routes where breadcrumbs should not be shown (e.g., home, listing pages)
+    const hiddenRoutes = ["", "/", "/stories", "/startups", "/categories", "/cities"];
     if (hiddenRoutes.includes(cleanPath)) return null;
 
     const segments = cleanPath.split("/").filter((segment) => segment !== "");
@@ -37,7 +32,7 @@ export function FrontendBreadcrumbs() {
     };
 
     return (
-        <div className="bg-white relative z-20 border-b border-zinc-100">
+        <div className="bg-white relative z-20 border-b border-zinc-200">
             <div className="container-wide py-3">
                 <Breadcrumb className="font-sans">
                     <BreadcrumbList className="text-[13px] font-medium text-zinc-400 gap-2 flex-nowrap overflow-hidden">
@@ -54,8 +49,8 @@ export function FrontendBreadcrumbs() {
 
                             return (
                                 <Fragment key={href}>
-                                    <BreadcrumbSeparator className="text-zinc-300">
-                                        <span className="text-[10px] font-normal opacity-50">&gt;</span>
+                                    <BreadcrumbSeparator className="text-zinc-400">
+                                        <span className="text-[10px] font-bold">&gt;</span>
                                     </BreadcrumbSeparator>
                                     <BreadcrumbItem>
                                         {isLast ? (

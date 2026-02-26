@@ -58,7 +58,7 @@ export function CityCard({
   if (variant === 'featured') {
     return (
       <Link href={`/cities/${slug}`} className={cn("block group h-full", className)}>
-        <article className="bg-white rounded-2xl overflow-hidden border border-zinc-100 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col">
+        <article className="bg-white rounded-2xl overflow-hidden border border-zinc-300 shadow-sm hover:shadow-xl transition-all duration-500 h-full flex flex-col">
           {/* Top Image Section */}
           <div className="relative h-48 md:h-56 w-full overflow-hidden">
             {image ? (

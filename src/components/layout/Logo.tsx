@@ -9,12 +9,13 @@ interface LogoProps {
     iconClassName?: string;
     showText?: boolean;
     variant?: "default" | "light";
+    initialSettings?: any;
 }
 
-export function Logo({ className, iconClassName, showText = true, variant = "default" }: LogoProps) {
+export function Logo({ className, iconClassName, showText = true, variant = "default", initialSettings }: LogoProps) {
     const isLight = variant === "light";
     const [isMounted, setIsMounted] = useState(false);
-    const [settings, setSettings] = useState<{ site_name?: string; site_logo?: string } | null>(null);
+    const [settings, setSettings] = useState<{ site_name?: string; site_logo?: string } | null>(initialSettings || null);
 
     useEffect(() => {
         setIsMounted(true);

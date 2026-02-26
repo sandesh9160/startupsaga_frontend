@@ -8,6 +8,19 @@ const nextConfig = {
                 port: '',
                 pathname: '/**',
             },
+
+            {
+                protocol: 'https',
+                hostname: 'api.startupsaga.in',
+                port: '',
+                pathname: '/media/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'startupsaga.in',
+                port: '',
+                pathname: '/media/**',
+            },
             {
                 protocol: 'http',
                 hostname: 'localhost',
@@ -22,6 +35,7 @@ const nextConfig = {
             },
         ],
     },
+
     async rewrites() {
         return [
             {

@@ -16,63 +16,102 @@ const inter = Inter({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-export const metadata: Metadata = {
-    metadataBase: new URL(SITE_URL),
-    title: "StartupSaga.in | Startup Stories of India",
-    description: "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.",
-    openGraph: {
-        title: "StartupSaga.in | Startup Stories of India",
-        description: "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.",
-        url: SITE_URL,
-        siteName: "StartupSaga.in",
-        type: "website",
-        images: [
-            {
-                url: "/og-image.jpg",
-                width: 1200,
-                height: 630,
-                alt: "StartupSaga.in",
-            },
-        ],
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "StartupSaga.in | Startup Stories of India",
-        description: "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.",
-        images: ["/og-image.jpg"],
-    },
-    icons: {
-        icon: "/favicon.png",
-        shortcut: "/favicon.png",
-        apple: "/favicon.png",
-    },
-};
+import { getLayoutSettings, getSEOSettings } from "@/lib/api";
 
-export default function RootLayout({
+export async function generateMetadata(): Promise<Metadata> {
+    const [layout, seo] = await Promise.all([
+        getLayoutSettings().catch(() => ({})),
+        getSEOSettings().catch(() => ({})),
+    ]);
+
+    const title = seo.default_meta_title || "StartupSaga.in | Startup Stories of India";
+    const description = seo.default_meta_description || "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.";
+    const favicon = layout.site_favicon || "/favicon.png";
+
+    return {
+        metadataBase: new URL(SITE_URL),
+        title,
+        description,
+        keywords: seo.global_keywords,
+        openGraph: {
+            title,
+            description,
+            url: SITE_URL,
+            siteName: layout.site_name || "StartupSaga.in",
+            type: "website",
+            images: [
+                {
+                    url: layout.site_logo || "/og-image.jpg",
+                    width: 1200,
+                    height: 630,
+                    alt: layout.site_name || "StartupSaga.in",
+                },
+            ],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: [layout.site_logo || "/og-image.jpg"],
+        },
+        icons: {
+            icon: favicon,
+            shortcut: favicon,
+            apple: favicon,
+        },
+    };
+}
+
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const layout = await getLayoutSettings().catch(() => ({}));
+
+    const siteName = layout.site_name || "StartupSaga.in";
+    const socials = layout.socials || [];
+    const sameAs = Array.isArray(socials) ? socials.map((s: any) => s.url).filter(Boolean) : [];
+
     const orgSchema = {
         "@context": "https://schema.org",
         "@type": "Organization",
-        name: "StartupSaga.in",
+        "@id": `${SITE_URL}/#organization`,
+        name: siteName,
         url: SITE_URL,
-        logo: `${SITE_URL}/og-image.jpg`,
-        sameAs: [],
+        logo: layout.site_logo || `${SITE_URL}/og-image.jpg`,
+        sameAs: sameAs.length > 0 ? sameAs : [
+            "https://twitter.com/startupsaga",
+            "https://linkedin.com/company/startupsaga",
+            "https://instagram.com/startupsaga"
+        ],
+        contactPoint: {
+            "@type": "ContactPoint",
+            email: "hello@startupsaga.in",
+            contactType: "customer support"
+        }
     };
 
     const websiteSchema = {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        name: "StartupSaga.in",
+        "@id": `${SITE_URL}/#website`,
+        name: siteName,
         url: SITE_URL,
+        description: "Discover inspiring Indian startup stories and founder journeys.",
+        publisher: {
+            "@id": `${SITE_URL}/#organization`
+        },
         potentialAction: {
             "@type": "SearchAction",
-            target: `${SITE_URL}/stories?search={search_term_string}`,
+            target: {
+                "@type": "EntryPoint",
+                urlTemplate: `${SITE_URL}/stories?search={search_term_string}`
+            },
             "query-input": "required name=search_term_string",
         },
     };
+
 
     return (
         <html lang="en" suppressHydrationWarning>

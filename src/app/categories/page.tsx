@@ -6,6 +6,7 @@ import { getSections, getCategories, getPlatformStats } from "@/lib/api";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+
 export const metadata: Metadata = {
     title: "Startup Categories | StartupSaga.in",
     description:
@@ -13,7 +14,22 @@ export const metadata: Metadata = {
     alternates: {
         canonical: `${SITE_URL}/categories`,
     },
+    openGraph: {
+        title: "Startup Categories | StartupSaga.in",
+        description: "Explore startups by industry. From fintech to healthtech, edtech to SaaS, discover companies transforming every sector of India’s economy.",
+        url: `${SITE_URL}/categories`,
+        siteName: "StartupSaga.in",
+        type: "website",
+        images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Startup Categories on StartupSaga.in" }],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Startup Categories | StartupSaga.in",
+        description: "Explore startups by industry. From fintech to healthtech, edtech to SaaS, discover companies transforming every sector of India’s economy.",
+        images: ["/og-image.jpg"],
+    },
 };
+
 
 export default async function CategoriesPage() {
     let pageSections: any[] = [];

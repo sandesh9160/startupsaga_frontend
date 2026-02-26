@@ -73,6 +73,11 @@ export default async function CategoryDetailPage(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
+  if (slug === "categories") redirect("/categories");
+  if (slug === "startups") redirect("/startups");
+  if (slug === "cities") redirect("/cities");
+  if (slug === "stories") redirect("/stories");
+
   const redirectTo = await resolveRedirect(`/categories/${slug}`);
   if (redirectTo) redirect(redirectTo);
 

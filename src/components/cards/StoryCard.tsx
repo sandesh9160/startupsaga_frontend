@@ -88,9 +88,9 @@ export function StoryCard({
 
   // Standard card
   return (
-    <article className="flex flex-col bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden hover:shadow-xl hover:shadow-zinc-200/50 hover:-translate-y-1 transition-all duration-300 group">
+    <article className="flex flex-col bg-white rounded-2xl border border-zinc-300 shadow-sm overflow-hidden hover:shadow-xl hover:shadow-zinc-300/50 hover:-translate-y-1 transition-all duration-300 group">
       {/* Thumbnail */}
-      <Link href={`/stories/${slug}`} className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-50 block flex-shrink-0">
+      <Link href={`/stories/${slug}`} className="relative aspect-video w-full overflow-hidden bg-zinc-50 block flex-shrink-0">
         <Image
           src={thumbnailSrc}
           alt={title}
@@ -101,22 +101,22 @@ export function StoryCard({
       </Link>
 
       {/* Body */}
-      <div className="p-7 flex flex-col flex-1">
+      <div className="p-5 flex flex-col flex-1">
         {category && (
-          <span className="text-[11px] font-bold text-[#FF4F18] mb-2 block tracking-wider">
+          <span className="text-[11px] font-bold text-[#FF4F18] mb-1.5 block tracking-wider">
             {category}
           </span>
         )}
 
         <Link
           href={`/stories/${slug}`}
-          className="font-serif font-semibold text-[#0F172A] text-xl leading-snug line-clamp-2 hover:text-[#FF4F18] transition-colors mb-2 block"
+          className="font-serif font-semibold text-[#0F172A] text-lg leading-snug line-clamp-2 hover:text-[#FF4F18] transition-colors mb-4 block"
         >
           {title}
         </Link>
 
         {/* Meta Info */}
-        <div className="flex items-center gap-4 text-[12px] font-medium text-zinc-500 mb-4">
+        <div className="flex items-center gap-4 text-[12px] font-medium text-zinc-600 mb-4">
           {authorDisplay && (
             <span className="flex items-center gap-1.5 truncate">
               <User size={14} className="text-[#FF4F18]/80" />
@@ -131,15 +131,9 @@ export function StoryCard({
           )}
         </div>
 
-        {excerpt && (
-          <p className="text-[14px] text-zinc-400 font-medium leading-relaxed line-clamp-2 mb-4 flex-1">
-            {excerpt}
-          </p>
-        )}
-
         {/* Footer */}
-        <div className="mt-auto flex items-center justify-between pt-4 border-t border-zinc-50">
-          <time className="text-[11px] font-bold text-zinc-300 uppercase tracking-widest">{publishDate}</time>
+        <div className="mt-4 pt-4 border-t border-zinc-200 flex items-center justify-between">
+          <time className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">{publishDate}</time>
         </div>
       </div>
     </article>

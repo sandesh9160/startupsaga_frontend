@@ -167,6 +167,9 @@ export function HomeContent({
         loadData();
     }, [isClient, initialSections, initialTrending, initialStories, initialStartups, initialCities, initialCategories]);
 
+
+    let h1Rendered = false;
+
     return (
         <div className="bg-transparent">
 
@@ -177,6 +180,11 @@ export function HomeContent({
                         const sSettings = section.settings || {};
                         const bgColor = sSettings.backgroundColor || '#ffffffae';
                         const textColor = sSettings.textColor || '#0F172A';
+
+                        // Decide on heading tag
+                        const isHero = section.section_type === 'hero' || section.type === 'hero';
+                        const HeadingTag = (isHero && !h1Rendered && !defaultView) ? 'h1' : 'h2';
+                        if (HeadingTag === 'h1') h1Rendered = true;
 
                         // Spacing from backend (paddingY = vertical, paddingX = horizontal)
                         const paddingY = sSettings.paddingY !== undefined ? sSettings.paddingY : null;
@@ -204,7 +212,8 @@ export function HomeContent({
                                             "container-wide relative z-10",
                                             align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center'
                                         )}>
-                                            <h1
+
+                                            <HeadingTag
                                                 className={cn(
                                                     "text-3xl md:text-4xl lg:text-5xl font-semibold font-serif mb-4 max-w-4xl leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000",
                                                     align === 'left' ? 'mr-auto ml-0' : align === 'right' ? 'ml-auto mr-0' : 'mx-auto'
@@ -212,7 +221,8 @@ export function HomeContent({
                                                 style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}
                                             >
                                                 {section.title || heroData.title}
-                                            </h1>
+                                            </HeadingTag>
+
                                             <div
                                                 className={cn(
                                                     "text-base md:text-lg mb-8 max-w-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 prose prose-slate marker:text-zinc-500",
@@ -480,7 +490,7 @@ export function HomeContent({
                                 return (
                                     <section
                                         key={section.id || index}
-                                        className="w-full mb-0 border-b border-zinc-100/50"
+                                        className="w-full mb-0 border-b border-zinc-300"
                                         style={{
                                             backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
                                             paddingTop: paddingY !== null ? paddingY : 24,
@@ -532,7 +542,7 @@ export function HomeContent({
                                 return (
                                     <section
                                         key={section.id || index}
-                                        className="w-full mb-0 bg-[#fdfdfd] border-b border-zinc-100/50"
+                                        className="w-full mb-0 bg-[#fdfdfd] border-b border-zinc-300"
                                         style={{
                                             backgroundColor: bgColor.startsWith('#') ? bgColor : '#' + bgColor,
                                             paddingTop: paddingY !== null ? paddingY : 24,
@@ -556,7 +566,7 @@ export function HomeContent({
                                                     >
                                                         {section.title || "Rising Startup Hubs"}
                                                     </h2>
-                                                    <p className="text-zinc-500 text-lg">{section.subtitle || "Tier 2 & Tier 3 cities driving India's startup growth"}</p>
+                                                    <p className="text-zinc-500 text-lg">{section.subtitle || "Tier 2 & Tier 3 cities driving India&apos;s startup growth"}</p>
                                                 </div>
                                                 <Link href="/cities" className="text-[#D94111] font-bold text-sm tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all pb-1">
                                                     View all rising hubs <ArrowRight className="h-4 w-4" />
@@ -618,9 +628,9 @@ export function HomeContent({
                                                         </h2>
                                                     </div>
                                                 </div>
-                                                <div className="bg-[#FFF8F5] rounded-3xl border border-orange-100 shadow-sm overflow-hidden group">
+                                                <div className="bg-[#FFF8F5] rounded-3xl border border-orange-300 shadow-sm overflow-hidden group">
                                                     <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[300px]">
-                                                        <div className="lg:col-span-4 p-8 flex flex-col items-center justify-center text-center border-r border-orange-100/50">
+                                                        <div className="lg:col-span-4 p-8 flex flex-col items-center justify-center text-center border-r border-orange-300/50">
                                                             <div className="w-32 h-32 rounded-3xl bg-white shadow-md flex items-center justify-center p-6 mb-6 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
                                                                 {(fs.logo || fs.og_image || fs.image || fs.imageUrl) ? (
                                                                     <Image
@@ -746,7 +756,7 @@ export function HomeContent({
                                                 )}
                                                 style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}
                                             >
-                                                {section.title || "Stay Updated with India's Startup Ecosystem"}
+                                                {section.title || "Stay Updated with India&apos;s Startup Ecosystem"}
                                             </h2>
                                             <div
                                                 className={cn(
@@ -823,7 +833,8 @@ export function HomeContent({
                                                 style={sectionStyles}
                                             >
                                                 <div className="container-wide relative z-10">
-                                                    <h1
+
+                                                    <HeadingTag
                                                         className={cn(
                                                             "text-4xl md:text-5xl lg:text-7xl font-semibold mb-6 max-w-5xl leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-1000 font-serif",
                                                             align === 'left' ? 'mr-auto ml-0 text-left' : align === 'right' ? 'ml-auto mr-0 text-right' : 'mx-auto text-center'
@@ -831,7 +842,8 @@ export function HomeContent({
                                                         style={titleStyle}
                                                     >
                                                         {section.title || heroData.title}
-                                                    </h1>
+                                                    </HeadingTag>
+
                                                     <p
                                                         className={cn(
                                                             "text-lg md:text-xl mb-12 max-w-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200",

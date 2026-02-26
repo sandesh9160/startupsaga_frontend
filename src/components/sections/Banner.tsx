@@ -41,11 +41,13 @@ export function Banner({
 
                 {image && (
                     <div className="absolute inset-0 opacity-20 transition-transform duration-1000 group-hover:scale-105">
+
                         <img
                             src={image.startsWith('http') ? image : `${process.env.NEXT_PUBLIC_MEDIA_URL || 'http://localhost:8000'}${image}`}
-                            alt=""
+                            alt={title || "StartupSaga Banner"}
                             className="w-full h-full object-cover"
                         />
+
                     </div>
                 )}
             </div>

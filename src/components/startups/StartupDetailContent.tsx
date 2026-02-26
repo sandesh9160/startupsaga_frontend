@@ -10,6 +10,8 @@ import {
     Tag,
     TrendingUp,
     Linkedin,
+    Twitter,
+    Facebook,
     Share2,
     // Layers,
     Edit3,
@@ -17,7 +19,12 @@ import {
     List,
     ArrowRight,
     Sparkles,
-    Lightbulb
+    Lightbulb,
+    Users,
+    Calendar,
+    Building2,
+    User,
+    MessageCircle
 } from "lucide-react";
 import { getSafeImageSrc } from "@/lib/images";
 import { toast } from "sonner";
@@ -107,9 +114,13 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
     const foundersString = founders.map((f: any) => f.name).join(", ");
 
     const infoRows = [
-        { label: "Founded", value: startup.founded_year },
-        { label: "Employees", value: startup.team_size },
-        { label: "Founders", value: foundersString },
+        { label: "Stage", value: startup.funding_stage || startup.stage, icon: TrendingUp },
+        { label: "Sector", value: categoryName, icon: Tag },
+        { label: "Founded", value: startup.founded_year, icon: Calendar },
+        { label: "Employees", value: startup.team_size, icon: Users },
+        { label: "Model", value: startup.business_model || startup.sector, icon: Building2 },
+        { label: "Location", value: cityName, icon: MapPin },
+        { label: "Founders", value: foundersString, icon: User },
     ].filter((r) => r.value);
 
     const websiteUrl = startup.website_url || (startup as any).website;
@@ -120,7 +131,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
         <div className="bg-white min-h-screen font-sans pb-16">
 
             {/* ── Compact Hero Strip ── */}
-            <div className="bg-white relative z-10 pt-8 pb-8">
+            <div className="bg-white relative z-10 pt-8 pb-8 border-b border-zinc-200">
                 <div className="container-wide">
                     <div className="flex flex-col lg:flex-row items-start gap-7">
 
@@ -185,6 +196,48 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                         <span className="text-[13px] font-semibold text-zinc-900">{founders.map((f: any) => f.name).join(", ")}</span>
                                     </div>
                                 )}
+
+                                {/* Share Row - Matching Story Page style */}
+                                <div className="flex items-center gap-3 mt-5 pt-4 border-t border-zinc-100/60 max-w-fit">
+                                    <span className="text-[13px] font-medium text-zinc-500">Share:</span>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}
+                                            className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-[#FF4F18] hover:border-orange-100 transition-all bg-white shadow-sm"
+                                            title="Share on LinkedIn"
+                                        >
+                                            <Linkedin className="h-[18px] w-[18px]" />
+                                        </button>
+                                        <button
+                                            onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(startup.name + ' - ' + startup.tagline)}`, '_blank')}
+                                            className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-[#FF4F18] hover:border-orange-100 transition-all bg-white shadow-sm"
+                                            title="Share on Twitter"
+                                        >
+                                            <Twitter className="h-[18px] w-[18px]" />
+                                        </button>
+                                        <button
+                                            onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank')}
+                                            className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-[#FF4F18] hover:border-orange-100 transition-all bg-white shadow-sm"
+                                            title="Share on Facebook"
+                                        >
+                                            <Facebook className="h-[18px] w-[18px]" />
+                                        </button>
+                                        <button
+                                            onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(startup.name + ' - ' + startup.tagline + ' ' + window.location.href)}`, '_blank')}
+                                            className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-[#FF4F18] hover:border-orange-100 transition-all bg-white shadow-sm"
+                                            title="Share on WhatsApp"
+                                        >
+                                            <MessageCircle className="h-[18px] w-[18px]" />
+                                        </button>
+                                        <button
+                                            onClick={handleShare}
+                                            className="h-9 w-9 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-[#FF4F18] hover:border-orange-100 transition-all bg-white shadow-sm"
+                                            title="More Options"
+                                        >
+                                            <Share2 className="h-[18px] w-[18px]" />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -196,10 +249,6 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                     Visit Now <ExternalLink size={14} />
                                 </a>
                             )}
-                            <button onClick={handleShare}
-                                className="h-11 w-11 rounded-xl border border-zinc-200 bg-white flex items-center justify-center text-zinc-400 hover:text-[#FF4F18] hover:border-orange-100 transition-all shadow-sm">
-                                <Share2 size={16} />
-                            </button>
                             <button className="h-11 px-6 rounded-xl border border-zinc-200 bg-white flex items-center gap-2 text-[11px] font-bold text-zinc-500 hover:bg-zinc-50 transition-all shadow-sm uppercase tracking-wider">
                                 <Edit3 size={14} /> Claim
                             </button>
@@ -213,11 +262,11 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-7">
 
                     {/* Left — Content */}
-                    <div className="lg:col-span-8 space-y-5">
+                    <div className="lg:col-span-8 space-y-8">
 
                         {/* Table of Contents */}
                         {tableOfContents.length > 0 && (
-                            <div className="bg-white rounded-xl border border-zinc-100 p-6 shadow-sm pb-5">
+                            <div className="bg-white rounded-xl border-2 border-zinc-200 p-6 shadow-sm pb-5">
                                 <div className="flex items-center gap-2.5 mb-6">
                                     <List size={16} className="text-[#FF4F18]" />
                                     <h2 className="text-base font-serif font-bold text-[#0F172A] mb-0">Table of Contents</h2>
@@ -241,7 +290,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                         )}
 
                         {/* TL;DR Section */}
-                        <div id="tldr" className="bg-[#FEF6F2] rounded-xl border border-orange-100 p-4 shadow-sm relative overflow-hidden group">
+                        <div id="tldr" className="bg-[#FEF6F2] rounded-xl border-2 border-orange-200 p-6 shadow-sm relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
                                 <Lightbulb className="h-16 w-16 text-[#D94111]" />
                             </div>
@@ -285,17 +334,25 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                             />
                         </div>
 
-                        {/* Share actions */}
-                        <div className="flex items-center gap-4">
-                            <button onClick={handleShare}
-                                className="inline-flex items-center justify-center gap-3 h-12 px-8 rounded-xl border border-zinc-100 bg-white text-[13px] font-bold text-zinc-600 hover:bg-zinc-50 transition-all shadow-sm">
-                                <Share2 size={16} /> Share
-                            </button>
-                            <button
-                                onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, "_blank")}
-                                className="inline-flex items-center justify-center gap-3 h-12 px-8 rounded-xl border border-zinc-100 bg-white text-[13px] font-bold text-zinc-600 hover:bg-zinc-50 transition-all shadow-sm">
-                                <Linkedin size={16} /> LinkedIn
-                            </button>
+                        {/* Share actions - Card Style per reference */}
+                        <div className="mt-16 p-8 bg-white rounded-2xl border border-zinc-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                            <p className="text-[14px] text-zinc-500 mb-6 font-medium">Enjoyed this reading? Share it with your network.</p>
+                            <div className="flex flex-wrap gap-4">
+                                <button
+                                    onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}
+                                    className="inline-flex items-center gap-3 px-8 h-12 bg-white border border-zinc-200 rounded-xl text-zinc-900 font-bold hover:bg-zinc-50 transition-all shadow-sm"
+                                >
+                                    <Linkedin className="h-5 w-5 text-[#0077b5]" />
+                                    LinkedIn
+                                </button>
+                                <button
+                                    onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(startup.name + ' - ' + startup.tagline)}`, '_blank')}
+                                    className="inline-flex items-center gap-3 px-8 h-12 bg-white border border-zinc-200 rounded-xl text-zinc-900 font-bold hover:bg-zinc-50 transition-all shadow-sm"
+                                >
+                                    <Twitter className="h-5 w-5 text-[#1DA1F2]" />
+                                    Twitter
+                                </button>
+                            </div>
                         </div>
 
 
@@ -306,7 +363,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                         <div className="sticky top-24 space-y-4">
 
                             {/* Main Info Card — Balanced Design */}
-                            <div className="rounded-xl border border-zinc-100 overflow-hidden bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 font-sans">
+                            <div className="rounded-xl border border-zinc-200 overflow-hidden bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 font-sans">
 
                                 {/* Header - More compact */}
                                 <div className="flex items-center gap-3 mb-4">
@@ -321,12 +378,14 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                 </div>
 
                                 {/* Divider & Info Rows - Increased verticality */}
-                                <div className="space-y-4 pt-4 border-t border-zinc-100">
-                                    <div className="space-y-3.5">
+                                <div className="space-y-4 pt-5">
+                                    <div className="space-y-4">
                                         {infoRows.map((row, i) => (
-                                            <div key={i} className="flex items-start justify-between text-[14px]">
-                                                <span className="text-zinc-500 font-medium">{row.label}</span>
-                                                <span className="font-serif font-bold text-zinc-900 text-right max-w-[170px]">{String(row.value)}</span>
+                                            <div key={i} className="flex items-center justify-between text-[13px]">
+                                                <div className="flex items-center gap-2.5 text-zinc-500 font-medium">
+                                                    <span>{row.label}</span>
+                                                </div>
+                                                <span className="font-semibold text-zinc-900 text-right max-w-[170px] truncate">{String(row.value)}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -342,16 +401,16 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                         </div>
                                     )}
 
-                                    {/* Action Button - Balanced height */}
-                                    {websiteUrl && (
-                                        <div className="pt-3">
+                                    {/* Action Buttons */}
+                                    <div className="pt-6 space-y-3">
+                                        {websiteUrl && (
                                             <a href={websiteUrl} target="_blank" rel="noopener noreferrer"
-                                                className="flex items-center justify-center gap-2.5 w-full h-12 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 hover:border-zinc-300 text-zinc-900 text-[15px] font-bold transition-all hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]">
+                                                className="flex items-center justify-center gap-2.5 w-full h-12 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-[15px] font-bold transition-all shadow-md shadow-orange-600/20 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]">
                                                 <ExternalLink size={18} />
                                                 Visit Website
                                             </a>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -360,7 +419,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
 
                 {/* Similar Startups */}
                 {similarStartups.length > 0 && (
-                    <div id="similar-ventures" className="mt-16 pt-12 border-t border-zinc-100">
+                    <div id="similar-ventures" className="mt-16">
                         <div className="flex items-center justify-between mb-8">
                             <div className="space-y-1">
                                 <h2 className="text-xl md:text-2xl font-serif font-semibold text-zinc-900 tracking-tight">

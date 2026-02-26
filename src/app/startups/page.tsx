@@ -6,14 +6,41 @@ import { getSections, getStartups, getPlatformStats, getStartupsPage } from "@/l
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-export const metadata: Metadata = {
-    title: "Startups in India | StartupSaga.in",
-    description:
-        "Explore India’s most innovative startups across fintech, edtech, healthtech, and more.",
-    alternates: {
-        canonical: `${SITE_URL}/startups`,
-    },
-};
+
+export async function generateMetadata({
+    searchParams,
+}: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+    const resolved = searchParams ? await searchParams : undefined;
+    const hasQuery = !!(resolved && Object.keys(resolved).length > 0);
+    const title = "Startups in India | StartupSaga.in";
+    const description = "Explore India’s most innovative startups across fintech, edtech, healthtech, and more.";
+
+    return {
+        title,
+        description,
+        alternates: {
+            canonical: `${SITE_URL}/startups`,
+        },
+        openGraph: {
+            title,
+            description,
+            url: `${SITE_URL}/startups`,
+            siteName: "StartupSaga.in",
+            type: "website",
+            images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Startups in India on StartupSaga.in" }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: ["/og-image.jpg"],
+        },
+        robots: hasQuery ? { index: false, follow: true } : undefined,
+    };
+}
+
 
 export default async function StartupsPage() {
     let pageSections: any[] = [];

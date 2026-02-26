@@ -49,31 +49,17 @@ const DEFAULT_SOCIALS = [
   { platform: "email", url: "mailto:hello@startupsaga.in" },
 ];
 
-export function Footer() {
+export function Footer({ siteSettings }: { siteSettings?: any }) {
   const [columns, setColumns] = useState(DEFAULT_COLUMNS);
-  const [socials, setSocials] = useState(DEFAULT_SOCIALS);
-  const [tagline, setTagline] = useState("Discovering and celebrating the incredible startup journeys across India. Every founder has a story worth telling.");
-  const [copyright, setCopyright] = useState("© 2026 StartupSaga.in. All rights reserved.");
-  const [bgColor, setBgColor] = useState("#09090b");
+  const [socials, setSocials] = useState(siteSettings?.socials || DEFAULT_SOCIALS);
+  const [tagline, setTagline] = useState(siteSettings?.footer_tagline || "Discovering and celebrating the incredible startup journeys across India. Every founder has a story worth telling.");
+  const [copyright, setCopyright] = useState(siteSettings?.footer_copyright || "© 2026 StartupSaga.in. All rights reserved.");
+  const [bgColor, setBgColor] = useState(siteSettings?.footer_bg_color || "#09090b");
 
 
   useEffect(() => {
-    // 1. Try to load from localStorage first (to prevent flicker)
-    try {
-      const cached = localStorage.getItem("layout_settings");
-      if (cached) {
-        const data = JSON.parse(cached);
-        if (data.footer_tagline) setTagline(data.footer_tagline);
-        if (data.footer_copyright) setCopyright(data.footer_copyright);
-        if (data.footer_bg_color) setBgColor(data.footer_bg_color);
-        if (data.socials) setSocials(data.socials);
-      }
-    } catch (e) {
-      console.error("Failed to load cached settings", e);
-    }
-
-    // 2. Fetch fresh data
-    fetch(`${API_BASE_URL}/navigation/?position=footer&hierarchical=true`)
+    // Fresh data (include footer_company and footer_links)
+    fetch(`${API_BASE_URL}/navigation/?position=footer,footer_company,footer_links&hierarchical=true`)
       .then((r) => r.json())
       .then((data: any[]) => {
         if (data && data.length > 0) {
@@ -90,21 +76,26 @@ export function Footer() {
       })
       .catch(() => { });
 
-    fetch(`${API_BASE_URL}/layout-settings/`)
-      .then((r) => r.json())
-      .then((data) => {
-        // Update state
-        if (data.footer_tagline) setTagline(data.footer_tagline);
-        if (data.footer_copyright) setCopyright(data.footer_copyright);
-        if (data.footer_bg_color) setBgColor(data.footer_bg_color);
-        if (data.socials && Array.isArray(data.socials) && data.socials.length > 0) {
-          setSocials(data.socials);
-        }
-        // Update cache
-        localStorage.setItem("layout_settings", JSON.stringify(data));
-      })
-      .catch(() => { });
-  }, []);
+    if (!siteSettings) {
+      fetch(`${API_BASE_URL}/layout-settings/`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.footer_tagline) setTagline(data.footer_tagline);
+          if (data.footer_copyright) setCopyright(data.footer_copyright);
+          if (data.footer_bg_color) setBgColor(data.footer_bg_color);
+          if (data.socials && Array.isArray(data.socials) && data.socials.length > 0) {
+            setSocials(data.socials);
+          }
+        })
+        .catch(() => { });
+    }
+  }, [siteSettings]);
+
+  const formatUrl = (url: string | null | undefined) => {
+    if (!url) return "/";
+    if (url.startsWith("http") || url.startsWith("mailto:") || url.startsWith("/") || url.startsWith("#")) return url;
+    return `/${url}`;
+  };
 
   return (
     <footer className="text-white transition-colors duration-300" style={{ backgroundColor: bgColor }}>
@@ -114,11 +105,11 @@ export function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4 hover:opacity-90 transition-opacity">
-              <Logo variant="light" showText={true} />
+              <Logo variant="light" showText={true} initialSettings={siteSettings} />
             </Link>
             <p className="text-zinc-400 text-sm leading-relaxed mb-6">{tagline}</p>
             <div className="flex items-center gap-4">
-              {socials.map((social, i) => (
+              {socials.map((social: any, i: number) => (
                 <a
                   key={i}
                   href={social.url}
@@ -143,7 +134,7 @@ export function Footer() {
                 {col.children.map((link: any, j: number) => (
                   <li key={`${i}-${j}`}>
                     <Link
-                      href={link.url || "#"}
+                      href={formatUrl(link.url)}
                       className="text-zinc-400 hover:text-white transition-colors text-sm"
                     >
                       {link.label}
@@ -156,7 +147,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-zinc-900">
+        <div className="pt-8 border-t border-zinc-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-zinc-500">{copyright}</p>
             <p className="text-sm text-zinc-500">Made with ❤️ for Indian Startups</p>

@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
-import { getNavigation } from "@/lib/api";
+import { getNav, getLayoutSettings } from "@/lib/api";
 
 import { FrontendBreadcrumbs } from "./FrontendBreadcrumbs";
 
@@ -11,22 +11,27 @@ interface LayoutProps {
 
 export async function Layout({ children }: LayoutProps) {
   let navItems: any[] = [];
+  let layoutSettings: any = {};
 
   try {
-    navItems = await getNavigation('header');
+    const [nav, layout] = await Promise.all([
+      getNav('header'),
+      getLayoutSettings()
+    ]);
+    navItems = nav;
+    layoutSettings = layout;
   } catch (error) {
-    console.error("Layout: Failed to fetch navigation", error);
-    // Fallback to empty array - client will handle fetching
+    console.error("Layout: Failed to fetch combined data", error);
   }
 
   return (
     <div className="min-h-screen flex flex-col" suppressHydrationWarning>
-      <Header initialNav={navItems} />
+      <Header initialNav={navItems} siteSettings={layoutSettings} />
       <main className="flex-1 bg-[#F8F9FA]">
         <FrontendBreadcrumbs />
         {children}
       </main>
-      <Footer />
+      <Footer siteSettings={layoutSettings} />
     </div>
   );
 }
