@@ -143,7 +143,7 @@ export function Footer() {
                 {col.children.map((link: any, j: number) => (
                   <li key={`${i}-${j}`}>
                     <Link
-                      href={link.url || "#"}
+                      href={link.url && link.url !== "#" ? (link.url.startsWith("/") || link.url.startsWith("http") ? link.url : `/${link.url}`) : "#"}
                       className="text-zinc-400 hover:text-white transition-colors text-sm"
                     >
                       {link.label}

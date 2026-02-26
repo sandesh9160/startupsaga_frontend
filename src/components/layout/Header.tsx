@@ -10,6 +10,15 @@ import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/api";
 import dynamic from "next/dynamic";
 
+// Ensure nav URLs from the API are always absolute paths
+function ensureAbsoluteUrl(url: string | undefined | null): string {
+  if (!url) return "/";
+  const trimmed = url.trim();
+  if (!trimmed) return "/";
+  if (trimmed.startsWith("/") || trimmed.startsWith("http") || trimmed === "#") return trimmed;
+  return `/${trimmed}`;
+}
+
 // Lazy-load DropdownMenu to avoid SSR hydration mismatches from Radix
 const DropdownMenu = dynamic(
   () => import("@/components/ui/dropdown-menu").then((mod) => ({ default: mod.DropdownMenu })),
@@ -86,7 +95,7 @@ export function Header({ initialNav = [] }: HeaderProps) {
         return (
           <Link
             key={link.id}
-            href={link.url || "/"}
+            href={ensureAbsoluteUrl(link.url)}
             className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-zinc-900 rounded-lg hover:bg-zinc-50 transition-all flex items-center gap-1.5"
             style={{
               color: style.color || undefined,
@@ -116,7 +125,7 @@ export function Header({ initialNav = [] }: HeaderProps) {
             {link.children.map((child: any) => (
               <DropdownMenuItem key={child.id} asChild className="rounded-lg focus:bg-zinc-50 focus:text-zinc-900 p-0 overflow-hidden">
                 <Link
-                  href={child.url || "/"}
+                  href={ensureAbsoluteUrl(child.url)}
                   className="flex items-center w-full px-4 py-2.5 text-sm font-medium transition-colors"
                   style={{
                     color: child.settings?.color || undefined,
@@ -134,7 +143,7 @@ export function Header({ initialNav = [] }: HeaderProps) {
     return (
       <Link
         key={link.id}
-        href={link.url || "/"}
+        href={ensureAbsoluteUrl(link.url)}
         className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-zinc-900 rounded-lg hover:bg-zinc-50 transition-all relative group"
         style={{
           color: style.color || undefined,
@@ -202,7 +211,7 @@ export function Header({ initialNav = [] }: HeaderProps) {
                 return (
                   <div key={link.id} className="flex flex-col">
                     <Link
-                      href={link.url || "#"}
+                      href={ensureAbsoluteUrl(link.url)}
                       className="text-base font-semibold text-zinc-900 hover:bg-zinc-50 px-4 py-3 rounded-xl"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -213,7 +222,7 @@ export function Header({ initialNav = [] }: HeaderProps) {
                         {link.children.map((child: any) => (
                           <Link
                             key={child.id}
-                            href={child.url || "/"}
+                            href={ensureAbsoluteUrl(child.url)}
                             className="text-sm font-medium text-zinc-500 hover:text-zinc-900 py-2 px-3 transition-colors"
                             onClick={() => setMobileMenuOpen(false)}
                           >
