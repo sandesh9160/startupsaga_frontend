@@ -67,12 +67,12 @@ export function CategoryCard({
               <div className="flex items-center gap-3 mt-1">
                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg border border-zinc-200/60 bg-white/40 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                   <Building2 className="w-3.5 h-3.5 text-zinc-400" />
-                  <span className="text-[12px] font-bold text-[#0F172A]">{startupCount.toLocaleString()}</span>
+                  <span className="text-[16px] font-bold text-[#0F172A]">{startupCount}</span>
                   <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400">Startups</span>
                 </div>
                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg border border-zinc-200/60 bg-white/40 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                   <TrendingUp className="w-3.5 h-3.5 text-zinc-400" />
-                  <span className="text-[12px] font-bold text-[#0F172A]">{storyCount.toLocaleString()}</span>
+                  <span className="text-[16px] font-bold text-[#0F172A]">{storyCount}</span>
                   <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400">Stories</span>
                 </div>
               </div>

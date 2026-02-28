@@ -125,28 +125,32 @@ export function StoriesContent({
     return (
         <div className="bg-transparent min-h-screen">
             {(title || description || content) && (
-                <section className="container-wide py-12 md:py-16 border-b border-border/60 text-center">
-                    <div className="max-w-4xl mx-auto space-y-5">
-                        {title && (
-                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground font-serif tracking-tight leading-[1.1] mb-4"
-                                dangerouslySetInnerHTML={{ __html: title }}
-                            />
-                        )}
-                        {description && (
-                            <div className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto"
-                                dangerouslySetInnerHTML={{ __html: description }}
-                            />
-                        )}
-                        {content && (
-                            <div className="text-sm text-muted-foreground leading-relaxed max-w-2xl mx-auto opacity-80"
-                                dangerouslySetInnerHTML={{ __html: content }}
-                            />
-                        )}
+                <section className="bg-[#FAF5F2] border-b border-border/60">
+                    <div className="container-wide py-12 md:py-20 text-center">
+                        <div className="max-w-4xl mx-auto space-y-6">
+                            {title && (
+                                <h1 className="text-4xl md:text-5xl lg:text-7xl font-semibold text-foreground font-serif tracking-tight leading-[1.1]"
+                                    dangerouslySetInnerHTML={{ __html: title }}
+                                />
+                            )}
+                            <div className="max-w-3xl mx-auto space-y-5">
+                                {description && (
+                                    <div className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto font-medium"
+                                        dangerouslySetInnerHTML={{ __html: description }}
+                                    />
+                                )}
+                                {content && (
+                                    <div className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-3xl mx-auto opacity-80"
+                                        dangerouslySetInnerHTML={{ __html: content }}
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </section>
             )}
 
-            <section className="sticky top-[72px] z-30 bg-white/90 backdrop-blur-md border-b border-zinc-200 py-6 mb-8">
+            <section className="sticky top-[72px] z-30 bg-white/90 backdrop-blur-md border-y border-zinc-300 py-4 mt-4 mb-4">
                 <div className="container-wide">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                         <div className="lg:col-span-4">
@@ -244,7 +248,7 @@ export function StoriesContent({
                 </div>
             </section>
 
-            <div className="container-wide py-10">
+            <div className="container-wide py-6 bg-white">
                 <div className="space-y-10">
                     {isLoading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

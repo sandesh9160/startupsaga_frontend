@@ -69,9 +69,10 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
     useEffect(() => {
         let toc: Array<{ id: number; title: string; anchor: string }> = [];
 
-        if (startup.description && typeof startup.description === "string") {
+        const journeyContent = startup.content || startup.description;
+        if (journeyContent && typeof journeyContent === "string") {
             const headingRegex = /<(h2)[^>]*>([\s\S]*?)<\/\1>/gi;
-            const matches = [...startup.description.matchAll(headingRegex)];
+            const matches = [...journeyContent.matchAll(headingRegex)];
             if (matches.length > 0) {
                 toc = matches.map((m, i) => {
                     const title = m[2].replace(/<[^>]*>/g, '').trim();
@@ -88,7 +89,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
         }
 
         setTableOfContents(toc);
-    }, [startup.description]);
+    }, [startup.content, startup.description]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -128,10 +129,10 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
     const displayCategory = typeof startup.category === 'object' ? startup.category.name : (startup.category || 'this sector');
 
     return (
-        <div className="bg-white min-h-screen font-sans pb-16">
+        <div className="bg-transparent min-h-screen font-sans pb-16">
 
             {/* ── Compact Hero Strip ── */}
-            <div className="bg-white relative z-10 pt-8 pb-8 border-b border-zinc-200">
+            <div className="bg-transparent relative z-10 pt-8 pb-8 border-b border-zinc-200">
                 <div className="container-wide">
                     <div className="flex flex-col lg:flex-row items-start gap-7">
 
@@ -321,7 +322,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                     prose-strong:text-[#0F172A] prose-strong:font-semibold
                                     prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8"
                                 dangerouslySetInnerHTML={{
-                                    __html: (startup.description || "")
+                                    __html: (startup.content || startup.description || "")
                                         .replace(
                                             /<(h[23])([^>]*)>([^<]*)<\/\1>/gi,
                                             (match: string, tag: string, attrs: string, content: string) => {

@@ -32,7 +32,7 @@ export function FrontendBreadcrumbs() {
     };
 
     return (
-        <div className="bg-white relative z-20 border-b border-zinc-200">
+        <div className="bg-white relative z-20 border-y border-zinc-300">
             <div className="container-wide py-3">
                 <Breadcrumb className="font-sans">
                     <BreadcrumbList className="text-[13px] font-medium text-zinc-400 gap-2 flex-nowrap overflow-hidden">

@@ -103,12 +103,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    * These always exist regardless of API state
    */
   const staticPages: MetadataRoute.Sitemap = [
-    { url: `${SITE_URL}/`, lastModified: now },
-    { url: `${SITE_URL}/stories`, lastModified: now },
-    { url: `${SITE_URL}/startups`, lastModified: now },
-    { url: `${SITE_URL}/categories`, lastModified: now },
-    { url: `${SITE_URL}/cities`, lastModified: now },
-    { url: `${SITE_URL}/submit`, lastModified: now },
+    { url: `${SITE_URL}/`, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
+    { url: `${SITE_URL}/stories`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${SITE_URL}/startups`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${SITE_URL}/categories`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE_URL}/cities`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE_URL}/submit`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
   ];
 
   /**
@@ -116,9 +116,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    */
   const storyPages = stories.map((s: any) => ({
     url: `${SITE_URL}/stories/${s.slug}`,
-    lastModified: s.updated_at
-      ? new Date(s.updated_at)
-      : now,
+    lastModified: s.updated_at ? new Date(s.updated_at) : now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+    images: s.thumbnail ? [s.thumbnail] : [],
   }));
 
   /**
@@ -126,9 +127,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    */
   const startupPages = startups.map((s: any) => ({
     url: `${SITE_URL}/startups/${s.slug}`,
-    lastModified: s.updated_at
-      ? new Date(s.updated_at)
-      : now,
+    lastModified: s.updated_at ? new Date(s.updated_at) : now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+    images: s.logo ? [s.logo] : [],
   }));
 
   /**
@@ -137,6 +139,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categoryPages = categories.map((c: any) => ({
     url: `${SITE_URL}/categories/${c.slug}`,
     lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
   }));
 
   /**
@@ -145,6 +149,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const cityPages = cities.map((c: any) => ({
     url: `${SITE_URL}/cities/${c.slug}`,
     lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
   }));
 
   /**
@@ -152,9 +158,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    */
   const pagePages = pages.map((p: any) => ({
     url: `${SITE_URL}/${p.slug}`,
-    lastModified: p.updated_at
-      ? new Date(p.updated_at)
-      : now,
+    lastModified: p.updated_at ? new Date(p.updated_at) : now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.5,
   }));
 
   /**

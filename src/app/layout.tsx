@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import { WebSiteSchema } from "@/components/seo/WebSiteSchema";
+import { WebSiteSchema } from "@/components/seo/Schema/WebSiteSchema";
 import { getSEOSettings } from "@/lib/api";
+import { GoogleAnalytics } from "@/components/seo/GoogleAnalytics";
 
 const playfair = Playfair_Display({
     subsets: ["latin"],
@@ -34,6 +35,18 @@ export async function generateMetadata(): Promise<Metadata> {
         title,
         description,
         keywords: seo.global_keywords,
+        robots: {
+            index: true,
+            follow: true,
+        },
+        alternates: {
+            canonical: "/",
+        },
+        ...(seo.google_site_verification && {
+            verification: {
+                google: seo.google_site_verification,
+            }
+        }),
         openGraph: {
             title,
             description,
@@ -70,6 +83,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
+            <head>
+                <GoogleAnalytics />
+            </head>
             <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
                 <WebSiteSchema />
                 <Providers>{children}</Providers>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { HomeContent } from "@/components/home/HomeContent";
+import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
 import { getTrendingStories, getSections, getStories, getStartups, getCities, getCategories, getPlatformStats } from "@/lib/api";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -10,6 +11,18 @@ export const metadata: Metadata = {
     description: "Discover the most inspiring stories from the Indian startup ecosystem.",
     alternates: {
         canonical: SITE_URL,
+    },
+    openGraph: {
+        title: "StartupSaga.in | Startup Stories of India",
+        description: "Discover the most inspiring stories from the Indian startup ecosystem.",
+        url: SITE_URL,
+        siteName: "StartupSaga.in",
+        type: "website",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "StartupSaga.in | Startup Stories of India",
+        description: "Discover the most inspiring stories from the Indian startup ecosystem.",
     },
 };
 
@@ -53,18 +66,31 @@ export default async function IndexPage() {
         console.error("Error fetching home data on server:", error);
     }
 
+    // Extract FAQ items for Schema integration
+    const faqItems = (pageSections || [])
+        .filter((s: any) => (s.section_type || s.type) === 'faq')
+        .flatMap((s: any) => (s.settings?.cards || []))
+        .filter((c: any) => (c.question || c.title) && (c.answer || c.description))
+        .map((c: any) => ({
+            question: c.question || c.title,
+            answer: c.answer || c.description
+        }));
+
     return (
-        <Layout>
-            <HomeContent
-                initialTrending={trendingStories}
-                initialSections={pageSections}
-                initialStories={latestStories}
-                initialStartups={featuredStartups}
-                initialCities={topCities}
-                initialCategories={topCategories}
-                initialPlatformStats={platformStats}
-                hasError={hasError}
-            />
-        </Layout>
+        <>
+            {faqItems.length > 0 && <FAQSchema items={faqItems} />}
+            <Layout>
+                <HomeContent
+                    initialTrending={trendingStories}
+                    initialSections={pageSections}
+                    initialStories={latestStories}
+                    initialStartups={featuredStartups}
+                    initialCities={topCities}
+                    initialCategories={topCategories}
+                    initialPlatformStats={platformStats}
+                    hasError={hasError}
+                />
+            </Layout>
+        </>
     );
 }

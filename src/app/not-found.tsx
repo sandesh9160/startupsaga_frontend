@@ -1,48 +1,41 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Search, ArrowLeft } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function NotFound() {
+    const notFoundImageUrl = `${API_BASE_URL.replace("/api", "")}/media/site/not-found.png`;
+
     return (
-        <div className="flex min-h-screen items-center justify-center bg-muted">
-            <div className="text-center p-8 bg-background rounded-2xl shadow-xl max-w-lg w-full animate-fade-up">
-                <h1 className="mb-4 text-7xl font-serif font-bold text-accent">404</h1>
-                <h2 className="mb-4 text-2xl font-bold">Oops! Page not found</h2>
-                <p className="mb-8 text-muted-foreground">
-                    The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
-                </p>
+        <div className="flex min-h-screen items-center justify-center bg-[#fafbfc]">
+            <div className="text-center p-8 max-w-2xl w-full flex flex-col items-center animate-fade-up">
 
-                <form action="/stories" method="get" className="flex items-center gap-2 mb-6">
-                    <Input
-                        name="search"
-                        placeholder="Search stories..."
-                        className="h-11 rounded-xl"
+                {/* Robot Illustration */}
+                <div className="relative w-[300px] h-[300px] md:w-[350px] md:h-[350px] mb-8">
+                    <img
+                        src={notFoundImageUrl}
+                        alt="No results found illustration"
+                        className="object-contain w-full h-full mix-blend-multiply"
                     />
-                    <Button type="submit" variant="outline" className="h-11 rounded-xl px-5">
-                        Search
-                    </Button>
-                </form>
-
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                    <Button asChild variant="outline" className="rounded-xl">
-                        <Link href="/stories">Stories</Link>
-                    </Button>
-                    <Button asChild variant="outline" className="rounded-xl">
-                        <Link href="/startups">Startups</Link>
-                    </Button>
-                    <Button asChild variant="outline" className="rounded-xl">
-                        <Link href="/categories">Categories</Link>
-                    </Button>
-                    <Button asChild variant="outline" className="rounded-xl">
-                        <Link href="/cities">Cities</Link>
-                    </Button>
                 </div>
 
-                <Button asChild variant="accent" size="lg" className="w-full bg-accent hover:bg-accent/90 text-white">
-                    <Link href="/submit">
-                        Submit Startup
-                    </Link>
-                </Button>
+                {/* Typography */}
+                <h1 className="mb-4 text-4xl md:text-[52px] font-black text-[#7a95d7] tracking-tight leading-[1.1]">
+                    Oops! Page Not Found
+                </h1>
+                <p className="mb-10 text-[18px] md:text-[20px] text-zinc-500 font-medium leading-relaxed">
+                    The page you're looking for doesn't exist or has been moved.
+                </p>
+
+                <div className="flex justify-center items-center gap-6 ">
+                    <Button asChild className="h-12 px-8 rounded-full bg-[#7a95d7] hover:bg-[#6881c2] text-white font-bold text-base tracking-wide shadow-lg shadow-[#7a95d7]/30 transition-all active:scale-95 group">
+                        <Link href="/">
+                            <ArrowLeft className="mr-2 w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                            Back to Home
+                        </Link>
+                    </Button>
+                </div>
             </div>
         </div>
     );

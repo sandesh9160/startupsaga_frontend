@@ -34,9 +34,9 @@ export function Newsletter({ title, description, buttonText, align = 'center', p
       await subscribeNewsletter(email);
       setSubmitted(true);
       setEmail("");
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Something went wrong. Please try again.");
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

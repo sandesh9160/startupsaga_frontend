@@ -6,7 +6,7 @@
  *  - BreadcrumbList JSON-LD
  *
  * Usage in categories/[slug]/page.tsx:
- *   import { CategoryPageSchema } from "@/components/seo/CategoryPageSchema";
+ *   import { CategoryPageSchema } from "@/components/seo/Schema/CategoryPageSchema";
  *
  *   <CategoryPageSchema name={category.name} slug={slug} />
  */

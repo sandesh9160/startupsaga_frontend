@@ -27,7 +27,7 @@ export async function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col" suppressHydrationWarning>
       <Header initialNav={navItems} siteSettings={layoutSettings} />
-      <main className="flex-1 bg-[#F8F9FA]">
+      <main className="flex-1 bg-white">
         <FrontendBreadcrumbs />
         {children}
       </main>

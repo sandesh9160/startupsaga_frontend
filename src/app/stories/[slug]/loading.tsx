@@ -1,4 +1,4 @@
-"use client";
+// Removed unnecessary "use client" to allow async Layout component usage
 
 import { Layout } from "@/components/layout/Layout";
 

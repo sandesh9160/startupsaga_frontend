@@ -226,7 +226,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
                       {link.label}
                     </Link>
                     {hasChildren && (
-                      <div className="pl-6 flex flex-col border-l border-zinc-100 ml-4 gap-1 mb-2">
+                      <div className="pl-6 flex flex-col border-l border-zinc-300 ml-4 gap-1 mb-2">
                         {link.children.map((child: any) => (
                           <Link
                             key={child.id}
@@ -242,7 +242,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
                   </div>
                 );
               })}
-              <div className="h-px bg-zinc-100 my-4" />
+              <div className="h-px bg-zinc-300 my-4" />
               <Button className="w-full bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl h-12" asChild>
                 <Link href="/submit" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2">
                   <span className="font-bold text-sm">Submit Journey</span>

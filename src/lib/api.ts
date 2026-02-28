@@ -32,7 +32,7 @@ export async function resolveRedirect(pathname: string): Promise<string | null> 
   const base = API_BASE_URL.replace(/\/api\/?$/, "");
   const url = `${base}/api/redirect-resolve/?path=${encodeURIComponent(path)}`;
   try {
-    const res = await fetch(url, { next: { revalidate: 0 } });
+    const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     const data = await res.json();
     return data.redirect_to ?? null;
@@ -59,20 +59,24 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
       },
       // Use ISR (60s) to allow static generation while keeping content fresh.
       // Avoids "Dynamic server usage" errors during build.
-      next: {
-        revalidate: 60,
-        ...(options.next || {})
-      }
+      next: { revalidate: 60 },
     });
 
     if (!res.ok) {
-      throw new Error(`API Error: ${res.status} ${res.statusText}`);
+      if (res.status === 404) return null;
+      let message = `API Error: ${res.status} ${res.statusText}`;
+      try {
+        const errorData = await res.json();
+        if (errorData?.error) message = errorData.error;
+      } catch (e) {
+        // Fallback to default message
+      }
+      throw new Error(message);
     }
 
     const data = await res.json();
     return data;
   } catch (error: any) {
-    // Suppress console error for 404s to keep logs clean during normal navigation
     if (!error.message?.includes('404')) {
       console.error(`Fetch error [${url}]:`, error);
     }
@@ -85,8 +89,9 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
  */
 export async function fetchList<T>(endpoint: string, options: RequestInit = {}): Promise<T[]> {
   const data = await fetchAPI(endpoint, options);
+  if (!data) return [];
   if (Array.isArray(data)) return data;
-  if (data && typeof data === 'object' && Array.isArray(data.results)) {
+  if (typeof data === 'object' && Array.isArray(data.results)) {
     return data.results;
   }
   return [];

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { notFound, redirect } from "next/navigation";
 import { getPageBySlug, resolveRedirect, getSections } from "@/lib/api";
-import { JsonLd } from "@/components/seo/JsonLd";
+import { JsonLd } from "@/components/seo/Schema/JsonLd";
+import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
 import { PageSections } from "@/components/sections/PageSections";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -88,9 +89,21 @@ export default async function StaticPageRoute({ params }: { params: Promise<{ pa
             ],
         };
 
+        // Extract FAQ items for Schema
+        // Based on HomeContent.tsx, FAQs are stored in settings.cards
+        const faqItems = (sections || [])
+            .filter((s: any) => (s.section_type || s.type) === 'faq')
+            .flatMap((s: any) => (s.settings?.cards || []))
+            .filter((c: any) => (c.question || c.title) && (c.answer || c.description))
+            .map((c: any) => ({
+                question: c.question || c.title,
+                answer: c.answer || c.description
+            }));
+
         return (
             <>
                 <JsonLd data={breadcrumbSchema} />
+                {faqItems.length > 0 && <FAQSchema items={faqItems} />}
                 <Layout>
                     {hasSections ? (
                         <PageSections pageSlug={pageSlug} initialSections={sections} />
