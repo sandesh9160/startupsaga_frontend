@@ -154,7 +154,7 @@ export function CitiesContent({
                     <div className="container-wide relative z-10 text-center">
                         <div className="max-w-4xl mx-auto space-y-6 mb-10">
                             {title && (
-                                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#1a1a1a] font-serif tracking-tight leading-[1.1]"
+                                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-zinc-900 font-serif tracking-tight leading-[1.1]"
                                     dangerouslySetInnerHTML={{ __html: title }}
                                 />
                             )}

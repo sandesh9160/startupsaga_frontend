@@ -123,10 +123,10 @@ export default async function StartupDetailPage({ params }: { params: Promise<{ 
 
     // Resolve founders for schema
     const schemaFounders = (startup.founders_data && Array.isArray(startup.founders_data))
-        ? startup.founders_data.map((f: any) => ({ name: f.name, role: f.role, linkedin: f.linkedin }))
+        ? startup.founders_data.filter(Boolean).map((f: any) => ({ name: f.name, role: f.role, linkedin: f.linkedin }))
         : startup.founder_name ? [{ name: startup.founder_name, role: "Founder" }] : [];
 
-    const cityName = typeof startup.city === 'object' ? startup.city.name : (startup.city || "");
+    const cityName = (typeof startup.city === 'object' && startup.city) ? startup.city.name : (startup.city || "");
     const linkedinUrl = (startup as any).linkedin_url;
 
     return (

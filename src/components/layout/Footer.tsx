@@ -62,8 +62,9 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
     fetch(`${API_BASE_URL}/navigation/?position=footer,footer_company,footer_links&hierarchical=true`)
       .then((r) => r.json())
       .then((data: any[]) => {
-        if (data && data.length > 0) {
+        if (data && Array.isArray(data)) {
           const cols = data
+            .filter(Boolean)
             .filter((i) => !i.parent)
             .sort((a, b) => (a.order || 0) - (b.order || 0))
             .map((col) => ({

@@ -84,7 +84,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
 
     fetch(`${API_BASE_URL}/navigation/?position=header&hierarchical=true`)
       .then(res => res.ok ? res.json() : null)
-      .then(items => { if (items && items.length > 0) setNavLinks(items); })
+      .then(items => { if (items && Array.isArray(items)) setNavLinks(items.filter(Boolean)); })
       .catch(err => console.error("Failed to load header navigation client-side", err));
   }, [isMounted]);
 

@@ -129,7 +129,7 @@ export function StoriesContent({
                     <div className="container-wide py-12 md:py-20 text-center">
                         <div className="max-w-4xl mx-auto space-y-6">
                             {title && (
-                                <h1 className="text-4xl md:text-5xl lg:text-7xl font-semibold text-foreground font-serif tracking-tight leading-[1.1]"
+                                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-zinc-900 font-serif tracking-tight leading-[1.1]"
                                     dangerouslySetInnerHTML={{ __html: title }}
                                 />
                             )}

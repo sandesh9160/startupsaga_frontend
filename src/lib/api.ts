@@ -90,9 +90,9 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
 export async function fetchList<T>(endpoint: string, options: RequestInit = {}): Promise<T[]> {
   const data = await fetchAPI(endpoint, options);
   if (!data) return [];
-  if (Array.isArray(data)) return data;
+  if (Array.isArray(data)) return data.filter(Boolean);
   if (typeof data === 'object' && Array.isArray(data.results)) {
-    return data.results;
+    return data.results.filter(Boolean);
   }
   return [];
 }
@@ -172,7 +172,7 @@ export const getPlatformStats = publicApi.getPlatformStats;
 export const getPageBySlug = (slug: string) => fetchAPI(`/pages/${slug}/`);
 export const getCategories = () => fetchList<Category>("/categories/");
 export const getCategoryBySlug = (slug: string) => fetchAPI(`/categories/${slug}/`);
-export const getStoriesPage = (params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResponse<Story>> => {
+export const getStoriesPage = async (params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResponse<Story>> => {
 
   // Filter out undefined/null values to avoid sending "undefined" as string
   const cleanParams: Record<string, string> = {};
@@ -184,11 +184,15 @@ export const getStoriesPage = (params?: Record<string, string | number | boolean
     });
   }
   const query = new URLSearchParams(cleanParams).toString();
-  return fetchAPI(`/stories/${query ? `?${query}` : ''}`);
+  const data = await fetchAPI(`/stories/${query ? `?${query}` : ''}`);
+  if (data && Array.isArray(data.results)) {
+    data.results = data.results.filter(Boolean);
+  }
+  return data;
 };
 
 /** Paginated startups with filters */
-export const getStartupsPage = (params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResponse<Startup>> => {
+export const getStartupsPage = async (params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResponse<Startup>> => {
   const cleanParams: Record<string, string> = {};
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -198,7 +202,11 @@ export const getStartupsPage = (params?: Record<string, string | number | boolea
     });
   }
   const query = new URLSearchParams(cleanParams).toString();
-  return fetchAPI(`/startups/${query ? `?${query}` : ''}`);
+  const data = await fetchAPI(`/startups/${query ? `?${query}` : ''}`);
+  if (data && Array.isArray(data.results)) {
+    data.results = data.results.filter(Boolean);
+  }
+  return data;
 };
 
 /**

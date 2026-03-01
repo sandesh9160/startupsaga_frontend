@@ -38,8 +38,8 @@ export function StartupCard({
   og_image,
   is_featured,
 }: StartupCardProps & { og_image?: string; is_featured?: boolean }) {
-  const displayCategory = typeof category === 'object' ? category.name : category;
-  const displayCity = typeof city === 'object' ? city.name : city;
+  const displayCategory = (typeof category === 'object' && category) ? category.name : category;
+  const displayCity = (typeof city === 'object' && city) ? city.name : city;
   const logoSrc = getSafeImageSrc(logo || og_image);
   const isSvgLogo = logoSrc.toLowerCase().endsWith(".svg");
   const displayStage = funding_stage ?? stage ?? "Series A";

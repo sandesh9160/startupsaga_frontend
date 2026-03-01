@@ -60,9 +60,9 @@ export function StartupsContent({
                     getCategories(),
                     getCities()
                 ]);
-                setStartups(startupsData || []);
-                setCategories(categoriesData || []);
-                setCities(citiesData || []);
+                setStartups((startupsData || []).filter(Boolean));
+                setCategories((categoriesData || []).filter(Boolean));
+                setCities((citiesData || []).filter(Boolean));
             } catch (err) {
                 console.error("Failed to load startups data", err);
             } finally {
@@ -88,7 +88,7 @@ export function StartupsContent({
                 <div className="container-wide relative z-10 text-center">
                     <div className="max-w-4xl mx-auto space-y-5">
                         {title && (
-                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#1a1a1a] tracking-tight font-serif leading-[1.1]"
+                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-zinc-900 font-serif tracking-tight leading-[1.1]"
                                 dangerouslySetInnerHTML={{ __html: title }}
                             />
                         )}

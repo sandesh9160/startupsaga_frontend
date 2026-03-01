@@ -126,7 +126,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
 
     const websiteUrl = startup.website_url || (startup as any).website;
     const industryTags: string[] = (startup as any).industry_tags ?? [];
-    const displayCategory = typeof startup.category === 'object' ? startup.category.name : (startup.category || 'this sector');
+    const displayCategory = (typeof startup.category === 'object' && startup.category) ? startup.category.name : (startup.category || 'this sector');
 
     return (
         <div className="bg-transparent min-h-screen font-sans pb-16">

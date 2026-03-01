@@ -45,16 +45,16 @@ export function HomeContent({
     defaultView
 }: HomeContentProps) {
     const isHydrated = useRef(false);
-    const [latestStories, setLatestStories] = useState<any[]>(initialStories);
-    const [featuredStartups, setFeaturedStartups] = useState<any[]>(initialStartups);
-    const [topCities, setTopCities] = useState<any[]>(initialCities);
-    const [topCategories, setTopCategories] = useState<any[]>(initialCategories);
+    const [latestStories, setLatestStories] = useState<any[]>((initialStories || []).filter(Boolean));
+    const [featuredStartups, setFeaturedStartups] = useState<any[]>((initialStartups || []).filter(Boolean));
+    const [topCities, setTopCities] = useState<any[]>((initialCities || []).filter(Boolean));
+    const [topCategories, setTopCategories] = useState<any[]>((initialCategories || []).filter(Boolean));
     const [platformStats, setPlatformStats] = useState(initialPlatformStats);
-    const [trendingStories, setTrendingStories] = useState<any[]>(initialTrending);
-    const [pageSections, setPageSections] = useState<any[]>(initialSections);
+    const [trendingStories, setTrendingStories] = useState<any[]>((initialTrending || []).filter(Boolean));
+    const [pageSections, setPageSections] = useState<any[]>((initialSections || []).filter(Boolean));
 
     // Initialize hero data from initialSections if available and active to avoid hydration mismatch
-    const initialHero = initialSections.find((s: any) => s.section_type === 'hero' && s.is_active === true);
+    const initialHero = (initialSections || []).filter(Boolean).find((s: any) => s.section_type === 'hero' && s.is_active === true);
     const [heroData, setHeroData] = useState({
         title: initialHero?.title || initialHero?.name || "",
         content: initialHero?.description || initialHero?.content || ""
@@ -65,12 +65,12 @@ export function HomeContent({
     // Mark hydration complete
     // Sync state with initial props if they change (e.g. during client-side navigation)
     useEffect(() => {
-        setLatestStories(initialStories);
-        setFeaturedStartups(initialStartups);
-        setTopCities(initialCities);
-        setTopCategories(initialCategories);
-        setPageSections(initialSections);
-        setTrendingStories(initialTrending);
+        setLatestStories((initialStories || []).filter(Boolean));
+        setFeaturedStartups((initialStartups || []).filter(Boolean));
+        setTopCities((initialCities || []).filter(Boolean));
+        setTopCategories((initialCategories || []).filter(Boolean));
+        setPageSections((initialSections || []).filter(Boolean));
+        setTrendingStories((initialTrending || []).filter(Boolean));
         setPlatformStats(initialPlatformStats);
     }, [initialStories, initialStartups, initialCities, initialCategories, initialSections, initialTrending, initialPlatformStats]);
 
@@ -82,6 +82,7 @@ export function HomeContent({
     // Compute active and sorted sections
     const activeSections = useMemo(() => {
         return [...pageSections]
+            .filter(Boolean)
             .filter(s => {
                 const val = s.is_active;
                 return val === true || val === 1 || String(val).toLowerCase() === 'true';
