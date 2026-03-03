@@ -22,11 +22,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const canonical = startup.canonical_override
         ? (startup.canonical_override.startsWith("http") ? startup.canonical_override : `${SITE_URL}${startup.canonical_override.startsWith("/") ? "" : "/"}${startup.canonical_override}`)
         : `${SITE_URL}/startups/${startup.slug}`;
-    const description = startup.meta_description || startup.tagline || startup.description;
+    const rawDescription = startup.meta_description || startup.tagline || startup.description;
 
     // FIX-006: Prefer og_image over logo (logos are often small/square)
     const ogImage = getAbsoluteImageUrl(startup.og_image || startup.logo);
-    const title = startup.meta_title || `${startup.name} | StartupSaga.in`;
+    const rawTitle = startup.meta_title || `${startup.name} | StartupSaga.in`;
+
+    // Safety: strip accidental tags from CMS strings
+    const title = (rawTitle || "").replace(/<[^>]*>?/gm, '');
+    const description = (rawDescription || "").replace(/<[^>]*>?/gm, '');
+
     return {
         title,
         description,

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StoriesContent } from "@/components/stories/StoriesContent";
 import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getStories, getPlatformStats } from "@/lib/api";
+import { getSections, getStories, getPlatformStats, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 // ISR: serve cached page, regenerate every 60 seconds in the background
@@ -16,8 +16,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const resolved = searchParams ? await searchParams : undefined;
     const hasQuery = !!(resolved && Object.keys(resolved).length > 0);
-    const title = "Startup Stories in India | StartupSaga.in";
-    const description = "Explore the latest Indian startup stories, founder journeys, funding rounds, and growth strategies.";
+
+    const page = await getPageBySlug('stories').catch(() => null);
+
+    const rawTitle = page?.meta_title || "Startup Stories in India | StartupSaga.in";
+    const rawDescription = page?.meta_description || "Explore the latest Indian startup stories, founder journeys, funding rounds, and growth strategies.";
+
+    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const description = rawDescription.replace(/<[^>]*>?/gm, '');
+
     return {
         title,
         description,
@@ -30,13 +37,13 @@ export async function generateMetadata({
             url: `${SITE_URL}/stories`,
             siteName: "StartupSaga.in",
             type: "website",
-            images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Startup Stories on StartupSaga.in" }],
+            images: [{ url: page?.og_image || "/og-image.jpg", width: 1200, height: 630, alt: "Startup Stories on StartupSaga.in" }],
         },
         twitter: {
             card: "summary_large_image",
             title,
             description,
-            images: ["/og-image.jpg"],
+            images: [page?.og_image || "/og-image.jpg"],
         },
         robots: hasQuery ? { index: false, follow: true } : undefined,
     };

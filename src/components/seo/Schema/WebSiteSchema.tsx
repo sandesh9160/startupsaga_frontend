@@ -6,8 +6,7 @@
  */
 
 import { JsonLd } from "./JsonLd";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.startupsaga.in";
+import { SITE_URL } from "@/config/site";
 
 interface WebSiteSchemaProps {
     name?: string;
@@ -33,8 +32,8 @@ export function WebSiteSchema({
                 "@type": "WebSite",
                 "@id": `${url}/#website`,
                 url,
-                name,
-                description,
+                name: (name || "").replace(/<[^>]*>?/gm, ""),
+                description: (description || "").replace(/<[^>]*>?/gm, ""),
                 inLanguage: "en-IN",
                 potentialAction: {
                     "@type": "SearchAction",

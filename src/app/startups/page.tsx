@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StartupsContent } from "@/components/startups/StartupsContent";
 import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getStartups, getPlatformStats, getStartupsPage } from "@/lib/api";
+import { getSections, getStartups, getPlatformStats, getStartupsPage, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 // ISR: serve cached page, regenerate every 120 seconds in the background
@@ -15,8 +15,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const resolved = searchParams ? await searchParams : undefined;
     const hasQuery = !!(resolved && Object.keys(resolved).length > 0);
-    const title = "Startups in India | StartupSaga.in";
-    const description = "Explore India’s most innovative startups across fintech, edtech, healthtech, and more.";
+
+    const page = await getPageBySlug('startups').catch(() => null);
+
+    const rawTitle = page?.meta_title || "Startups in India | StartupSaga.in";
+    const rawDescription = page?.meta_description || "Explore India’s most innovative startups across fintech, edtech, healthtech, and more.";
+
+    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
         title,
@@ -30,13 +36,13 @@ export async function generateMetadata({
             url: `${SITE_URL}/startups`,
             siteName: "StartupSaga.in",
             type: "website",
-            images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Startups in India on StartupSaga.in" }],
+            images: [{ url: page?.og_image || "/og-image.jpg", width: 1200, height: 630, alt: "Startups in India on StartupSaga.in" }],
         },
         twitter: {
             card: "summary_large_image",
             title,
             description,
-            images: ["/og-image.jpg"],
+            images: [page?.og_image || "/og-image.jpg"],
         },
         robots: hasQuery ? { index: false, follow: true } : undefined,
     };

@@ -24,9 +24,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         ? (story.canonical_override.startsWith("http") ? story.canonical_override : `${SITE_URL}${story.canonical_override.startsWith("/") ? "" : "/"}${story.canonical_override}`)
         : `${SITE_URL}/stories/${story.slug}`;
     const cleanContent = story.content?.replace(/<[^>]*>?/gm, '') || "";
-    const description = story.meta_description || story.excerpt || (cleanContent.slice(0, 160) || "Startup story on StartupSaga.in");
+    const rawDescription = story.meta_description || story.excerpt || (cleanContent.slice(0, 160) || "Startup story on StartupSaga.in");
     const ogImage = getAbsoluteImageUrl(story.og_image || story.thumbnail);
-    const title = story.meta_title || `${story.title} | StartupSaga.in`;
+    const rawTitle = story.meta_title || `${story.title} | StartupSaga.in`;
+
+    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const description = rawDescription.replace(/<[^>]*>?/gm, '');
+
     return {
         title,
         description,

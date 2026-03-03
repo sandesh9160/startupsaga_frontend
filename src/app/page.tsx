@@ -2,31 +2,51 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { HomeContent } from "@/components/home/HomeContent";
 import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
-import { getTrendingStories, getSections, getStories, getStartups, getCities, getCategories, getPlatformStats } from "@/lib/api";
+import { getTrendingStories, getSections, getStories, getStartups, getCities, getCategories, getPlatformStats, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 // ISR: serve cached page, regenerate every 60 seconds in the background
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-    title: "StartupSaga.in | Startup Stories of India",
-    description: "Discover the most inspiring stories from the Indian startup ecosystem.",
-    alternates: {
-        canonical: SITE_URL,
-    },
-    openGraph: {
-        title: "StartupSaga.in | Startup Stories of India",
-        description: "Discover the most inspiring stories from the Indian startup ecosystem.",
-        url: SITE_URL,
-        siteName: "StartupSaga.in",
-        type: "website",
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "StartupSaga.in | Startup Stories of India",
-        description: "Discover the most inspiring stories from the Indian startup ecosystem.",
-    },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const page = await getPageBySlug('home').catch(() => null);
+
+    const rawTitle = page?.meta_title || "StartupSaga.in | Startup Stories of India";
+    const rawDescription = page?.meta_description || "Discover the most inspiring stories from the Indian startup ecosystem.";
+
+    // Strip HTML for head compatibility
+    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const description = rawDescription.replace(/<[^>]*>?/gm, '');
+
+    return {
+        title,
+        description,
+        alternates: {
+            canonical: SITE_URL,
+        },
+        openGraph: {
+            title,
+            description,
+            url: SITE_URL,
+            siteName: "StartupSaga.in",
+            type: "website",
+            images: [
+                {
+                    url: page?.og_image || "/og-image.jpg",
+                    width: 1200,
+                    height: 630,
+                    alt: "StartupSaga.in",
+                },
+            ],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: [page?.og_image || "/og-image.jpg"],
+        },
+    };
+}
 
 export default async function IndexPage() {
     // Fetch data on the server in parallel
@@ -64,8 +84,8 @@ export default async function IndexPage() {
         ]);
 
         if (statsData) platformStats = statsData;
-     } 
-     catch (error) {
+    }
+    catch (error) {
         hasError = true;
         // console.error("Error fetching home data on server:", error);
     }

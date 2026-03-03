@@ -2,35 +2,43 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { CitiesContent } from "@/components/cities/CitiesContent";
 import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getCities, getPlatformStats } from "@/lib/api";
+import { getSections, getCities, getPlatformStats, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 // ISR: serve cached page, regenerate every 5 minutes in the background
 export const revalidate = 300;
 
+export async function generateMetadata(): Promise<Metadata> {
+    const page = await getPageBySlug('cities').catch(() => null);
 
-export const metadata: Metadata = {
-    title: "Startup Cities in India | StartupSaga.in",
-    description:
-        "Explore India’s thriving startup hubs. From Bengaluru to Mumbai, discover where innovation happens.",
-    alternates: {
-        canonical: `${SITE_URL}/cities`,
-    },
-    openGraph: {
-        title: "Startup Cities in India | StartupSaga.in",
-        description: "Explore India’s thriving startup hubs. From Bengaluru to Mumbai, discover where innovation happens.",
-        url: `${SITE_URL}/cities`,
-        siteName: "StartupSaga.in",
-        type: "website",
-        images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Startup Cities in India on StartupSaga.in" }],
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "Startup Cities in India | StartupSaga.in",
-        description: "Explore India’s thriving startup hubs. From Bengaluru to Mumbai, discover where innovation happens.",
-        images: ["/og-image.jpg"],
-    },
-};
+    const rawTitle = page?.meta_title || "Startup Cities in India | StartupSaga.in";
+    const rawDescription = page?.meta_description || "Explore India’s thriving startup hubs. From Bengaluru to Mumbai, discover where innovation happens.";
+
+    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const description = rawDescription.replace(/<[^>]*>?/gm, '');
+
+    return {
+        title,
+        description,
+        alternates: {
+            canonical: `${SITE_URL}/cities`,
+        },
+        openGraph: {
+            title,
+            description,
+            url: `${SITE_URL}/cities`,
+            siteName: "StartupSaga.in",
+            type: "website",
+            images: [{ url: page?.og_image || "/og-image.jpg", width: 1200, height: 630, alt: "Startup Cities in India on StartupSaga.in" }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: [page?.og_image || "/og-image.jpg"],
+        },
+    };
+}
 
 
 export default async function CitiesPage() {

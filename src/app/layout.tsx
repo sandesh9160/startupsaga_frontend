@@ -25,9 +25,13 @@ export async function generateMetadata(): Promise<Metadata> {
         getSEOSettings().catch(() => ({})),
     ]);
 
-    const title = seo.default_meta_title || "StartupSaga.in | Startup Stories of India";
-    const description = seo.default_meta_description || "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.";
+    const rawTitle = seo.default_meta_title || "StartupSaga.in | Startup Stories of India";
+    const rawDescription = seo.default_meta_description || "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.";
     const favicon = layout.site_favicon || "/favicon.png";
+
+    // Strip any accidental HTML tags from CMS fields to avoid breaking the head
+    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
         metadataBase: new URL(SITE_URL),
@@ -82,10 +86,13 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
+            <head />
             <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
-                <GoogleAnalytics />
-                <WebSiteSchema />
-                <Providers>{children}</Providers>
+                <Providers>
+                    <GoogleAnalytics />
+                    <WebSiteSchema />
+                    {children}
+                </Providers>
             </body>
         </html>
     );

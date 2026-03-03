@@ -2,35 +2,43 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { CategoriesContent } from "@/components/categories/CategoriesContent";
 import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getCategories, getPlatformStats } from "@/lib/api";
+import { getSections, getCategories, getPlatformStats, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 // ISR: serve cached page, regenerate every 5 minutes in the background
 export const revalidate = 300;
 
+export async function generateMetadata(): Promise<Metadata> {
+    const page = await getPageBySlug('categories').catch(() => null);
 
-export const metadata: Metadata = {
-    title: "Startup Categories | StartupSaga.in",
-    description:
-        "Explore startups by industry. From fintech to healthtech, edtech to SaaS, discover companies transforming every sector of India’s economy.",
-    alternates: {
-        canonical: `${SITE_URL}/categories`,
-    },
-    openGraph: {
-        title: "Startup Categories | StartupSaga.in",
-        description: "Explore startups by industry. From fintech to healthtech, edtech to SaaS, discover companies transforming every sector of India’s economy.",
-        url: `${SITE_URL}/categories`,
-        siteName: "StartupSaga.in",
-        type: "website",
-        images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Startup Categories on StartupSaga.in" }],
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "Startup Categories | StartupSaga.in",
-        description: "Explore startups by industry. From fintech to healthtech, edtech to SaaS, discover companies transforming every sector of India’s economy.",
-        images: ["/og-image.jpg"],
-    },
-};
+    const rawTitle = page?.meta_title || "Startup Categories | StartupSaga.in";
+    const rawDescription = page?.meta_description || "Explore startups by industry. From fintech to healthtech, edtech to SaaS, discover companies transforming every sector of India’s economy.";
+
+    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const description = rawDescription.replace(/<[^>]*>?/gm, '');
+
+    return {
+        title,
+        description,
+        alternates: {
+            canonical: `${SITE_URL}/categories`,
+        },
+        openGraph: {
+            title,
+            description,
+            url: `${SITE_URL}/categories`,
+            siteName: "StartupSaga.in",
+            type: "website",
+            images: [{ url: page?.og_image || "/og-image.jpg", width: 1200, height: 630, alt: "Startup Categories on StartupSaga.in" }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: [page?.og_image || "/og-image.jpg"],
+        },
+    };
+}
 
 
 export default async function CategoriesPage() {
@@ -54,7 +62,7 @@ export default async function CategoriesPage() {
         if (statsData) platformStats = statsData;
     } catch (error) {
         hasError = true;
-        console.error("Error fetching categories data:", error);
+        // console.error("Error fetching categories data:", error);
     }
 
     // Extract header data from sections

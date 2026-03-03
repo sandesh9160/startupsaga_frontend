@@ -24,11 +24,15 @@ export async function generateMetadata(
     notFound();
   }
 
-  const title = category.meta_title || `${category.name} Startups in India | StartupSaga.in`;
-  const description =
+  const rawTitle = category.meta_title || `${category.name} Startups in India | StartupSaga.in`;
+  const rawDescription =
     category.meta_description ||
     category.description ||
     `Explore top ${category.name} startups in India.`;
+
+  // Safety: strip tags
+  const title = rawTitle.replace(/<[^>]*>?/gm, '');
+  const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
   // Respect canonical_override from CMS if set
   const canonical = category.canonical_override || `${SITE_URL}/categories/${slug}`;

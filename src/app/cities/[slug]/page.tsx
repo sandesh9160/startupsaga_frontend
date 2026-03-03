@@ -20,9 +20,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     if (!city) notFound();
     // Respect canonical_override from CMS if set
     const canonical = city.canonical_override || `${SITE_URL}/cities/${slug}`;
-    const description = city.meta_description || city.description || `Explore startups and stories from ${city.name}.`;
+    const rawDescription = city.meta_description || city.description || `Explore startups and stories from ${city.name}.`;
     const ogImage = getAbsoluteImageUrl(city.og_image || city.image);
-    const title = city.meta_title || `Startups in ${city.name} | StartupSaga.in`;
+    const rawTitle = city.meta_title || `Startups in ${city.name} | StartupSaga.in`;
+
+    // Security: strip tags
+    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const description = rawDescription.replace(/<[^>]*>?/gm, '');
+
     return {
         title,
         description,

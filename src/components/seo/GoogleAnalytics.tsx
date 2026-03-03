@@ -5,7 +5,6 @@ export async function GoogleAnalytics() {
     // Fetch directly. Next.js cache ensures this doesn't duplicate work too much.
     const seo = await getSEOSettings().catch(() => ({}));
     const gaId = seo?.google_analytics_id;
-    console.log("gaId", gaId);
 
     if (!gaId) return null;
 
