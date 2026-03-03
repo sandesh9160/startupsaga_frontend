@@ -45,7 +45,6 @@ export async function resolveRedirect(pathname: string): Promise<string | null> 
  */
 export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   let url = `${API_BASE_URL}${endpoint}`;
-  // console.log(url);
 
   // if (typeof window === "undefined" && url.includes("localhost")) {
   //   url = url.replace("localhost", "127.0.0.1");
@@ -64,8 +63,6 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
     });
 
     if (!res.ok) {
-      // console.log("API Error");
-      // console.log(res);
       if (res.status === 404) return null;
       let message = `API Error: ${res.status} ${res.statusText}`;
       try {
@@ -78,12 +75,9 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
     }
 
     const data = await res.json();
-    // console.log("API Data");
-    // console.log(data);
     return data;
   } catch (error: any) {
     if (!error.message?.includes('404')) {
-      // console.error(`Fetch error [${url}]:`, error);
     }
     throw error;
   }

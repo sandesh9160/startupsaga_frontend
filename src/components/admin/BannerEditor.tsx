@@ -104,7 +104,6 @@ export function BannerEditor({ banner, onClose, onSaved }: BannerEditorProps) {
                 toast.error("Failed to save banner");
             }
         } catch (error) {
-            console.error("Save error", error);
             toast.error("Error saving banner");
         } finally {
             setIsLoading(false);

@@ -84,12 +84,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     categories = Array.isArray(categoriesRes) ? categoriesRes : [];
     cities = Array.isArray(citiesRes) ? citiesRes : [];
     pages = Array.isArray(pagesRes) ? pagesRes : [];
-  } catch (e) {
     /**
      * Prevent sitemap crash if API fails
-     * Logs error but still returns static pages
+     * Still returns static pages
      */
-    console.error("Sitemap fetch error:", e);
+  } catch (e) {
   }
 
   /**

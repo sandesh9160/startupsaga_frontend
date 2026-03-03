@@ -62,7 +62,6 @@ export default async function CategoriesPage() {
         if (statsData) platformStats = statsData;
     } catch (error) {
         hasError = true;
-        // console.error("Error fetching categories data:", error);
     }
 
     // Extract header data from sections

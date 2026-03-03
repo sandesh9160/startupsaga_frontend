@@ -18,7 +18,6 @@ export async function GET(request: Request) {
             },
         });
     } catch (e: any) {
-        console.error("Backend logout failed:", e.message);
     }
 
     // Redirect to login page
@@ -44,7 +43,6 @@ export async function POST(request: Request) {
             },
         });
     } catch (e: any) {
-        console.error("Backend logout failed:", e.message);
     }
 
     const response = NextResponse.json({ success: true });

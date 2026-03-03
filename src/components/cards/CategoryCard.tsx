@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { LucideIcon, Building2, TrendingUp } from "lucide-react";
+import { Building2, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getIcon } from "@/lib/icons";
 
 // Brand-consistent palette for categories (used on homepage)
 const BRAND_STYLE = {
@@ -25,7 +26,7 @@ const PALETTES = [
 interface CategoryCardProps {
   slug: string;
   name: string;
-  icon: LucideIcon;
+  iconName?: string;
   startupCount?: number;
   storyCount?: number;
   description?: string;
@@ -36,13 +37,14 @@ interface CategoryCardProps {
 export function CategoryCard({
   slug,
   name,
-  icon: Icon,
+  iconName = "help-circle",
   startupCount = 0,
   storyCount = 0,
   description,
   variant = "compact",
   paletteIndex = 0,
 }: CategoryCardProps) {
+  const Icon = getIcon(iconName);
   // Choose style based on paletteIndex for rotation
   const style = PALETTES[paletteIndex % PALETTES.length];
 

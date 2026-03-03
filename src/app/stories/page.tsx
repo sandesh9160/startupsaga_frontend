@@ -70,7 +70,6 @@ export default async function StoriesPage() {
         if (statsData) platformStats = statsData;
     } catch (error) {
         hasError = true;
-        console.error("Error fetching stories page data:", error);
     }
 
     // Extract header data from sections

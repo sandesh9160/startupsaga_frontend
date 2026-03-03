@@ -32,7 +32,7 @@ export function DefaultHomeView({
                     </Link>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {trendingStories.slice(0, 4).map((story, idx) => (
+                    {trendingStories.slice(0, 4).map((story, idx: number) => (
                         <StoryCard key={story.slug} {...story} priority={idx < 4} />
                     ))}
                 </div>
@@ -125,11 +125,13 @@ export function DefaultHomeView({
                                 <p className="text-zinc-600 text-lg leading-relaxed mb-8 max-w-2xl line-clamp-3">
                                     {featuredStartups[0].tagline || featuredStartups[0].description || "Leading innovation in the Indian startup ecosystem."}
                                 </p>
-                                <Button className="w-fit h-14 px-10 rounded-xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold group shadow-lg shadow-orange-600/20" asChild>
-                                    <Link href={`/startups/${featuredStartups[0].slug}`} className="flex items-center gap-2">
-                                        View Full Profile <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                                    </Link>
-                                </Button>
+                                <Link href={`/startups/${featuredStartups[0].slug}`} className="w-fit">
+                                    <Button className="h-14 px-10 rounded-xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold group shadow-lg shadow-orange-600/20">
+                                        <span className="flex items-center gap-2">
+                                            View Full Profile <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                        </span>
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                     </div>

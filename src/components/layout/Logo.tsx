@@ -22,7 +22,7 @@ export function Logo({ className, iconClassName, showText = true, variant = "def
         fetch(`${API_BASE_URL}/layout-settings/`)
             .then(res => res.json())
             .then(data => setSettings(data))
-            .catch(err => console.error("Failed to load logo settings", err));
+            .catch(() => { });
     }, []);
 
     const siteName = settings?.site_name || "StartupSaga";

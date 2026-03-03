@@ -89,38 +89,44 @@ export function HeroSection({
                     "flex flex-col sm:flex-row items-center gap-5 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500",
                     align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center'
                 )}>
-                    <Button className={cn(
-                        "w-full sm:w-auto h-14 px-10 rounded-xl shadow-xl transition-all group border-none",
-                        (settings?.buttonStyle === 'secondary') ? "bg-white hover:bg-zinc-100 text-slate-900 border border-zinc-200" :
-                            (settings?.buttonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                "bg-[#F2542D] hover:bg-[#D94111] text-white shadow-orange-600/20"
-                    )} asChild>
-                        <Link href={link_url || "/stories"} className="flex items-center gap-2">
-                            <span className="font-bold text-lg">{link_text || "Explore Stories"}</span>
-                            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </Button>
+                    <Link href={link_url || "/stories"} className="w-full sm:w-auto">
+                        <Button className={cn(
+                            "w-full h-14 px-10 rounded-xl shadow-xl transition-all group border-none",
+                            (settings?.buttonStyle === 'secondary') ? "bg-white hover:bg-zinc-100 text-slate-900 border border-zinc-200" :
+                                (settings?.buttonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
+                                    "bg-[#F2542D] hover:bg-[#D94111] text-white shadow-orange-600/20"
+                        )}>
+                            <span className="flex items-center gap-2">
+                                <span className="font-bold text-lg">{link_text || "Explore Stories"}</span>
+                                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                            </span>
+                        </Button>
+                    </Link>
 
                     {(settings?.secondaryButtonText || settings?.secondaryButtonLink) && (
-                        <Button className={cn(
-                            "w-full sm:w-auto h-14 px-10 rounded-xl active:scale-95 transition-all border-none bg-white hover:bg-zinc-100 text-[#0F172A]",
-                        )} asChild>
-                            <Link href={settings?.secondaryButtonLink || "/submit"} className="font-bold text-lg text-[#0F172A]">
-                                {settings?.secondaryButtonText || "Submit Your Startup"}
-                            </Link>
-                        </Button>
+                        <Link href={settings?.secondaryButtonLink || "/submit"} className="w-full sm:w-auto">
+                            <Button className={cn(
+                                "w-full h-14 px-10 rounded-xl active:scale-95 transition-all border-none bg-white hover:bg-zinc-100 text-[#0F172A]",
+                            )}>
+                                <span className="font-bold text-lg text-[#0F172A]">
+                                    {settings?.secondaryButtonText || "Submit Your Startup"}
+                                </span>
+                            </Button>
+                        </Link>
                     )}
                     {(settings?.extraButtons || []).map((btn: { text: string; link: string; style: string }, i: number) => (
-                        <Button key={i} className={cn(
-                            "w-full sm:w-auto h-14 px-10 rounded-xl active:scale-95 transition-all border-none",
-                            btn.style === 'primary' ? "bg-orange-600 hover:bg-orange-700 text-white shadow-xl" :
-                                btn.style === 'outline' ? "bg-transparent border-2 border-current hover:bg-white/10" :
-                                    "bg-white hover:bg-zinc-100 text-[#0F172A]"
-                        )} asChild>
-                            <Link href={btn.link || "/"} className="font-bold text-lg">
-                                {btn.text}
-                            </Link>
-                        </Button>
+                        <Link key={i} href={btn.link || "/"} className="w-full sm:w-auto">
+                            <Button className={cn(
+                                "w-full h-14 px-10 rounded-xl active:scale-95 transition-all border-none",
+                                btn.style === 'primary' ? "bg-orange-600 hover:bg-orange-700 text-white shadow-xl" :
+                                    btn.style === 'outline' ? "bg-transparent border-2 border-current hover:bg-white/10" :
+                                        "bg-white hover:bg-zinc-100 text-[#0F172A]"
+                            )}>
+                                <span className="font-bold text-lg">
+                                    {btn.text}
+                                </span>
+                            </Button>
+                        </Link>
                     ))}
                 </div>
             </div>

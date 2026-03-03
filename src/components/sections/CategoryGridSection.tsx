@@ -67,7 +67,7 @@ export function CategoryGridSection({
                             key={category.slug || category.id}
                             slug={category.slug || (category.title || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')}
                             name={category.name || category.title}
-                            icon={getIcon(category.iconName || category.icon || "help-circle")}
+                            iconName={category.iconName || category.icon || "help-circle"}
                             startupCount={category.startup_count || category.startupCount || 0}
                             storyCount={category.story_count || category.storyCount || 0}
                             description={category.description || ""}

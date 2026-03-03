@@ -70,7 +70,6 @@ export default async function StartupsPage() {
         if (statsData) platformStats = statsData;
     } catch (error) {
         hasError = true;
-        console.error("Error fetching startups data:", error);
     }
 
     // Extract header data from sections

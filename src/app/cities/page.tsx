@@ -62,7 +62,6 @@ export default async function CitiesPage() {
         if (statsData) platformStats = statsData;
     } catch (error) {
         hasError = true;
-        console.error("Error fetching cities data:", error);
     }
 
     // Extract header data from sections

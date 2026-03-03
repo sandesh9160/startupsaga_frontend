@@ -37,7 +37,7 @@ export function CitiesContent({
             getCities().then(setCities),
             getPlatformStats().then(setPlatformStats)
         ])
-            .catch(err => console.error(err))
+            .catch(() => { })
             .finally(() => setIsLoading(false));
     }, []);
 

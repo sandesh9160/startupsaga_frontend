@@ -79,23 +79,23 @@ export function CtaSection({
                     "flex flex-col sm:flex-row items-center gap-5",
                     align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center'
                 )}>
-                    <Button className={cn(
-                        "w-full sm:w-auto h-14 px-10 rounded-2xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold text-lg group shadow-xl shadow-orange-600/20 transition-all",
-                    )} asChild>
-                        <Link href={link_url || "/stories"}>
+                    <Link href={link_url || "/stories"} className="w-full sm:w-auto">
+                        <Button className={cn(
+                            "w-full h-14 px-10 rounded-2xl bg-[#F2542D] hover:bg-[#D94111] text-white font-bold text-lg group shadow-xl shadow-orange-600/20 transition-all",
+                        )}>
                             <span className="flex items-center gap-2">
                                 {link_text || "Get Started"}
                                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                             </span>
-                        </Link>
-                    </Button>
+                        </Button>
+                    </Link>
 
                     {(settings?.secondaryButtonText || settings?.secondaryButtonLink) && (
-                        <Button variant="outline" className="w-full sm:w-auto h-14 px-10 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10 backdrop-blur-sm font-bold text-lg" asChild>
-                            <Link href={settings?.secondaryButtonLink || "/submit"}>
+                        <Link href={settings?.secondaryButtonLink || "/submit"} className="w-full sm:w-auto">
+                            <Button variant="outline" className="w-full h-14 px-10 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10 backdrop-blur-sm font-bold text-lg">
                                 {settings?.secondaryButtonText || "Learn More"}
-                            </Link>
-                        </Button>
+                            </Button>
+                        </Link>
                     )}
                 </div>
             </div>

@@ -4,7 +4,6 @@ import { CategoryCard } from "@/components/cards/CategoryCard";
 import { useState, useEffect } from "react";
 import { getCategories, getPlatformStats } from "@/lib/api";
 import { Category } from "@/types";
-import { getIcon } from "@/lib/icons";
 import { Building2, TrendingUp, Sparkles } from "lucide-react";
 
 interface CategoriesContentProps {
@@ -32,7 +31,7 @@ export function CategoriesContent({
                 total_startups: platformStats.total_startups || 0,
                 total_stories: platformStats.total_stories || 0
             });
-        }).catch(console.error)
+        }).catch(() => { })
             .finally(() => setIsLoading(false));
     }, []);
 
@@ -101,7 +100,7 @@ export function CategoriesContent({
                                 key={category.slug}
                                 slug={category.slug}
                                 name={category.name}
-                                icon={getIcon(category.iconName || "help-circle")}
+                                iconName={category.iconName || (category as any).icon || "help-circle"}
                                 startupCount={(category as any).startup_count ?? category.startupCount ?? 0}
                                 storyCount={(category as any).story_count ?? category.storyCount ?? 0}
                                 description={category.description}

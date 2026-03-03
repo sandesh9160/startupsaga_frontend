@@ -73,7 +73,6 @@ export function StoriesContent({
                 setCategories(categoriesData);
                 setCities(citiesData);
             } catch (err) {
-                console.error("Failed to load filters", err);
             }
         }
         loadFilters();
@@ -96,7 +95,6 @@ export function StoriesContent({
                 setTotalCount(response.count || 0);
                 setTotalPages(response.total_pages || 1);
             } catch (err) {
-                console.error("Failed to load stories data", err);
                 setStories([]);
                 setTotalCount(0);
                 setTotalPages(1);

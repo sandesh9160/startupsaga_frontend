@@ -162,7 +162,6 @@ export function HomeContent({
                 }
 
             } catch (error) {
-                console.error("Failed to fetch home content", error);
             }
         }
 
@@ -367,7 +366,7 @@ export function HomeContent({
                                                 </Link>
                                             </div>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                                {(items.length > 0 ? items : trendingStories).slice(0, 4).map((story: any, idx) => (
+                                                {(items.length > 0 ? items : trendingStories).slice(0, 4).map((story: any, idx: number) => (
                                                     <StoryCard
                                                         key={story.slug}
                                                         slug={story.slug}
@@ -421,7 +420,7 @@ export function HomeContent({
                                                 </Link>
                                             </div>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                                {(items.length > 0 ? items : initialStories.slice(0, 4)).map((story: any, idx) => (
+                                                {(items.length > 0 ? items : initialStories.slice(0, 4)).map((story: any, idx: number) => (
                                                     <StoryCard
                                                         key={story.slug}
                                                         slug={story.slug}
@@ -480,7 +479,7 @@ export function HomeContent({
                                                         key={category.slug || category.id}
                                                         slug={category.slug || (category.title || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')}
                                                         name={category.name || category.title}
-                                                        icon={getIcon(category.iconName || category.icon || "help-circle")}
+                                                        iconName={category.iconName || category.icon || "help-circle"}
                                                         startupCount={category.startup_count || category.startupCount || 0}
                                                         storyCount={category.story_count || category.storyCount || 0}
                                                         description={category.description || ""}
@@ -713,7 +712,7 @@ export function HomeContent({
                                             </Link>
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                            {(items.length > 0 ? items : featuredStartups.slice(0, 8)).map((startup: any, idx) => (
+                                            {(items.length > 0 ? items : featuredStartups.slice(0, 8)).map((startup: any, idx: number) => (
                                                 <StartupCard key={startup.slug || startup.id} {...startup} priority={index < 1 && idx < 4} />
                                             ))}
                                         </div>
@@ -1340,7 +1339,7 @@ export function HomeContent({
                                     </Link>
                                 </div>
                                 <div className="grid grid-cols-2 lg:grid-cols-7 gap-4">
-                                    {topCategories.slice(0, 7).map((category, idx) => {
+                                    {topCategories.slice(0, 7).map((category, idx: number) => {
                                         // Map exact icons for the 7 top categories based on screenshot
                                         const slug = (category.slug || "").toLowerCase();
                                         const name = (category.name || "").toLowerCase();

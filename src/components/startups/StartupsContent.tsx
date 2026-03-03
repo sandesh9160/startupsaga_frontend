@@ -64,7 +64,6 @@ export function StartupsContent({
                 setCategories((categoriesData || []).filter(Boolean));
                 setCities((citiesData || []).filter(Boolean));
             } catch (err) {
-                console.error("Failed to load startups data", err);
             } finally {
                 setIsLoading(false);
             }

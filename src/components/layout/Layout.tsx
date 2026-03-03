@@ -16,13 +16,11 @@ export async function Layout({ children }: LayoutProps) {
   try {
     const [nav, layout] = await Promise.all([
       getNav('header'),
-      getLayoutSettings() 
+      getLayoutSettings()
     ]);
     navItems = nav;
     layoutSettings = layout;
-    console.log("layoutSettings", layoutSettings);
   } catch (error) {
-    console.error("Layout: Failed to fetch combined data", error);
   }
 
   return (
