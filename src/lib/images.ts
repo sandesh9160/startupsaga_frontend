@@ -79,7 +79,9 @@
 
 import { API_BASE_URL } from "./api";
 
-const BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
+const BASE_URL = process.env.NEXT_PUBLIC_IMAGE_URL ?? "";
+// console.log(BASE_URL);
+
 
 export function getSafeImageSrc(
   src: unknown,
@@ -87,30 +89,31 @@ export function getSafeImageSrc(
 ): string {
   if (typeof src !== "string") return fallback;
 
-  const trimmed = src.trim();
-  if (!trimmed) return fallback;
+  // const trimmed = src.trim();
+  // if (!trimmed) return fallback;
 
-  // Allow external URLs (CDN, S3, etc.)
-  if (
-    trimmed.startsWith("http://") ||
-    trimmed.startsWith("https://") ||
-    trimmed.startsWith("//") ||
-    trimmed.startsWith("data:")
-  ) {
-    // If it's coming from our Django API domain, convert to relative
-    if (trimmed.startsWith(BASE_URL)) {
-      return trimmed.replace(BASE_URL, "");
-    }
+  // // Allow external URLs (CDN, S3, etc.)
+  // if (
+  //   trimmed.startsWith("http://") ||
+  //   trimmed.startsWith("https://") ||
+  //   trimmed.startsWith("//") ||
+  //   trimmed.startsWith("data:")
+  // ) {
+  //   // If it's coming from our Django API domain, convert to relative
+  //   if (trimmed.startsWith(BASE_URL)) {
+  //     return trimmed.replace(BASE_URL, "");
+  //   }
 
-    return trimmed;
-  }
+  //   return trimmed;
+  // }
 
-  // Handle Django media paths
-  if (trimmed.includes("/media/")) {
-    const mediaIndex = trimmed.indexOf("/media/");
-    return trimmed.substring(mediaIndex);
-  }
+  // // Handle Django media paths
+  // if (trimmed.includes("/media/")) {
+  //   const mediaIndex = trimmed.indexOf("/media/");
+  //   return trimmed.substring(mediaIndex);
+  // }
+  const image = `${BASE_URL}${src}`
 
   // Ensure proper leading slash
-  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return image;
 }
