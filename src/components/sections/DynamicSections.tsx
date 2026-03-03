@@ -33,7 +33,8 @@ export function DynamicSections({ sections, data }: DynamicSectionsProps) {
                 const isHero = type === 'hero';
 
                 // Decide on heading tag for SEO (only one H1 per page)
-                const HeadingTag = (isHero && !h1Rendered) ? 'h1' : 'h2';
+                // Hierarchy: If no H1 has been rendered, the first section gets it.
+                const HeadingTag = (!h1Rendered) ? 'h1' : 'h2';
                 if (HeadingTag === 'h1') h1Rendered = true;
 
                 switch (type) {

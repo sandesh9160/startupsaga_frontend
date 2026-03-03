@@ -23,7 +23,12 @@ export function WebSiteSchema({
     description = "Startup Stories of India — Discover inspiring founder journeys, funding rounds, and the companies reshaping the Indian startup ecosystem.",
     url = SITE_URL,
     logoUrl = `${SITE_URL}/og-image.jpg`,
-    sameAs = [],
+    sameAs = [
+        "https://www.linkedin.com/company/startupsaga/",
+        "https://twitter.com/startupsaga_in",
+        "https://www.instagram.com/startupsaga.in/",
+        "https://www.facebook.com/startupsaga.in"
+    ],
 }: WebSiteSchemaProps) {
     const schema = {
         "@context": "https://schema.org",

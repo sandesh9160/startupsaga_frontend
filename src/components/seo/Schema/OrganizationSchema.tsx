@@ -27,7 +27,12 @@ export function OrganizationSchema({
     url = SITE_URL,
     logoUrl = `${SITE_URL}/og-image.jpg`,
     description = "India's premier platform for startup stories, founder journeys, and ecosystem news.",
-    sameAs = [],
+    sameAs = [
+        "https://www.linkedin.com/company/startupsaga/",
+        "https://twitter.com/startupsaga_in",
+        "https://www.instagram.com/startupsaga.in/",
+        "https://www.facebook.com/startupsaga.in"
+    ],
     email,
     phone,
     foundingYear,

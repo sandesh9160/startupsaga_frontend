@@ -2,7 +2,7 @@
 
 import { getSEOSettings } from "@/lib/api";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://startupsaga.in";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.startupsaga.in";
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +13,8 @@ export async function GET() {
         // If the backend provides robots_txt, we use it. 
         // Otherwise, we use a robust default inspired by the SEO audit.
         let robotsTxt = settings?.robots_txt;
+
+        const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.startupsaga.in";
 
         if (!robotsTxt) {
             robotsTxt = [
