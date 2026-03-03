@@ -448,7 +448,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-10 border-t border-zinc-50">
                                         <div className="space-y-2">
                                             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#0F172A] tracking-tight font-serif">Companies in this Sector</h2>
-                                            <p className="text-zinc-500 font-medium text-lg">Explore ventures shaping the future of {story.category}.</p>
+                                            <p className="text-zinc-500 font-medium text-lg">Explore startups shaping the future of {story.category}.</p>
                                         </div>
                                         <Button asChild variant="ghost" className="text-xs font-bold uppercase tracking-wider gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
                                             <Link href="/startups">

@@ -41,7 +41,8 @@ export default async function IndexPage() {
         const sectionsData = await getSections('homepage');
         pageSections = sectionsData && sectionsData.length > 0
             ? sectionsData
-            : await getSections('home'); // Try 'home' as fallback
+            : await getSections('home');
+            console.log(pageSections); // Try 'home' as fallback
 
         let statsData = null;
         [

@@ -301,7 +301,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                             </div>
                             <div className="text-zinc-700 text-[13px] md:text-[14px] leading-relaxed font-normal relative z-10">
                                 <p>
-                                    {startup.tagline} As a leading {categoryName} player based in {cityName}, {startup.name} operates as an {startup.funding_stage || startup.stage} venture with a team of {startup.team_size} employees. Since its founding in {startup.founded_year}, the company has maintained a strong focus on {startup.business_model || startup.sector} solutions.
+                                    {startup.tagline} As a leading {categoryName} player based in {cityName}, {startup.name} operates as an {startup.funding_stage || startup.stage} startup with a team of {startup.team_size} employees. Since its founding in {startup.founded_year}, the company has maintained a strong focus on {startup.business_model || startup.sector} solutions.
                                 </p>
                             </div>
                         </div>
@@ -420,13 +420,13 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
 
                 {/* Similar Startups */}
                 {similarStartups.length > 0 && (
-                    <div id="similar-ventures" className="mt-16">
+                    <div id="similar-startups" className="mt-16">
                         <div className="flex items-center justify-between mb-8">
                             <div className="space-y-1">
                                 <h2 className="text-xl md:text-2xl font-serif font-semibold text-zinc-900 tracking-tight">
                                     Discover Similar Startups
                                 </h2>
-                                <p className="text-zinc-500 text-sm font-medium">Explore more ventures in {displayCategory}.</p>
+                                <p className="text-zinc-500 text-sm font-medium">Explore more startups in {displayCategory}.</p>
                             </div>
                             <Link href="/startups" className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest flex items-center gap-1">
                                 View Directory <ArrowRight className="h-2.5 w-2.5" />
