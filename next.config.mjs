@@ -58,8 +58,6 @@
 // };
 
 // export default nextConfig;
-
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -74,36 +72,26 @@ const nextConfig = {
         hostname: 'api.startupsaga.in',
         pathname: '/**',
       },
-
-      // Only needed for local development
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '8000',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-        port: '8000',
-        pathname: '/**',
-      },
     ],
   },
 
   async rewrites() {
     return [
       {
-        source: '/admin/:path*',
-        destination: 'http://127.0.0.1:8000/admin/:path*',
+        source: '/api/:path*',
+        destination: 'https://api.startupsaga.in/api/:path*',
       },
       {
-        source: '/api/:path*',
-        destination: 'http://127.0.0.1:8000/api/:path*',
+        source: '/admin/:path*',
+        destination: 'https://api.startupsaga.in/admin/:path*',
       },
       {
         source: '/static/:path*',
-        destination: 'http://127.0.0.1:8000/static/:path*',
+        destination: 'https://api.startupsaga.in/static/:path*',
+      },
+      {
+        source: '/media/:path*',
+        destination: 'https://api.startupsaga.in/media/:path*',
       },
     ];
   },
