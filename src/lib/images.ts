@@ -30,48 +30,87 @@
 //   return fallback;
 // }
 
+// import { API_BASE_URL } from "./api";
+
+// const BASE_URL =
+//   typeof API_BASE_URL === "string"
+//     ? API_BASE_URL.replace(/\/api\/?$/, "")
+//     : "";
+
+// export function getSafeImageSrc(
+//   src: unknown,
+//   fallback: string = "/placeholder.svg"
+// ) {
+//   if (typeof src !== "string") return fallback;
+
+//   const trimmed = src.trim();
+//   if (!trimmed) return fallback;
+
+//   // Fully qualified external URLs (CDN, S3, etc.)
+//   if (
+//     trimmed.startsWith("http://") ||
+//     trimmed.startsWith("https://") ||
+//     trimmed.startsWith("//") ||
+//     trimmed.startsWith("data:")
+//   ) {
+//     return trimmed;
+//   }
+
+//   // Django absolute URLs (localhost or backend host)
+//   if (trimmed.includes(":8000")) {
+//     const path = trimmed.split(":8000")[1];
+//     return path ? path : fallback;
+//   }
+
+//   // Relative Django media paths
+//   if (trimmed.startsWith("/media/")) {
+//     return `${BASE_URL}${trimmed}`;
+//   }
+
+//   if (trimmed.startsWith("media/")) {
+//     return `${BASE_URL}/${trimmed}`;
+//   }
+
+//   // Any other relative backend path
+//   const normalized = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+//   return `${BASE_URL}${normalized}`;
+// }
+
+
 import { API_BASE_URL } from "./api";
 
-const BASE_URL =
-  typeof API_BASE_URL === "string"
-    ? API_BASE_URL.replace(/\/api\/?$/, "")
-    : "";
+const BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 
 export function getSafeImageSrc(
   src: unknown,
   fallback: string = "/placeholder.svg"
-) {
+): string {
   if (typeof src !== "string") return fallback;
 
   const trimmed = src.trim();
   if (!trimmed) return fallback;
 
-  // Fully qualified external URLs (CDN, S3, etc.)
+  // Allow external URLs (CDN, S3, etc.)
   if (
     trimmed.startsWith("http://") ||
     trimmed.startsWith("https://") ||
     trimmed.startsWith("//") ||
     trimmed.startsWith("data:")
   ) {
+    // If it's coming from our Django API domain, convert to relative
+    if (trimmed.startsWith(BASE_URL)) {
+      return trimmed.replace(BASE_URL, "");
+    }
+
     return trimmed;
   }
 
-  // Django absolute URLs (localhost or backend host)
-  if (trimmed.includes(":8000")) {
-    const path = trimmed.split(":8000")[1];
-    return path ? path : fallback;
+  // Handle Django media paths
+  if (trimmed.includes("/media/")) {
+    const mediaIndex = trimmed.indexOf("/media/");
+    return trimmed.substring(mediaIndex);
   }
 
-  // Relative Django media paths
-  if (trimmed.startsWith("/media/")) {
-    return `${BASE_URL}${trimmed}`;
-  }
-
-  if (trimmed.startsWith("media/")) {
-    return `${BASE_URL}/${trimmed}`;
-  }
-
-  // Any other relative backend path
-  const normalized = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-  return `${BASE_URL}${normalized}`;
+  // Ensure proper leading slash
+  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
 }
