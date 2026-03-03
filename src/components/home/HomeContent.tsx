@@ -308,7 +308,7 @@ export function HomeContent({
                                                         </Link>
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                        {(items.length > 0 ? items : latestStories).slice(0, 6).map((story: any) => (
+                                                        {(items.length > 0 ? items : latestStories).slice(0, 6).map((story: any, idx: number) => (
                                                             <StoryCard
                                                                 key={story.slug}
                                                                 slug={story.slug}
@@ -322,6 +322,7 @@ export function HomeContent({
                                                                 publishDate={story.publish_date}
                                                                 author_name={story.author_name || story.author}
                                                                 read_time={story.read_time}
+                                                                priority={index < 1 && idx < 4}
                                                             />
                                                         ))}
                                                     </div>
@@ -366,7 +367,7 @@ export function HomeContent({
                                                 </Link>
                                             </div>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                                {(items.length > 0 ? items : trendingStories).slice(0, 4).map((story: any) => (
+                                                {(items.length > 0 ? items : trendingStories).slice(0, 4).map((story: any, idx) => (
                                                     <StoryCard
                                                         key={story.slug}
                                                         slug={story.slug}
@@ -380,6 +381,7 @@ export function HomeContent({
                                                         publishDate={story.publish_date}
                                                         author_name={story.author_name || story.author}
                                                         read_time={story.read_time}
+                                                        priority={index < 1 && idx < 4}
                                                     />
                                                 ))}
                                             </div>
@@ -419,7 +421,7 @@ export function HomeContent({
                                                 </Link>
                                             </div>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                                {(items.length > 0 ? items : initialStories.slice(0, 4)).map((story: any) => (
+                                                {(items.length > 0 ? items : initialStories.slice(0, 4)).map((story: any, idx) => (
                                                     <StoryCard
                                                         key={story.slug}
                                                         slug={story.slug}
@@ -433,6 +435,7 @@ export function HomeContent({
                                                         publishDate={story.publish_date}
                                                         author_name={story.author_name || story.author}
                                                         read_time={story.read_time}
+                                                        priority={index < 1 && idx < 4}
                                                     />
                                                 ))}
                                             </div>
@@ -710,8 +713,8 @@ export function HomeContent({
                                             </Link>
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                            {(items.length > 0 ? items : featuredStartups.slice(0, 8)).map((startup: any) => (
-                                                <StartupCard key={startup.slug || startup.id} {...startup} />
+                                            {(items.length > 0 ? items : featuredStartups.slice(0, 8)).map((startup: any, idx) => (
+                                                <StartupCard key={startup.slug || startup.id} {...startup} priority={index < 1 && idx < 4} />
                                             ))}
                                         </div>
                                     </section>
@@ -927,7 +930,7 @@ export function HomeContent({
                                                 <div className="container-wide">
                                                     {(section.image || sSettings.imageUrl) && (
                                                         <div className="relative w-full h-[400px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl">
-                                                            <Image src={getSafeImageSrc(section.image || sSettings.imageUrl)} alt={section.title || "Section Image"} fill className="object-cover" />
+                                                            <Image src={getSafeImageSrc(section.image || sSettings.imageUrl)} alt={section.title || "Section Image"} fill className="object-cover" priority={index < 2} />
                                                         </div>
                                                     )}
                                                     {section.description && (
@@ -964,6 +967,7 @@ export function HomeContent({
                                                                 alt={section.title || 'Section image'}
                                                                 fill
                                                                 className="object-cover"
+                                                                priority={index < 2}
                                                             />
                                                         </div>
                                                     )}
@@ -1234,7 +1238,7 @@ export function HomeContent({
                                                     {section.subtitle && <h3 className="text-xl text-zinc-500 mb-6 font-medium" style={{ textAlign: sectionStyles.textAlign }}>{section.subtitle}</h3>}
                                                     {(sSettings.imageUrl || section.image) && (
                                                         <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-2xl mb-10">
-                                                            <Image src={getSafeImageSrc(sSettings.imageUrl || section.image)} alt={section.title || ''} fill className="object-cover" />
+                                                            <Image src={getSafeImageSrc(sSettings.imageUrl || section.image)} alt={section.title || ''} fill className="object-cover" priority={index < 2} />
                                                         </div>
                                                     )}
                                                     {(section.content || section.description) && (

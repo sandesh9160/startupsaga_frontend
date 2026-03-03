@@ -5,6 +5,9 @@ import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
 import { getTrendingStories, getSections, getStories, getStartups, getCities, getCategories, getPlatformStats, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
+import { DynamicSections } from "@/components/sections/DynamicSections";
+import { DefaultHomeView } from "@/components/home/DefaultHomeView";
+
 // ISR: serve cached page, regenerate every 60 seconds in the background
 export const revalidate = 60;
 
@@ -64,7 +67,6 @@ export default async function IndexPage() {
         pageSections = sectionsData && sectionsData.length > 0
             ? sectionsData
             : await getSections('home');
-        // console.log(pageSections); // Try 'home' as fallback
 
         let statsData = null;
         [
@@ -87,7 +89,6 @@ export default async function IndexPage() {
     }
     catch (error) {
         hasError = true;
-        // console.error("Error fetching home data on server:", error);
     }
 
     // Extract FAQ items for Schema integration
@@ -104,16 +105,30 @@ export default async function IndexPage() {
         <>
             {faqItems.length > 0 && <FAQSchema items={faqItems} />}
             <Layout>
-                <HomeContent
-                    initialTrending={trendingStories}
-                    initialSections={pageSections}
-                    initialStories={latestStories}
-                    initialStartups={featuredStartups}
-                    initialCities={topCities}
-                    initialCategories={topCategories}
-                    initialPlatformStats={platformStats}
-                    hasError={hasError}
-                />
+                {pageSections && pageSections.length > 0 ? (
+                    <DynamicSections
+                        sections={pageSections}
+                        data={{
+                            trendingStories,
+                            latestStories,
+                            featuredStartups,
+                            topCities,
+                            topCategories,
+                            platformStats,
+                            heroData: {
+                                title: (pageSections || []).find((s: any) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
+                                content: (pageSections || []).find((s: any) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
+                            }
+                        }}
+                    />
+                ) : (
+                    <DefaultHomeView
+                        trendingStories={trendingStories}
+                        latestStories={latestStories}
+                        featuredStartups={featuredStartups}
+                        topCities={topCities}
+                    />
+                )}
             </Layout>
         </>
     );

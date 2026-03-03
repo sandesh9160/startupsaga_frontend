@@ -21,6 +21,7 @@ interface StartupCardProps {
   stage?: string;
   funding_stage?: string;
   team_size?: string;
+  priority?: boolean;
 }
 
 export function StartupCard({
@@ -37,6 +38,7 @@ export function StartupCard({
   team_size = "100+",
   og_image,
   is_featured,
+  priority = false,
 }: StartupCardProps & { og_image?: string; is_featured?: boolean }) {
   const displayCategory = (typeof category === 'object' && category) ? category.name : category;
   const displayCity = (typeof city === 'object' && city) ? city.name : city;
@@ -60,6 +62,7 @@ export function StartupCard({
               className="object-contain p-1.5 transition-all duration-300"
               sizes="50px"
               unoptimized={isSvgLogo}
+              priority={priority}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-zinc-50 text-[#FF4F18] font-bold text-lg select-none">

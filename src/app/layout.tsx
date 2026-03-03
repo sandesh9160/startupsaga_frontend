@@ -11,11 +11,13 @@ import { SITE_URL } from "@/config/site";
 const playfair = Playfair_Display({
     subsets: ["latin"],
     variable: "--font-playfair",
+    display: "swap",
 });
 
 const inter = Inter({
     subsets: ["latin"],
     variable: "--font-inter",
+    display: "swap",
 });
 
 

@@ -100,6 +100,7 @@ export function StoryCard({
           alt={title}
           fallbackLabel={title}
           fill
+          priority={priority}
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           unoptimized={isSvg}
         />
