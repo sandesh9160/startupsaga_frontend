@@ -21,6 +21,7 @@ interface StoryCardProps {
   author?: string;
   author_name?: string;
   read_time?: number;
+  priority?: boolean;
 }
 
 export function StoryCard({
@@ -38,6 +39,7 @@ export function StoryCard({
   author,
   author_name,
   read_time,
+  priority = false,
 }: StoryCardProps) {
   const thumbnailSrc = getSafeImageSrc(thumbnail || og_image);
   const isSvg = thumbnailSrc.toLowerCase().endsWith(".svg");
@@ -54,6 +56,7 @@ export function StoryCard({
           alt={title}
           fallbackLabel={title}
           fill
+          priority={priority}
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           unoptimized={isSvg}
         />

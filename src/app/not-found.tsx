@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowLeft } from "lucide-react";
@@ -13,10 +14,13 @@ export default function NotFound() {
 
                 {/* Robot Illustration */}
                 <div className="relative w-[300px] h-[300px] md:w-[350px] md:h-[350px] mb-8">
-                    <img
+                    <Image
                         src={notFoundImageUrl}
                         alt="No results found illustration"
+                        width={350}
+                        height={350}
                         className="object-contain w-full h-full mix-blend-multiply"
+                        priority
                     />
                 </div>
 

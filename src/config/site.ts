@@ -3,11 +3,15 @@
  * @description Global site configuration and constants.
  */
 
+/** The canonical site URL — always https://www.startupsaga.in in production */
+export const SITE_URL =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.startupsaga.in";
+
 export const siteConfig = {
     name: "StartupSaga",
     fullName: "StartupSaga.in",
     description: "Indian startup stories, founder journeys, and ecosystem directory.",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    url: SITE_URL,
     links: {
         twitter: "https://twitter.com/startupsaga",
     },

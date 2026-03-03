@@ -4,8 +4,10 @@ import { Layout } from "@/components/layout/Layout";
 import { StoriesContent } from "@/components/stories/StoriesContent";
 import { HomeContent } from "@/components/home/HomeContent";
 import { getSections, getStories, getPlatformStats } from "@/lib/api";
+import { SITE_URL } from "@/config/site";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+// ISR: serve cached page, regenerate every 60 seconds in the background
+export const revalidate = 60;
 
 export async function generateMetadata({
     searchParams,
@@ -92,35 +94,35 @@ export default async function StoriesPage() {
     //         />
     //     </Layout>
     return (
-    <Layout>
-        <Suspense fallback={<div>Loading...</div>}>
-            <HomeContent
-                initialSections={pageSections.filter((s: any) =>
-                    s.id ? s.id !== headerSection?.id : s !== headerSection
-                )}
-                initialStories={stories}
-                initialPlatformStats={platformStats}
-                hasError={hasError}
-                defaultView={
-                    <Suspense fallback={
-                        <div className="container-wide py-20">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className="h-[240px] rounded-2xl bg-muted animate-pulse border border-border/50" />
-                                ))}
+        <Layout>
+            <Suspense fallback={<div>Loading...</div>}>
+                <HomeContent
+                    initialSections={pageSections.filter((s: any) =>
+                        s.id ? s.id !== headerSection?.id : s !== headerSection
+                    )}
+                    initialStories={stories}
+                    initialPlatformStats={platformStats}
+                    hasError={hasError}
+                    defaultView={
+                        <Suspense fallback={
+                            <div className="container-wide py-20">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <div key={i} className="h-[240px] rounded-2xl bg-muted animate-pulse border border-border/50" />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    }>
-                        <StoriesContent
-                            title={displayTitle}
-                            description={displaySubtitle}
-                            content={displayContent}
-                        />
-                    </Suspense>
-                }
-            />
-        </Suspense>
-    </Layout>
-// );
+                        }>
+                            <StoriesContent
+                                title={displayTitle}
+                                description={displaySubtitle}
+                                content={displayContent}
+                            />
+                        </Suspense>
+                    }
+                />
+            </Suspense>
+        </Layout>
+        // );
     );
 }

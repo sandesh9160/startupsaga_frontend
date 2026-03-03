@@ -5,6 +5,8 @@ import { Providers } from "@/components/Providers";
 import { WebSiteSchema } from "@/components/seo/Schema/WebSiteSchema";
 import { getSEOSettings } from "@/lib/api";
 import { GoogleAnalytics } from "@/components/seo/GoogleAnalytics";
+import { getLayoutSettings } from "@/lib/api";
+import { SITE_URL } from "@/config/site";
 
 const playfair = Playfair_Display({
     subsets: ["latin"],
@@ -16,9 +18,6 @@ const inter = Inter({
     variable: "--font-inter",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
-import { getLayoutSettings } from "@/lib/api";
 
 export async function generateMetadata(): Promise<Metadata> {
     const [layout, seo] = await Promise.all([
@@ -83,10 +82,8 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <head>
-                <GoogleAnalytics />
-            </head>
             <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+                <GoogleAnalytics />
                 <WebSiteSchema />
                 <Providers>{children}</Providers>
             </body>

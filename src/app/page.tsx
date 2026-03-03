@@ -3,8 +3,10 @@ import { Layout } from "@/components/layout/Layout";
 import { HomeContent } from "@/components/home/HomeContent";
 import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
 import { getTrendingStories, getSections, getStories, getStartups, getCities, getCategories, getPlatformStats } from "@/lib/api";
+import { SITE_URL } from "@/config/site";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+// ISR: serve cached page, regenerate every 60 seconds in the background
+export const revalidate = 60;
 
 export const metadata: Metadata = {
     title: "StartupSaga.in | Startup Stories of India",
@@ -42,7 +44,7 @@ export default async function IndexPage() {
         pageSections = sectionsData && sectionsData.length > 0
             ? sectionsData
             : await getSections('home');
-            console.log(pageSections); // Try 'home' as fallback
+        // console.log(pageSections); // Try 'home' as fallback
 
         let statsData = null;
         [
@@ -62,9 +64,10 @@ export default async function IndexPage() {
         ]);
 
         if (statsData) platformStats = statsData;
-    } catch (error) {
+     } 
+     catch (error) {
         hasError = true;
-        console.error("Error fetching home data on server:", error);
+        // console.error("Error fetching home data on server:", error);
     }
 
     // Extract FAQ items for Schema integration

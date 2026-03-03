@@ -6,7 +6,7 @@
 
 import { JsonLd } from "./JsonLd";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://startupsaga.in";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.startupsaga.in";
 
 interface OrganizationSchemaProps {
     name?: string;

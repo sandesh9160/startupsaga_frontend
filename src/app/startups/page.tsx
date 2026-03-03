@@ -3,9 +3,10 @@ import { Layout } from "@/components/layout/Layout";
 import { StartupsContent } from "@/components/startups/StartupsContent";
 import { HomeContent } from "@/components/home/HomeContent";
 import { getSections, getStartups, getPlatformStats, getStartupsPage } from "@/lib/api";
+import { SITE_URL } from "@/config/site";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
+// ISR: serve cached page, regenerate every 120 seconds in the background
+export const revalidate = 120;
 
 export async function generateMetadata({
     searchParams,

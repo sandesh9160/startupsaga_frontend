@@ -3,8 +3,10 @@ import { Layout } from "@/components/layout/Layout";
 import { CitiesContent } from "@/components/cities/CitiesContent";
 import { HomeContent } from "@/components/home/HomeContent";
 import { getSections, getCities, getPlatformStats } from "@/lib/api";
+import { SITE_URL } from "@/config/site";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+// ISR: serve cached page, regenerate every 5 minutes in the background
+export const revalidate = 300;
 
 
 export const metadata: Metadata = {

@@ -5,12 +5,11 @@ import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/Schema/JsonLd";
-
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { SITE_URL } from "@/config/site";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
 
 function getAbsoluteImageUrl(url: string | null | undefined): string {
-  if (!url) return `${BASE_URL}/og-image.jpg`;
+  if (!url) return `${SITE_URL}/og-image.jpg`;
   if (url.startsWith("http")) return url;
   return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
 }
@@ -32,7 +31,7 @@ export async function generateMetadata(
     `Explore top ${category.name} startups in India.`;
 
   // Respect canonical_override from CMS if set
-  const canonical = category.canonical_override || `${BASE_URL}/categories/${slug}`;
+  const canonical = category.canonical_override || `${SITE_URL}/categories/${slug}`;
   const ogImage = getAbsoluteImageUrl(category.og_image);
 
   return {
@@ -63,8 +62,8 @@ export async function generateMetadata(
 /**
  * Category page
  */
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: category detail pages cached for 1 hour
+export const revalidate = 3600;
 
 export default async function CategoryDetailPage(
   { params }: { params: Promise<{ slug: string }> }
@@ -101,13 +100,13 @@ export default async function CategoryDetailPage(
   }));
   const categoryStories = categoryData.stories || [];
   const topCities = (Array.isArray(allCities) ? allCities : []).slice(0, 4);
-  const canonical = `${BASE_URL}/categories/${slug}`;
+  const canonical = `${SITE_URL}/categories/${slug}`;
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
-      { "@type": "ListItem", position: 2, name: "Categories", item: `${BASE_URL}/categories` },
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Categories", item: `${SITE_URL}/categories` },
       { "@type": "ListItem", position: 3, name: category.name, item: canonical },
     ],
   };

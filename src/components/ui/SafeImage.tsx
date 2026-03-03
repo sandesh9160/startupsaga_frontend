@@ -45,6 +45,7 @@ function buildPlaceholderSrc(label: string, accent = "#FF4F18"): string {
 interface SafeImageProps extends Omit<ImageProps, "onError"> {
     fallbackSrc?: string;
     fallbackLabel?: string;
+    priority?: boolean;
 }
 
 export function SafeImage({

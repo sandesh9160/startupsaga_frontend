@@ -17,7 +17,7 @@
 import { ArticleSchema } from "./ArticleSchema";
 import { BreadcrumbSchema } from "./BreadcrumbSchema";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://startupsaga.in";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.startupsaga.in";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 function resolveImageUrl(url: string | null | undefined): string {

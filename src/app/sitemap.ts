@@ -1,11 +1,5 @@
 import type { MetadataRoute } from "next";
-
-/**
- * Base Site URL
- * Falls back to localhost if environment variable is not set
- */
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { SITE_URL } from "@/config/site";
 
 /**
  * Backend API Base URL

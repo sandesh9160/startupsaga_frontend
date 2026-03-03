@@ -6,8 +6,7 @@ import { Story, Startup } from "@/types";
 import { StorySchema } from "@/components/seo/Schema/StorySchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { SITE_URL } from "@/config/site";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 function getAbsoluteImageUrl(url: string | null | undefined): string {
@@ -54,8 +53,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: story detail pages are cached for 1 hour then regenerated on next request
+export const revalidate = 3600;
 
 export default async function StoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;

@@ -1,8 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { SubmitContent } from "@/components/submit/SubmitContent";
-
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { SITE_URL } from "@/config/site";
 
 export const metadata = {
     title: "Submit Your Startup | StartupSaga.in",

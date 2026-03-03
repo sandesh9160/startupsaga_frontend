@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
@@ -41,13 +42,14 @@ export function Banner({
 
                 {image && (
                     <div className="absolute inset-0 opacity-20 transition-transform duration-1000 group-hover:scale-105">
-
-                        <img
+                        <Image
                             src={image.startsWith('http') ? image : `${process.env.NEXT_PUBLIC_MEDIA_URL || 'http://localhost:8000'}${image}`}
                             alt={title || "StartupSaga Banner"}
-                            className="w-full h-full object-cover"
+                            fill
+                            priority
+                            className="object-cover"
+                            sizes="100vw"
                         />
-
                     </div>
                 )}
             </div>

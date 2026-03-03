@@ -5,8 +5,7 @@ import { getPageBySlug, resolveRedirect, getSections } from "@/lib/api";
 import { JsonLd } from "@/components/seo/Schema/JsonLd";
 import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
 import { PageSections } from "@/components/sections/PageSections";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { SITE_URL } from "@/config/site";
 
 const RESERVED_SLUGS = [
     "stories", "startups", "categories", "cities", "submit",

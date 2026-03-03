@@ -5,8 +5,7 @@ import { getStartupBySlug, getStories, getStartups } from "@/lib/api";
 import { StartupPageSchema } from "@/components/seo/Schema/StartupPageSchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { SITE_URL } from "@/config/site";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
 
 function getAbsoluteImageUrl(url: string | null | undefined): string {
@@ -54,8 +53,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: startup detail pages are cached for 1 hour then regenerated on next request
+export const revalidate = 3600;
 
 export default async function StartupDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
