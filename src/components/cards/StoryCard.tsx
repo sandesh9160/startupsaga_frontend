@@ -58,7 +58,7 @@ export function StoryCard({
           fill
           priority={priority}
           className="object-cover transition-transform duration-700 group-hover:scale-110"
-          sizes="(max-width: 1200px) 100vw, 1200px"
+          sizes="(max-width: 1400px) 100vw, 1400px"
           unoptimized={isSvg}
         />
         <div className="absolute inset-0 p-8 lg:p-10 flex flex-col justify-end bg-gradient-to-t from-[#0F172A]/95 via-[#0F172A]/40 to-transparent">
@@ -103,7 +103,7 @@ export function StoryCard({
           fill
           priority={priority}
           className="object-cover transition-transform duration-700 group-hover:scale-110"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1400px) 25vw, 350px"
           unoptimized={isSvg}
         />
       </Link>
@@ -118,13 +118,19 @@ export function StoryCard({
 
         <Link
           href={`/stories/${slug}`}
-          className="font-serif font-semibold text-[#0F172A] text-lg leading-snug line-clamp-2 hover:text-[#FF4F18] transition-colors mb-4 block"
+          className="font-serif font-bold text-[#0F172A] text-xl leading-snug line-clamp-2 hover:text-[#FF4F18] transition-colors mb-3 block"
         >
           {title}
         </Link>
 
+        {excerpt && (
+          <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2 mb-5">
+            {excerpt}
+          </p>
+        )}
+
         {/* Meta Info */}
-        <div className="flex items-center gap-4 text-[12px] font-medium text-zinc-600 mb-4">
+        <div className="flex items-center gap-4 text-[12px] font-medium text-zinc-600 mt-auto">
           {authorDisplay && (
             <span className="flex items-center gap-1.5 truncate">
               <User size={14} className="text-[#FF4F18]/80" />

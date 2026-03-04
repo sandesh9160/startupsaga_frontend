@@ -68,7 +68,8 @@ export function HeroSection({
 
                 <HeadingTag
                     className={cn(
-                        "text-3xl md:text-5xl lg:text-7xl font-semibold font-serif mb-6 max-w-5xl leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-4 duration-500",
+                        "text-3xl md:text-5xl lg:text-7xl font-semibold font-serif mb-6 max-w-5xl leading-[1.1] tracking-tight",
+                        index === 0 ? "" : "animate-in fade-in slide-in-from-bottom-4 duration-500",
                         align === 'left' ? 'mr-auto ml-0' : align === 'right' ? 'ml-auto mr-0' : 'mx-auto'
                     )}
                     style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor }}
@@ -78,7 +79,8 @@ export function HeroSection({
 
                 <div
                     className={cn(
-                        "text-base md:text-lg mb-8 max-w-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150 prose prose-slate marker:text-zinc-500",
+                        "text-base md:text-lg mb-8 max-w-2xl leading-relaxed prose prose-slate marker:text-zinc-500",
+                        index === 0 ? "" : "animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150",
                         align === 'left' ? 'text-left mr-auto ml-0' : align === 'right' ? 'text-right ml-auto mr-0' : 'text-center mx-auto',
                         (textColor === '#FFFFFF' || textColor === 'FFFFFF' || (textColor === '#0F172A' || textColor === '0F172A')) ? 'prose-invert' : 'prose-zinc'
                     )}
@@ -86,7 +88,8 @@ export function HeroSection({
                     dangerouslySetInnerHTML={{ __html: displayContent }}
                 />
                 <div className={cn(
-                    "flex flex-col sm:flex-row items-center gap-5 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300",
+                    "flex flex-col sm:flex-row items-center gap-5",
+                    index === 0 ? "" : "animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300",
                     align === 'left' ? 'justify-start' : align === 'right' ? 'justify-end' : 'justify-center'
                 )}>
                     <Link href={link_url || "/stories"} className="w-full sm:w-auto">

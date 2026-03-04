@@ -63,8 +63,8 @@ export function Logo({ className, iconClassName, showText = true, variant = "def
                         "font-serif text-2xl font-bold leading-none tracking-tight",
                         isLight ? "text-white" : "text-[#0F172A]"
                     )}>
-                        {siteName}
-                        {!settings?.site_name && <span className="text-orange-600">.in</span>}
+                        {siteName.replace(".in", "")}
+                        <span className="text-[#F2542D]">.in</span>
                     </div>
                 </div>
             )}

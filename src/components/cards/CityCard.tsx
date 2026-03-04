@@ -68,7 +68,7 @@ export function CityCard({
                 fallbackLabel={name}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1400px) 33vw, 460px"
               />
             ) : (
               <div className="w-full h-full" style={{ backgroundColor: palette.bg }} />
@@ -138,7 +138,7 @@ export function CityCard({
             fill
             unoptimized={getSafeImageSrc(image).endsWith(".svg")}
             className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+            sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, (max-width: 1400px) 16vw, 230px"
           />
         )}
 

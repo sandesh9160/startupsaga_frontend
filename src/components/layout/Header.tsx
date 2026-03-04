@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/Logo";
-import { Menu, X, Rocket, ChevronDown } from "lucide-react";
+import { Menu, X, Rocket, ChevronDown, Search } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -191,6 +191,9 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
 
           {/* Desktop Right Side */}
           <div className="hidden md:flex items-center gap-6">
+            <button className="text-zinc-500 hover:text-orange-600 transition-colors">
+              <Search className="h-5 w-5" />
+            </button>
             <Button size="lg" className="bg-orange-600 text-white hover:bg-orange-700 rounded-xl h-11 px-6 shadow-md shadow-orange-600/20 group" asChild suppressHydrationWarning>
               <Link href="/submit" className="flex items-center gap-2">
                 <span className="font-bold text-sm tracking-tight capitalize">Submit Startup</span>

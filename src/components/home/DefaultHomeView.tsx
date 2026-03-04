@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp } from "lucide-react";
 import { StoryCard } from "@/components/cards/StoryCard";
 import { StartupCard } from "@/components/cards/StartupCard";
 import { CityCard } from "@/components/cards/CityCard";
@@ -38,18 +38,61 @@ export async function DefaultHomeView({
 
     return (
         <div className="flex flex-col w-full">
-            {/* Trending Section */}
-            <section className="container-wide py-12">
-                <div className="flex items-center justify-between mb-10">
-                    <h2 className="text-3xl font-semibold text-[#0F172A] font-serif">Most Read Across India</h2>
-                    <Link href="/stories" className="text-orange-600 font-bold tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
-                        View all trending <ArrowRight className="h-4 w-4" />
-                    </Link>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {trendingStories.slice(0, 4).map((story, idx: number) => (
-                        <StoryCard key={story.slug} {...story} priority={idx < 4} />
-                    ))}
+            {/* Latest Stories & Trending Sidebar Section */}
+            <section className="container-wide py-16">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    {/* Left Side: Latest Stories */}
+                    <div className="lg:col-span-8">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-4xl font-bold text-[#0F172A] font-serif tracking-tight">Latest Stories</h2>
+                            <Link href="/stories" className="text-orange-600 font-bold tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all text-sm group">
+                                View all <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {latestStories.slice(0, 6).map((story, idx: number) => (
+                                <StoryCard key={story.slug} {...story} priority={idx < 2} />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Right Side: Trending Sidebar */}
+                    <aside className="lg:col-span-4">
+                        <div className="sticky top-24 p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm shadow-zinc-200/50">
+                            <div className="flex items-center gap-2 mb-8 border-b border-zinc-50 pb-4">
+                                <TrendingUp className="h-5 w-5 text-orange-600" />
+                                <h2 className="text-2xl font-bold text-[#0F172A] font-serif">Trending This Week</h2>
+                            </div>
+                            <div className="space-y-6">
+                                {trendingStories.slice(0, 5).map((story, idx: number) => (
+                                    <Link
+                                        key={story.slug}
+                                        href={`/stories/${story.slug}`}
+                                        className="flex items-start gap-5 group"
+                                    >
+                                        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center font-bold text-3xl font-serif text-zinc-300 group-hover:text-orange-600 transition-colors">
+                                            {idx + 1}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-[10px] font-bold text-orange-600 uppercase tracking-widest mb-1.5 opacity-80 group-hover:opacity-100 italic">
+                                                {story.category?.name || "Startup"}
+                                            </div>
+                                            <h3 className="text-[15px] font-bold font-serif leading-snug line-clamp-2 text-[#0F172A] group-hover:text-orange-600 transition-colors">
+                                                {story.title}
+                                            </h3>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                            <div className="mt-8 pt-6 border-t border-zinc-100 flex justify-center">
+                                <Link href="/stories?sort=trending" className="w-full">
+                                    <Button variant="outline" className="w-full rounded-2xl h-12 font-bold text-zinc-600 border-zinc-200 hover:bg-zinc-50 hover:text-[#0F172A] transition-all">
+                                        View Full List
+                                    </Button>
+                                </Link>
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </section>
 
