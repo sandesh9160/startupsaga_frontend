@@ -7,6 +7,7 @@ import { JsonLd } from "@/components/seo/Schema/JsonLd";
 import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
 import { PageSections } from "@/components/sections/PageSections";
 import { SITE_URL } from "@/config/site";
+import { PageSection } from "@/types";
 
 const RESERVED_SLUGS = [
     "stories", "startups", "categories", "cities", "submit",
@@ -16,126 +17,123 @@ const RESERVED_SLUGS = [
 export async function generateMetadata({ params }: { params: Promise<{ pageSlug: string }> }): Promise<Metadata> {
     const { pageSlug } = await params;
     if (RESERVED_SLUGS.includes(pageSlug)) return {};
-    try {
-        const page = await getPageBySlug(pageSlug);
-        // if (!page) return { title: "Page Not Found" };
-        if (!page) notFound();
-        // Respect canonical_override from CMS if set
-        const canonical = page.canonical_override || `${SITE_URL}/${page.slug}`;
-        const title = page.meta_title || `${page.title} | StartupSaga.in`;
-        const description = page.meta_description || page.content?.replace(/<[^>]*>?/gm, '').slice(0, 160) || "";
-        return {
+
+    const page = await getPageBySlug(pageSlug).catch(() => null);
+    if (!page) return { title: "Page Not Found" };
+
+    // Respect canonical_override from CMS if set
+    const canonical = page.canonical_override || `${SITE_URL}/${page.slug}`;
+    const title = page.meta_title || `${page.title} | StartupSaga.in`;
+    const description = page.meta_description || page.content?.replace(/<[^>]*>?/gm, '').slice(0, 160) || "";
+
+    return {
+        title,
+        description,
+        alternates: { canonical },
+        ...(page.noindex ? { robots: { index: false, follow: false } } : {}),
+        openGraph: {
             title,
             description,
-            alternates: { canonical },
-            // Respect noindex from CMS
-            ...(page.noindex ? { robots: { index: false, follow: false } } : {}),
-            openGraph: {
-                title,
-                description,
-                url: canonical,
-                siteName: "StartupSaga.in",
-                type: "website",
-                locale: "en_IN",
-                images: [{ url: `${SITE_URL}/og-image.jpg`, width: 1200, height: 630 }],
-            },
-            twitter: {
-                card: "summary_large_image",
-                title,
-                description,
-            },
-        };
-    } 
-    // catch {
-    //     return { title: "Page Not Found" };
-    // }
-    catch {
-    notFound();
-}
+            url: canonical,
+            siteName: "StartupSaga.in",
+            type: "website",
+            locale: "en_IN",
+            images: [{ url: `${SITE_URL}/og-image.jpg`, width: 1200, height: 630 }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+        },
+    };
 }
 
 export default async function StaticPageRoute({ params }: { params: Promise<{ pageSlug: string }> }) {
     const { pageSlug } = await params;
+
+    // Block reserved Next.js route segments
     if (RESERVED_SLUGS.includes(pageSlug)) {
         notFound();
     }
 
-    // Special case: Redirect /home to /
+    // Redirect /home to /
     if (pageSlug === 'home') {
         redirect('/');
     }
 
+    // Check for CMS-configured redirects before showing 404
     const redirectTo = await resolveRedirect(`/${pageSlug}`);
     if (redirectTo) redirect(redirectTo);
 
-    try {
-        const [page, slugSections] = await Promise.all([
-            getPageBySlug(pageSlug),
-            getSections('', pageSlug) // Fetch by slug via sections_list endpoint
-        ]);
+    // Fetch page + sections in parallel. Both are safe — never throw.
+    const [page, slugSections] = await Promise.all([
+        getPageBySlug(pageSlug).catch(() => null),
+        getSections('', pageSlug).catch(() => [] as PageSection[]),
+    ]);
 
-        if (!page) notFound();
-
-        // Use sections from sections_list endpoint first.
-        // Fall back to sections embedded in page_detail response (page.sections).
-        // This ensures content shows even if one endpoint has stale cache.
-        const sections = (slugSections && slugSections.length > 0)
-            ? slugSections
-            : (page.sections || []);
-
-        const hasSections = sections && sections.length > 0;
-        const canonical = `${SITE_URL}/${page.slug}`;
-        const breadcrumbSchema = {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-                { "@type": "ListItem", position: 2, name: page.title, item: canonical },
-            ],
-        };
-
-        // Extract FAQ items for Schema
-        // Based on HomeContent.tsx, FAQs are stored in settings.cards
-        const faqItems = (sections || [])
-            .filter((s) => (s.section_type || s.type) === 'faq')
-            .flatMap((s) => {
-                const cards = (s.settings?.cards as Array<{ question?: string; title?: string; answer?: string; description?: string }>) || [];
-                return cards;
-            })
-            .filter((c) => (c.question || c.title) && (c.answer || c.description))
-            .map((c) => ({
-                question: (c.question || c.title) as string,
-                answer: (c.answer || c.description) as string
-            }));
-
-        return (
-            <>
-                <JsonLd data={breadcrumbSchema} />
-                {faqItems.length > 0 && <FAQSchema items={faqItems} />}
-                <Layout>
-                    {hasSections ? (
-                        <PageSections pageSlug={pageSlug} initialSections={sections} />
-                    ) : (
-                        <div className="container-wide py-12 md:py-20">
-                            <article>
-                                <h1 className="text-4xl font-semibold font-serif text-foreground mb-8">{page.title}</h1>
-                                <div
-                                    className="prose prose-zinc prose-sm max-w-none leading-relaxed
-                                        prose-headings:font-semibold prose-headings:text-zinc-900 prose-headings:tracking-tight
-                                        prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-5 prose-h2:font-serif prose-h2:leading-[1.2]
-                                        prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:font-serif
-                                        prose-p:text-zinc-600 prose-p:mb-6 prose-p:text-[18px] prose-p:leading-relaxed
-                                        prose-strong:text-zinc-900 prose-strong:font-bold
-                                        prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-10"
-                                    dangerouslySetInnerHTML={{ __html: page.content || "" }}
-                                />
-                            </article>
-                        </div>
-                    )}
-                </Layout>
-            </>
-        );
-    } catch {
+    // Page not in CMS → show custom 404
+    if (!page) {
         notFound();
     }
+
+    // Use sections from sections_list endpoint first,
+    // fall back to sections embedded in page_detail response.
+    const sections: PageSection[] = (slugSections && slugSections.length > 0)
+        ? slugSections
+        : (page.sections || []);
+
+    const hasSections = sections.length > 0;
+    const canonical = `${SITE_URL}/${page.slug}`;
+
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+            { "@type": "ListItem", position: 2, name: page.title, item: canonical },
+        ],
+    };
+
+    // Extract FAQ items for Schema
+    const faqItems = sections
+        .filter((s: PageSection) => (s.section_type || s.type) === 'faq')
+        .flatMap((s: PageSection) => {
+            const cards = (s.settings?.cards as Array<{ question?: string; title?: string; answer?: string; description?: string }>) || [];
+            return cards;
+        })
+        .filter((c: { question?: string; title?: string; answer?: string; description?: string }) =>
+            (c.question || c.title) && (c.answer || c.description)
+        )
+        .map((c: { question?: string; title?: string; answer?: string; description?: string }) => ({
+            question: (c.question || c.title) as string,
+            answer: (c.answer || c.description) as string,
+        }));
+
+    return (
+        <>
+            <JsonLd data={breadcrumbSchema} />
+            {faqItems.length > 0 && <FAQSchema items={faqItems} />}
+            <Layout>
+                {hasSections ? (
+                    <PageSections pageSlug={pageSlug} initialSections={sections} />
+                ) : (
+                    <div className="container-wide py-12 md:py-20">
+                        <article>
+                            <h1 className="text-4xl font-semibold font-serif text-foreground mb-8">{page.title}</h1>
+                            <div
+                                className="prose prose-zinc prose-sm max-w-none leading-relaxed
+                                    prose-headings:font-semibold prose-headings:text-zinc-900 prose-headings:tracking-tight
+                                    prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-5 prose-h2:font-serif prose-h2:leading-[1.2]
+                                    prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:font-serif
+                                    prose-p:text-zinc-600 prose-p:mb-6 prose-p:text-[18px] prose-p:leading-relaxed
+                                    prose-strong:text-zinc-900 prose-strong:font-bold
+                                    prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-10"
+                                dangerouslySetInnerHTML={{ __html: page.content || "" }}
+                            />
+                        </article>
+                    </div>
+                )}
+            </Layout>
+        </>
+    );
 }

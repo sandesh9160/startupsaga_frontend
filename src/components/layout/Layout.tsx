@@ -1,9 +1,14 @@
-import { ReactNode, Suspense } from "react";
+import { ReactNode, Suspense, cache } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { getNav, getLayoutSettings } from "@/lib/api";
 
 import { FrontendBreadcrumbs } from "./FrontendBreadcrumbs";
+
+// Deduplicate getLayoutSettings calls within the same request
+// so Header and Footer share one fetch instead of making two.
+const getCachedLayoutSettings = cache(() => getLayoutSettings().catch(() => ({})));
+const getCachedNav = cache(() => getNav('header').catch(() => []));
 
 interface LayoutProps {
   children: ReactNode;
@@ -14,8 +19,8 @@ interface LayoutProps {
  */
 async function HeaderServer() {
   const [nav, layout] = await Promise.all([
-    getNav('header').catch(() => []),
-    getLayoutSettings().catch(() => ({}))
+    getCachedNav(),
+    getCachedLayoutSettings(),
   ]);
   return <Header initialNav={nav} siteSettings={layout} />;
 }
@@ -24,7 +29,7 @@ async function HeaderServer() {
  * Server component wrapper for Footer to allow async data fetching without blocking the layout.
  */
 async function FooterServer() {
-  const layout = await getLayoutSettings().catch(() => ({}));
+  const layout = await getCachedLayoutSettings();
   return <Footer siteSettings={layout} />;
 }
 

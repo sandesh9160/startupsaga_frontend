@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
-import { getSections, getPageBySlug } from "@/lib/api";
+import { getSections, getPageBySlug, getStories, getTrendingStories } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 import { DynamicSections } from "@/components/sections/DynamicSections";
 import { DefaultHomeView } from "@/components/home/DefaultHomeView";
-import { PageSection } from "@/types";
+import { PageSection, Story } from "@/types";
 
 // ISR: serve cached page, regenerate every 60 seconds in the background
 export const revalidate = 60;
@@ -52,17 +52,26 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function IndexPage() {
     let pageSections: PageSection[] = [];
+    let latestStories: Story[] = [];
+    let trendingStories: Story[] = [];
+
+    // Fetch sections AND critical above-the-fold story data in parallel.
+    // Pre-seeding stories bypasses the LatestStoriesWrapper Suspense waterfall,
+    // so the LCP image appears in the initial HTML stream.
+    const [sectionsData, storiesData, trendingData] = await Promise.all([
+        getSections('homepage').catch(() => []),
+        getStories({ page_size: 6 }).catch(() => []),
+        getTrendingStories().catch(() => []),
+    ]);
 
     try {
-        const sectionsData = await getSections('homepage').catch(() => []);
-
-        // Fallback for sections if 'homepage' is empty
         pageSections = sectionsData && sectionsData.length > 0
             ? sectionsData as PageSection[]
             : await getSections('home').catch(() => []) as PageSection[];
-    }
-    catch (error) {
-        console.error("Home page sections fetching error:", error);
+        latestStories = storiesData as Story[];
+        trendingStories = trendingData as Story[];
+    } catch {
+        // silently handle fetch errors — fallback values are already set
     }
 
     return (
@@ -71,6 +80,8 @@ export default async function IndexPage() {
                 <DynamicSections
                     sections={pageSections}
                     data={{
+                        latestStories,
+                        trendingStories,
                         heroData: {
                             title: (pageSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
                             content: (pageSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
@@ -79,8 +90,8 @@ export default async function IndexPage() {
                 />
             ) : (
                 <DefaultHomeView
-                    trendingStories={[]}
-                    latestStories={[]}
+                    trendingStories={trendingStories}
+                    latestStories={latestStories}
                     featuredStartups={[]}
                     topCities={[]}
                 />

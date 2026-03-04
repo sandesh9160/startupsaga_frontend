@@ -42,11 +42,14 @@ async function TrendingStoriesWrapper({ type: _, ...props }: PageSection & { ind
     return <StoriesGridSection {...props} stories={data} type="trending_stories" />;
 }
 
-async function LatestStoriesWrapper({ type: _, ...props }: PageSection & { index: number }) {
-    const [latest, trending] = await Promise.all([
-        getStories({ page_size: 6 }).catch(() => []),
-        getTrendingStories().catch(() => [])
-    ]);
+async function LatestStoriesWrapper({ type: _, seededStories, seededTrending, ...props }: PageSection & { index: number; seededStories?: Story[]; seededTrending?: Story[] }) {
+    // If stories were pre-fetched at the page level, skip fetch entirely (no Suspense waterfall)
+    const [latest, trending] = seededStories && seededStories.length > 0
+        ? [seededStories, seededTrending ?? []]
+        : await Promise.all([
+            getStories({ page_size: 6 }).catch(() => []),
+            getTrendingStories().catch(() => [])
+        ]);
 
     return <StoriesGridSection {...props} stories={latest} trendingStories={trending} type="latest_stories" />;
 }
@@ -136,7 +139,12 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
                     case 'featured_stories':
                         return (
                             <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
-                                <LatestStoriesWrapper index={index} {...section} />
+                                <LatestStoriesWrapper
+                                    index={index}
+                                    {...section}
+                                    seededStories={data?.latestStories}
+                                    seededTrending={data?.trendingStories}
+                                />
                             </Suspense>
                         );
 

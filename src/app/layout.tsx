@@ -89,7 +89,13 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <head />
+            <head>
+                {/* Preconnect to API origin so image/data requests don't pay TCP+TLS setup cost */}
+                <link rel="preconnect" href="https://api.startupsaga.in" crossOrigin="anonymous" />
+                <link rel="dns-prefetch" href="https://api.startupsaga.in" />
+                {/* Preconnect for Google Fonts (already loaded via next/font but helps for fallback) */}
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+            </head>
             <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
                 <Providers>
                     <Suspense fallback={null}>
