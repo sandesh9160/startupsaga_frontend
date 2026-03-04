@@ -54,6 +54,7 @@ export function ImageSection({
                             alt={title || "Section Image"}
                             fill
                             className="object-cover"
+                            sizes="(max-width: 1280px) 100vw, 1280px"
                             priority={index < 2}
                         />
                     </div>

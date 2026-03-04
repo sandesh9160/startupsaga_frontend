@@ -243,6 +243,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                     fill
                                     priority
                                     className="object-cover"
+                                    sizes="(max-width: 1200px) 100vw, 1200px"
                                 />
                             </motion.div>
                         )}
@@ -296,7 +297,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                             prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3 prose-h3:font-serif
                             prose-p:text-zinc-600 prose-p:mb-5 prose-p:text-[15px] prose-p:leading-relaxed prose-p:font-medium
                             prose-strong:text-[#0F172A] prose-strong:font-semibold
-                            prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8
+                            prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8 prose-img:mx-auto prose-img:h-auto prose-img:object-contain
                             prose-table:text-[13px] prose-table:border-collapse prose-th:bg-zinc-50 prose-th:border prose-th:border-zinc-200 prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-zinc-200 prose-td:px-3 prose-td:py-2">
                             {story.content ? (
                                 <div dangerouslySetInnerHTML={{
