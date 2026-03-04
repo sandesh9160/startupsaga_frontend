@@ -13,7 +13,6 @@
 
 import { JsonLd } from "./JsonLd";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.startupsaga.in";
 
 export interface FounderData {
     name: string;
@@ -58,7 +57,7 @@ export function StartupSchema({
         startupsagaUrl,
     ].filter(Boolean);
 
-    const schema: Record<string, any> = {
+    const schema: Record<string, unknown> = {
         "@context": "https://schema.org",
         "@type": "Organization",
         "@id": `${startupsagaUrl}/#organization`,

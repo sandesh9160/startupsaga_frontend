@@ -10,6 +10,7 @@ import {
   City,
   Category,
   PageSection,
+  Page,
   PaginatedResponse
 } from "@/types";
 
@@ -18,7 +19,8 @@ export type {
   Startup,
   City,
   Category,
-  PageSection
+  PageSection,
+  Page
 };
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
@@ -44,7 +46,7 @@ export async function resolveRedirect(pathname: string): Promise<string | null> 
  * Shared fetch wrapper with enhanced error handling
  */
 export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
-  let url = `${API_BASE_URL}${endpoint}`;
+  const url = `${API_BASE_URL}${endpoint}`;
 
   // if (typeof window === "undefined" && url.includes("localhost")) {
   //   url = url.replace("localhost", "127.0.0.1");
@@ -68,7 +70,7 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
       try {
         const errorData = await res.json();
         if (errorData?.error) message = errorData.error;
-      } catch (e) {
+      } catch (_e) {
         // Fallback to default message
       }
       throw new Error(message);
@@ -76,8 +78,10 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
 
     const data = await res.json();
     return data;
-  } catch (error: any) {
-    if (!error.message?.includes('404')) {
+  } catch (error: unknown) {
+    const err = error as Error;
+    // Silent fail for 404s
+    if (err.message?.includes('404')) {
     }
     throw error;
   }
@@ -111,7 +115,7 @@ export async function getThemeSettings(params: { pageKey?: string; pageSlug?: st
 export const publicApi = {
   /** Get stories with filters */
   getStories: (params?: Record<string, string | number | boolean | undefined>): Promise<Story[]> => {
-    const query = new URLSearchParams(params as any).toString();
+    const query = new URLSearchParams(params as Record<string, string>).toString();
     return fetchList<Story>(`/stories/${query ? `?${query}` : ''}`);
   },
 
@@ -123,7 +127,7 @@ export const publicApi = {
 
   /** Get startups list */
   getStartups: (params?: Record<string, string | number | boolean | undefined>): Promise<Startup[]> => {
-    const query = new URLSearchParams(params as any).toString();
+    const query = new URLSearchParams(params as Record<string, string>).toString();
     return fetchList<Startup>(`/startups/${query ? `?${query}` : ''}`);
   },
 
@@ -175,7 +179,7 @@ export const getNav = publicApi.getNav;
 export const getLayoutSettings = publicApi.getLayout;
 export const getSEOSettings = publicApi.getSEO;
 export const getPlatformStats = publicApi.getPlatformStats;
-export const getPageBySlug = (slug: string) => fetchAPI(`/pages/${slug}/`);
+export const getPageBySlug = (slug: string): Promise<Page | null> => fetchAPI(`/pages/${slug}/`);
 export const getCategories = () => fetchList<Category>("/categories/");
 export const getCategoryBySlug = (slug: string) => fetchAPI(`/categories/${slug}/`);
 export const getStoriesPage = async (params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResponse<Story>> => {
@@ -218,7 +222,7 @@ export const getStartupsPage = async (params?: Record<string, string | number | 
 /**
  * Submit a new startup/story for review
  */
-export const submitStartup = async (data: any) => {
+export const submitStartup = async (data: Record<string, unknown>) => {
   return fetchAPI('/submissions/create/', {
     method: 'POST',
     body: JSON.stringify(data),

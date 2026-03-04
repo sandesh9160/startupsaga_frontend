@@ -26,17 +26,23 @@ import {
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getSafeImageSrc } from "@/lib/images";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/api";
 import dynamic from "next/dynamic";
 import { Story, Startup } from "@/types";
 import Image from "next/image";
+
 interface StoryDetailContentProps {
     story: Story;
     relatedStories: Story[];
     categoryStartups: Startup[];
 }
+
+const getDisplayName = (val: string | { name?: string; title?: string } | undefined | null) => {
+    if (!val) return "";
+    if (typeof val === "string") return val;
+    return val.name || val.title || "";
+};
 
 export function StoryDetailContent({ story, relatedStories, categoryStartups }: StoryDetailContentProps) {
     const [tableOfContents, setTableOfContents] = useState<Array<{ id: number; title: string; anchor: string }>>([]);
@@ -110,15 +116,11 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
             {/* Header / Hero Section */}
             <header className="bg-white pt-10 pb-8">
                 <div className="container-wide">
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="space-y-4 max-w-5xl"
-                    >
+                    <div className="space-y-4 max-w-5xl animate-in fade-in slide-in-from-bottom-2 duration-700">
                         {/* Category Label */}
                         <div className="mb-2">
                             <span className="inline-flex items-center px-2.5 py-1 bg-[#FF4F18] text-white text-[10px] font-bold uppercase tracking-wider rounded-md">
-                                {story.category || 'Funding'}
+                                {getDisplayName(story.category) || 'Funding'}
                             </span>
                         </div>
 
@@ -139,13 +141,13 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                             {story.city && (
                                 <div className="flex items-center gap-1.5">
                                     <MapPin className="h-4 w-4 text-[#FF4F18]" />
-                                    <span>{story.city}</span>
+                                    <span>{getDisplayName(story.city)}</span>
                                 </div>
                             )}
                             {story.category && (
                                 <div className="flex items-center gap-1.5">
                                     <Tag className="h-4 w-4 text-[#FF4F18]" />
-                                    <span>{story.category}</span>
+                                    <span>{getDisplayName(story.category)}</span>
                                 </div>
                             )}
                             {story.related_startup?.founded_year && (
@@ -217,7 +219,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                 </button>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
                 </div>
             </header>
 
@@ -232,11 +234,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                     )}>
                         {/* Featured Image */}
                         {(story.thumbnail || story.og_image) && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-zinc-100 shadow-lg shadow-zinc-200/50"
-                            >
+                            <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-zinc-100 shadow-lg shadow-zinc-200/50 animate-in fade-in duration-1000">
                                 <Image
                                     src={getSafeImageSrc(story.thumbnail || story.og_image)}
                                     alt={story.image_alt || story.title}
@@ -245,7 +243,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                     className="object-cover"
                                     sizes="(max-width: 1200px) 100vw, 1200px"
                                 />
-                            </motion.div>
+                            </div>
                         )}
 
 
@@ -353,17 +351,17 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                             <div className="sticky top-24">
                                 <CompanyInfoSidebar
                                     company={{
-                                        name: story.related_startup.name,
-                                        logo: getSafeImageSrc(story.related_startup.logo),
-                                        city: story.related_startup.city,
+                                        name: story.related_startup.name || "",
+                                        logo: getSafeImageSrc(story.related_startup.logo || ""),
+                                        city: story.related_startup.city as string | undefined, // Type cast or fallback based on requirement
                                         founded: story.related_startup.founded_year,
                                         employees: story.related_startup.team_size,
                                         founders: story.related_startup.founders_data?.map((f: { name?: string }) => f.name || "") || [],
-                                        categories: ([story.related_startup.category] as string[]).filter(Boolean),
+                                        categories: [getDisplayName(story.related_startup.category)].filter(Boolean),
                                         website: story.related_startup.website_url,
-                                        slug: story.related_startup.slug,
+                                        slug: story.related_startup.slug || "",
                                         stage: story.related_startup.funding_stage || story.related_startup.stage,
-                                        sector: story.related_startup.category_name || story.related_startup.category
+                                        sector: getDisplayName(story.related_startup.category)
                                     }}
                                 />
 
@@ -410,7 +408,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                                         <div className="space-y-2">
                                             <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#0F172A] tracking-tight font-serif">Explore Related Stories</h2>
-                                            <p className="text-zinc-500 font-medium text-lg">More insights from the {story.category} ecosystem.</p>
+                                            <p className="text-zinc-500 font-medium text-lg">More insights from the {getDisplayName(story.category)} ecosystem.</p>
                                         </div>
                                         <Button asChild variant="ghost" className="text-xs font-bold uppercase tracking-wider gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
                                             <Link href="/stories">
@@ -420,7 +418,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                         </Button>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                        {relatedStories.map((s) => (
+                                        {relatedStories.map((s, idx) => (
                                             <StoryCard
                                                 key={s.slug}
                                                 slug={s.slug}
@@ -437,6 +435,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                                 read_time={s.read_time}
                                                 featured={false}
                                                 isFeatured={false}
+                                                priority={idx < 3}
                                             />
                                         ))}
                                     </div>
@@ -449,7 +448,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-10 border-t border-zinc-50">
                                         <div className="space-y-2">
                                             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#0F172A] tracking-tight font-serif">Companies in this Sector</h2>
-                                            <p className="text-zinc-500 font-medium text-lg">Explore startups shaping the future of {story.category}.</p>
+                                            <p className="text-zinc-500 font-medium text-lg">Explore startups shaping the future of {getDisplayName(story.category)}.</p>
                                         </div>
                                         <Button asChild variant="ghost" className="text-xs font-bold uppercase tracking-wider gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
                                             <Link href="/startups">
@@ -459,8 +458,8 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                         </Button>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        {categoryStartups.map((s) => (
-                                            <StartupCard key={s.slug} {...s} />
+                                        {categoryStartups.map((s, idx) => (
+                                            <StartupCard key={s.slug} {...s} priority={idx < 4} />
                                         ))}
                                     </div>
                                 </div>

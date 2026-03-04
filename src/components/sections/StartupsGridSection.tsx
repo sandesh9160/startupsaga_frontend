@@ -2,12 +2,13 @@ import Link from "next/link";
 import { StartupCard } from "@/components/cards/StartupCard";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Startup } from "@/types";
 
 interface StartupsGridSectionProps {
     id?: string;
     index: number;
     title?: string;
-    startups: any[];
+    startups: Startup[];
     settings?: {
         backgroundColor?: string;
         paddingY?: number;
@@ -51,7 +52,7 @@ export function StartupsGridSection({
                         className="text-xl md:text-2xl lg:text-[1.75rem] font-semibold font-serif"
                         style={{
                             color: textColor.startsWith('#') ? textColor : '#' + textColor,
-                            textAlign: align as any
+                            textAlign: align as React.CSSProperties['textAlign']
                         }}
                     >
                         {title || "Featured Startups"}

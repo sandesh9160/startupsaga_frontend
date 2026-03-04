@@ -1,18 +1,18 @@
-"use client";
-
 import Link from "next/link";
-import { SafeImage } from "@/components/ui/SafeImage";
+import Image from "next/image";
 import { getSafeImageSrc } from "@/lib/images";
 import { Clock, User } from "lucide-react";
+
+import { Category, City } from "@/types";
 
 interface StoryCardProps {
   slug: string;
   title: string;
   excerpt?: string;
   thumbnail?: string;
-  category?: string;
+  category?: string | Category;
   categorySlug?: string;
-  city?: string;
+  city?: string | City;
   citySlug?: string;
   publishDate?: string;
   featured?: boolean;
@@ -30,11 +30,7 @@ export function StoryCard({
   excerpt,
   thumbnail,
   category,
-  categorySlug,
-  city,
   publishDate,
-  featured = false,
-  isFeatured,
   og_image,
   author,
   author_name,
@@ -43,29 +39,27 @@ export function StoryCard({
   variant = 'standard',
 }: StoryCardProps & { variant?: 'standard' | 'overlay' }) {
   const thumbnailSrc = getSafeImageSrc(thumbnail || og_image);
-  const isSvg = thumbnailSrc.toLowerCase().endsWith(".svg");
   const isOverlay = variant === 'overlay';
   const authorDisplay = author_name || author;
   const readTimeDisplay = read_time ? `${read_time} min read` : null;
+  const categoryName = typeof category === 'string' ? category : category?.name;
 
   // Featured: full-bleed with gradient text overlay
   if (isOverlay) {
     return (
       <article className="relative overflow-hidden aspect-[16/6] w-full group rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500">
-        <SafeImage
+        <Image
           src={thumbnailSrc}
           alt={title}
-          fallbackLabel={title}
           fill
           priority={priority}
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 1400px) 100vw, 1400px"
-          unoptimized={isSvg}
         />
         <div className="absolute inset-0 p-8 lg:p-10 flex flex-col justify-end bg-gradient-to-t from-[#0F172A]/95 via-[#0F172A]/40 to-transparent">
-          {category && (
+          {categoryName && (
             <span className="text-[10px] font-bold text-[#FF4F18] mb-2 block tracking-wider">
-              {category}
+              {categoryName}
             </span>
           )}
           <Link href={`/stories/${slug}`} className="font-serif font-semibold text-3xl lg:text-4xl mb-4 text-white hover:text-orange-200 transition-colors line-clamp-2 leading-[1.1] block">
@@ -97,23 +91,21 @@ export function StoryCard({
     <article className="flex flex-col bg-white rounded-2xl border border-zinc-300 shadow-sm overflow-hidden hover:shadow-xl hover:shadow-zinc-300/50 hover:-translate-y-1 transition-all duration-300 group">
       {/* Thumbnail */}
       <Link href={`/stories/${slug}`} className="relative aspect-video w-full overflow-hidden bg-zinc-50 block flex-shrink-0">
-        <SafeImage
+        <Image
           src={thumbnailSrc}
           alt={title}
-          fallbackLabel={title}
           fill
           priority={priority}
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1400px) 25vw, 350px"
-          unoptimized={isSvg}
         />
       </Link>
 
       {/* Body */}
       <div className="p-5 flex flex-col flex-1">
-        {category && (
+        {categoryName && (
           <span className="text-[11px] font-bold text-[#FF4F18] mb-1.5 block tracking-wider">
-            {category}
+            {categoryName}
           </span>
         )}
 

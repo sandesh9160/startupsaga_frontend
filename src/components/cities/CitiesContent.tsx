@@ -1,12 +1,11 @@
 "use client";
 
 import { CityCard } from "@/components/cards/CityCard";
-
-import { Button } from "@/components/ui/button";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { getCities, getPlatformStats } from "@/lib/api";
+import { City } from "@/types";
 import { cn } from "@/lib/utils";
-import { Building2, TrendingUp, Filter, ArrowRight, MapPin } from "lucide-react";
+import { Building2, TrendingUp, Filter, MapPin } from "lucide-react";
 
 interface CitiesContentProps {
     title?: string;
@@ -19,12 +18,15 @@ export function CitiesContent({
     description,
     content
 }: CitiesContentProps) {
-    const [cities, setCities] = useState<any[]>([]);
+    const [cities, setCities] = useState<City[]>([]);
     const [activeTier, setActiveTier] = useState<'all' | '1' | '2' | '3'>('all');
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    const [platformStats, setPlatformStats] = useState<any>({ total_startups: 0, total_unicorns: 0 });
+    const [platformStats, setPlatformStats] = useState<{
+        total_startups?: number;
+        total_unicorns?: number;
+    }>({ total_startups: 0, total_unicorns: 0 });
 
     const tier1Ref = useRef<HTMLElement>(null);
     const tier2Ref = useRef<HTMLElement>(null);
@@ -51,7 +53,7 @@ export function CitiesContent({
 
     // Compute dynamic stats based on active tier
     const activeStats = useMemo(() => {
-        const tierMap: Record<string, any[]> = {
+        const tierMap: Record<string, City[]> = {
             '1': tier1Cities,
             '2': tier2Cities,
             '3': tier3Cities,
@@ -59,10 +61,10 @@ export function CitiesContent({
         const tierCities = activeTier === 'all' ? cities : (tierMap[activeTier] || []);
         const startups = activeTier === 'all'
             ? totalStartups
-            : tierCities.reduce((sum: number, c: any) => sum + (c.startupCount || c.startup_count || 0), 0);
+            : tierCities.reduce((sum: number, c: City) => sum + ((c as City & { startup_count?: number }).startup_count || c.startupCount || 0), 0);
         const unicorns = activeTier === 'all'
             ? totalUnicorns
-            : tierCities.reduce((sum: number, c: any) => sum + (c.unicornCount || c.unicorn_count || 0), 0);
+            : tierCities.reduce((sum: number, c: City) => sum + (c.unicornCount || 0), 0);
         return { startups: startups || 0, unicorns: unicorns || 0 };
     }, [activeTier, cities, tier1Cities, tier2Cities, tier3Cities, totalStartups, totalUnicorns]);
 
@@ -119,7 +121,7 @@ export function CitiesContent({
         tierRef: React.RefObject<HTMLElement>,
         tierId: string,
         tierLabel: string,
-        tierCities: any[]
+        tierCities: City[]
     ) => {
         if (tierCities.length === 0) return null;
         return (
@@ -218,7 +220,7 @@ export function CitiesContent({
                             ].map((t) => (
                                 <button
                                     key={t.id}
-                                    onClick={() => scrollToTier(t.id as any)}
+                                    onClick={() => scrollToTier(t.id as 'all' | '1' | '2' | '3')}
                                     className={cn(
                                         "px-5 py-2.5 rounded-xl text-sm font-bold transition-all border",
                                         activeTier === t.id

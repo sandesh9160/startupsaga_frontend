@@ -12,6 +12,7 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { submitStartup, getCities, getCategories } from "@/lib/api";
 import { City, Category } from "@/types";
 import dynamic from "next/dynamic";
@@ -374,9 +375,9 @@ export function SubmitContent() {
 
                 <p className="text-center text-xs text-zinc-400 mt-4">
                     By submitting, you agree to our{" "}
-                    <a href="/terms" className="text-[#F2542D] hover:underline">terms of service</a>
+                    <Link href="/terms" className="text-[#F2542D] hover:underline">terms of service</Link>
                     {" "}and{" "}
-                    <a href="/privacy" className="text-[#F2542D] hover:underline">privacy policy</a>.
+                    <Link href="/privacy" className="text-[#F2542D] hover:underline">privacy policy</Link>.
                 </p>
             </div>
         </div>

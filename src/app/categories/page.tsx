@@ -4,6 +4,7 @@ import { CategoriesContent } from "@/components/categories/CategoriesContent";
 import { HomeContent } from "@/components/home/HomeContent";
 import { getSections, getCategories, getPlatformStats, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
+import { PageSection, Category } from "@/types";
 
 // ISR: serve cached page, regenerate every 5 minutes in the background
 export const revalidate = 300;
@@ -40,35 +41,31 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-
 export default async function CategoriesPage() {
-    let pageSections: any[] = [];
-    let categories: any[] = [];
+    let pageSections: PageSection[] = [];
+    let categories: Category[] = [];
     let platformStats = { total_startups: 0, total_stories: 0 };
     let hasError = false;
 
     try {
         const [sectionsData, categoriesData, statsData] = await Promise.all([
-            // Try both page_key and page_slug to ensure we get sections from admin
-            getSections("categories").then(data =>
-                data.length > 0 ? data : getSections("", "categories")
+            getSections("categories").then((data) =>
+                data.length > 0 ? (data as PageSection[]) : (getSections("", "categories") as Promise<PageSection[]>)
             ),
             getCategories(),
-            getPlatformStats().catch(() => null),
+            getPlatformStats().catch(() => ({ total_startups: 0, total_stories: 0 })),
         ]);
 
         pageSections = sectionsData || [];
         categories = categoriesData || [];
         if (statsData) platformStats = statsData;
-    } catch (error) {
+    } catch {
         hasError = true;
     }
 
     // Extract header data from sections
-    // We look for 'hero', 'banner', or 'text' sections
-    const headerSection = pageSections.find((s: any) =>
-        (s.section_type === 'hero' || s.section_type === 'banner' || s.section_type === 'text') &&
-        (s.is_active === true || s.is_active === 1 || String(s.is_active).toLowerCase() === 'true')
+    const headerSection = pageSections.find((s: PageSection) =>
+        (s.section_type === 'hero' || s.section_type === 'banner' || s.section_type === 'text')
     ) || pageSections[0];
 
     const displayTitle = headerSection?.title || headerSection?.name || "Startup Categories";
@@ -78,7 +75,7 @@ export default async function CategoriesPage() {
     return (
         <Layout>
             <HomeContent
-                initialSections={pageSections.filter((s: any) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
+                initialSections={pageSections.filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
                 initialCategories={categories}
                 initialPlatformStats={platformStats}
                 hasError={hasError}

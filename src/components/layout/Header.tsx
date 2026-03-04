@@ -30,9 +30,25 @@ const DropdownMenuTrigger = dynamic(
   { ssr: false }
 );
 
+interface NavLink {
+  id?: string | number;
+  label?: string;
+  url?: string | null;
+  order?: number;
+  parent?: unknown;
+  children?: NavLink[];
+  settings?: { color?: string;[key: string]: unknown };
+}
+
+interface HeaderSiteSettings {
+  site_name?: string;
+  site_logo?: string;
+  [key: string]: unknown;
+}
+
 interface HeaderProps {
-  initialNav?: any[];
-  siteSettings?: any;
+  initialNav?: NavLink[];
+  siteSettings?: HeaderSiteSettings;
 }
 
 export function Header({ initialNav = [], siteSettings }: HeaderProps) {
@@ -50,7 +66,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
     { id: 'cities', label: "Cities", url: "/cities", children: [] },
   ];
 
-  const [navLinks, setNavLinks] = useState<any[]>(initialNav.length > 0 ? initialNav : defaults);
+  const [navLinks, setNavLinks] = useState<NavLink[]>(initialNav.length > 0 ? initialNav : defaults);
   const headerRef = useRef<HTMLElement>(null);
   const isScrolledRef = useRef(false);
 
@@ -59,6 +75,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setIsMounted(true);
 
@@ -97,7 +114,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
   /**
    * Renders a single nav link. 
    */
-  const renderNavLink = (link: any) => {
+  const renderNavLink = (link: NavLink) => {
     const hasChildren = link.children && link.children.length > 0;
     const style = link.settings || {};
 
@@ -133,7 +150,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56 p-2 rounded-xl shadow-xl border-zinc-300 bg-white animate-in fade-in zoom-in-95 duration-200">
-            {link.children.map((child: any) => (
+            {link.children!.map((child: NavLink) => (
               <DropdownMenuItem key={child.id} asChild className="rounded-lg focus:bg-zinc-50 focus:text-zinc-900 p-0 overflow-hidden">
                 <Link
                   href={formatUrl(child.url)}
@@ -230,7 +247,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
                     </Link>
                     {hasChildren && (
                       <div className="pl-6 flex flex-col border-l border-zinc-300 ml-4 gap-1 mb-2">
-                        {link.children.map((child: any) => (
+                        {link.children!.map((child: NavLink) => (
                           <Link
                             key={child.id}
                             href={formatUrl(child.url)}

@@ -30,40 +30,35 @@ async function fetchJson<T>(url: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-/**
- * Utility to normalize API responses
- * Handles paginated DRF responses (`results`)
- */
-function toArray(data: any): any[] {
-  if (Array.isArray(data)) return data;
-  return data?.results || [];
+import { Story, Startup, Category, City, PaginatedResponse } from "@/types";
+
+interface CmsPage {
+  slug: string;
+  updated_at?: string;
 }
 
 /**
- * Dynamic Sitemap Generator
- * This runs on the server and generates:
- * - Static routes
- * - Dynamic story pages
- * - Startup pages
- * - Categories
- * - Cities
- * - Custom CMS pages
+ * Utility to normalize API responses
  */
+function toArray<T>(data: T[] | PaginatedResponse<T> | undefined | null): T[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  return (data as PaginatedResponse<T>).results || [];
+}
+
+// ... (fetchJson helper)
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   // Initialize empty collections
-  let stories: any[] = [];
-  let startups: any[] = [];
-  let categories: any[] = [];
-  let cities: any[] = [];
-  let pages: any[] = [];
+  let stories: Story[] = [];
+  let startups: Startup[] = [];
+  let categories: Category[] = [];
+  let cities: City[] = [];
+  let pages: CmsPage[] = [];
 
   try {
-    /**
-     * Fetch all required resources in parallel
-     * Improves performance vs sequential fetching
-     */
     const [
       storiesRes,
       startupsRes,
@@ -71,11 +66,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       citiesRes,
       pagesRes,
     ] = await Promise.all([
-      fetchJson<any>(`${API_BASE_URL}/stories/`),
-      fetchJson<any>(`${API_BASE_URL}/startups/`),
-      fetchJson<any[]>(`${API_BASE_URL}/categories/`),
-      fetchJson<any[]>(`${API_BASE_URL}/cities/`),
-      fetchJson<any[]>(`${API_BASE_URL}/pages/`),
+      fetchJson<PaginatedResponse<Story>>(`${API_BASE_URL}/stories/`),
+      fetchJson<PaginatedResponse<Startup>>(`${API_BASE_URL}/startups/`),
+      fetchJson<Category[]>(`${API_BASE_URL}/categories/`),
+      fetchJson<City[]>(`${API_BASE_URL}/cities/`),
+      fetchJson<CmsPage[]>(`${API_BASE_URL}/pages/`),
     ]);
 
     // Normalize API responses
@@ -84,11 +79,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     categories = Array.isArray(categoriesRes) ? categoriesRes : [];
     cities = Array.isArray(citiesRes) ? citiesRes : [];
     pages = Array.isArray(pagesRes) ? pagesRes : [];
-    /**
-     * Prevent sitemap crash if API fails
-     * Still returns static pages
-     */
-  } catch (e) {
+  } catch {
+    // Silently continue with static pages if API fails
   }
 
   /**
@@ -107,7 +99,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   /**
    * Dynamic Story Pages
    */
-  const storyPages = stories.map((s: any) => ({
+  const storyPages = stories.map((s: Story) => ({
     url: `${SITE_URL}/stories/${s.slug}`,
     lastModified: s.updated_at ? new Date(s.updated_at) : now,
     changeFrequency: 'weekly' as const,
@@ -118,7 +110,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   /**
    * Dynamic Startup Pages
    */
-  const startupPages = startups.map((s: any) => ({
+  const startupPages = startups.map((s: Startup) => ({
     url: `${SITE_URL}/startups/${s.slug}`,
     lastModified: s.updated_at ? new Date(s.updated_at) : now,
     changeFrequency: 'monthly' as const,
@@ -129,7 +121,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   /**
    * Category Listing Pages
    */
-  const categoryPages = categories.map((c: any) => ({
+  const categoryPages = categories.map((c: Category) => ({
     url: `${SITE_URL}/categories/${c.slug}`,
     lastModified: now,
     changeFrequency: 'weekly' as const,
@@ -139,7 +131,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   /**
    * City Listing Pages
    */
-  const cityPages = cities.map((c: any) => ({
+  const cityPages = cities.map((c: City) => ({
     url: `${SITE_URL}/cities/${c.slug}`,
     lastModified: now,
     changeFrequency: 'weekly' as const,
@@ -149,16 +141,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   /**
    * CMS / Custom Static Pages
    */
-  const pagePages = pages.map((p: any) => ({
+  const pagePages = pages.map((p: CmsPage) => ({
     url: `${SITE_URL}/${p.slug}`,
     lastModified: p.updated_at ? new Date(p.updated_at) : now,
     changeFrequency: 'monthly' as const,
     priority: 0.5,
   }));
 
-  /**
-   * Final Combined Sitemap
-   */
   return [
     ...staticPages,
     ...storyPages,

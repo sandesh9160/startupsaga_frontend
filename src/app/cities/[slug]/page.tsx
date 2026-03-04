@@ -87,7 +87,7 @@ export default async function CityDetailPage({ params }: { params: Promise<{ slu
         startupCount: cityData.startupCount ?? (cityData.startups || []).length,
         storyCount: cityData.storyCount ?? (cityData.stories || []).length,
     };
-    const cityStartups = (cityData.startups || []).map((s: any) => ({
+    const cityStartups = (cityData.startups || []).map((s: { slug: string; tagline?: string; description?: string;[key: string]: unknown }) => ({
         ...s,
         tagline: s.tagline || s.description?.slice(0, 140) || s.description,
     }));

@@ -399,7 +399,7 @@ const ChartStyle = ({
   config: ChartConfig;
 }) => {
   const colorEntries = Object.entries(config).filter(
-    ([_, value]) => value.color || value.theme
+    ([, value]) => value.color || value.theme
   );
 
   if (!colorEntries.length) return null;
@@ -451,10 +451,10 @@ const ChartTooltipContent = React.forwardRef<
       label,
       labelFormatter,
       labelClassName,
-      formatter,
+      formatter: _formatter,
       color,
       nameKey,
-      labelKey,
+      labelKey: _labelKey,
     },
     ref
   ) => {
@@ -596,15 +596,19 @@ function getPayloadConfigFromPayload(
 ) {
   if (!payload || typeof payload !== "object") return undefined;
 
-  const obj = payload as Record<string, any>;
-  const nested = obj.payload as Record<string, any> | undefined;
+  const obj = payload as Record<string, unknown>;
+  const nested = obj.payload as Record<string, unknown> | undefined;
 
-  if (typeof obj[key] === "string" && config[obj[key]]) {
-    return config[obj[key]];
+  const objVal = obj[key];
+  if (typeof objVal === "string" && config[objVal]) {
+    return config[objVal];
   }
 
-  if (nested && typeof nested[key] === "string" && config[nested[key]]) {
-    return config[nested[key]];
+  if (nested) {
+    const nestedVal = nested[key];
+    if (typeof nestedVal === "string" && config[nestedVal]) {
+      return config[nestedVal];
+    }
   }
 
   return config[key];

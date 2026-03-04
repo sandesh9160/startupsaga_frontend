@@ -4,7 +4,7 @@ import { CategoryCard } from "@/components/cards/CategoryCard";
 import { useState, useEffect } from "react";
 import { getCategories, getPlatformStats } from "@/lib/api";
 import { Category } from "@/types";
-import { Building2, TrendingUp, Sparkles } from "lucide-react";
+import { Building2, TrendingUp } from "lucide-react";
 
 interface CategoriesContentProps {
     title?: string;
@@ -100,9 +100,9 @@ export function CategoriesContent({
                                 key={category.slug}
                                 slug={category.slug}
                                 name={category.name}
-                                iconName={category.iconName || (category as any).icon || "help-circle"}
-                                startupCount={(category as any).startup_count ?? category.startupCount ?? 0}
-                                storyCount={(category as any).story_count ?? category.storyCount ?? 0}
+                                iconName={category.iconName || category.icon || "help-circle"}
+                                startupCount={(category.startupCount) ?? 0}
+                                storyCount={(category.storyCount) ?? 0}
                                 description={category.description}
                                 variant="horizontal"
                                 paletteIndex={index}

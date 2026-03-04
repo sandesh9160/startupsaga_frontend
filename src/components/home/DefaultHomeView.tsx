@@ -15,12 +15,17 @@ import {
     getCities
 } from "@/lib/api";
 
+import { Story, Startup, City } from "@/types";
+
 interface DefaultHomeViewProps {
-    trendingStories?: any[];
-    latestStories?: any[];
-    featuredStartups?: any[];
-    topCities?: any[];
+    trendingStories?: Story[];
+    latestStories?: Story[];
+    featuredStartups?: Startup[];
+    topCities?: City[];
 }
+
+const getDisplayName = (val: string | { name?: string } | null | undefined) =>
+    typeof val === 'string' ? val : val?.name;
 
 export async function DefaultHomeView({
     trendingStories: initialTrending,
@@ -75,7 +80,7 @@ export async function DefaultHomeView({
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="text-[10px] font-bold text-orange-600 uppercase tracking-widest mb-1.5 opacity-80 group-hover:opacity-100 italic">
-                                                {story.category?.name || "Startup"}
+                                                {getDisplayName(story.category) || "Startup"}
                                             </div>
                                             <h3 className="text-[15px] font-bold font-serif leading-snug line-clamp-2 text-[#0F172A] group-hover:text-orange-600 transition-colors">
                                                 {story.title}
@@ -138,7 +143,7 @@ export async function DefaultHomeView({
                                 View all rising hubs <ArrowRight className="h-3 w-3" />
                             </Link>
                         </div>
-                        <p className="text-zinc-400 text-sm font-medium">Tier 2 & Tier 3 cities driving India's startup growth</p>
+                        <p className="text-zinc-400 text-sm font-medium">Tier 2 &amp; Tier 3 cities driving India&apos;s startup growth</p>
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-6 gap-6">
                         {topCities.filter(c => String(c.tier).includes('2') || String(c.tier).includes('3')).slice(0, 12).map((city) => (
@@ -177,8 +182,8 @@ export async function DefaultHomeView({
                             </div>
                             <div className="lg:col-span-8 p-10 flex flex-col justify-center">
                                 <div className="flex flex-wrap gap-3 mb-6">
-                                    <span className="px-4 py-1.5 rounded-full bg-orange-50 text-orange-600 text-[10px] font-bold uppercase tracking-widest">{featuredStartups[0].category?.name || "Startup"}</span>
-                                    <span className="px-4 py-1.5 rounded-full bg-zinc-50 text-zinc-500 text-[10px] font-bold uppercase tracking-widest">{featuredStartups[0].city?.name || "India"}</span>
+                                    <span className="px-4 py-1.5 rounded-full bg-orange-50 text-orange-600 text-[10px] font-bold uppercase tracking-widest">{getDisplayName(featuredStartups[0].category) || "Startup"}</span>
+                                    <span className="px-4 py-1.5 rounded-full bg-zinc-50 text-zinc-500 text-[10px] font-bold uppercase tracking-widest">{getDisplayName(featuredStartups[0].city) || "India"}</span>
                                 </div>
                                 <p className="text-zinc-600 text-lg leading-relaxed mb-8 max-w-2xl line-clamp-3">
                                     {featuredStartups[0].tagline || featuredStartups[0].description || "Leading innovation in the Indian startup ecosystem."}

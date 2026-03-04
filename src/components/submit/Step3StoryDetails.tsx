@@ -20,7 +20,8 @@ const RichTextEditor = dynamic(() => import("@/components/ui/RichTextEditor"), {
 });
 
 interface Step3Props {
-    form: UseFormReturn<any>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    form: UseFormReturn<any>; // react-hook-form generics require any here for dynamic field schemas
 }
 
 // Reusable input wrapper with leading icon

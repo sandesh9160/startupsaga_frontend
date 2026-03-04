@@ -17,7 +17,9 @@ interface RichTextEditorProps {
     className?: string;
 }
 
-const MenuBar = ({ editor }: { editor: any }) => {
+import type { Editor } from "@tiptap/core";
+
+const MenuBar = ({ editor }: { editor: Editor | null }) => {
     if (!editor) {
         return null;
     }

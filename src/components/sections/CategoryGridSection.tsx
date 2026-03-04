@@ -3,12 +3,13 @@ import { CategoryCard } from "@/components/cards/CategoryCard";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getIcon } from "@/lib/icons";
+import { Category } from "@/types";
 
 interface CategoryGridSectionProps {
     id?: string;
     index: number;
     title?: string;
-    categories: any[];
+    categories: Category[];
     settings?: {
         backgroundColor?: string;
         paddingY?: number;
@@ -52,7 +53,7 @@ export function CategoryGridSection({
                         className="text-xl md:text-2xl lg:text-[1.75rem] font-semibold font-serif"
                         style={{
                             color: textColor.startsWith('#') ? textColor : '#' + textColor,
-                            textAlign: align as any
+                            textAlign: align as React.CSSProperties['textAlign']
                         }}
                     >
                         {title || "Top Categories"}
@@ -62,11 +63,11 @@ export function CategoryGridSection({
                     </Link>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-6">
-                    {categories.slice(0, 14).map((category: any) => (
+                    {categories.slice(0, 14).map((category: Category) => (
                         <CategoryCard
                             key={category.slug || category.id}
                             slug={category.slug || (category.title || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')}
-                            name={category.name || category.title}
+                            name={category.name || category.title || ""}
                             iconName={category.iconName || category.icon || "help-circle"}
                             startupCount={category.startup_count || category.startupCount || 0}
                             storyCount={category.story_count || category.storyCount || 0}

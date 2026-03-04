@@ -30,17 +30,71 @@ import { getSafeImageSrc } from "@/lib/images";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 
+interface FounderData {
+    name?: string;
+    role?: string;
+    linkedin?: string;
+    image?: string;
+    initials?: string;
+}
+
+
+
+interface StartupData {
+    name: string;
+    slug?: string;
+    logo?: string;
+    og_image?: string;
+    tagline?: string;
+    description?: string;
+    content?: string;
+    city?: string | { name?: string };
+    city_name?: string;
+    category?: string | { name?: string };
+    category_name?: string;
+    stage?: string;
+    funding_stage?: string;
+    founded_year?: string | number;
+    team_size?: string;
+    business_model?: string;
+    sector?: string;
+    founders_data?: FounderData[];
+    founder_name?: string;
+    founder_linkedin?: string;
+    website_url?: string;
+    website?: string;
+    industry_tags?: string[];
+    meta_title?: string;
+    meta_description?: string;
+    [key: string]: unknown;
+}
+
+import type { Story, Startup, Category, City } from "@/types";
+
+export type SimilarStartup = {
+    slug: string;
+    name?: string;
+    logo?: string;
+    category?: string | { slug?: string; name?: string };
+    city?: string | { slug?: string; name?: string };
+    tagline?: string;
+    stage?: string;
+    funding_stage?: string;
+    team_size?: string;
+    [key: string]: unknown;
+}
+
 interface StartupDetailContentProps {
-    startup: any;
-    relatedStories: any[];
-    similarStartups: any[];
+    startup: StartupData;
+    relatedStories: Partial<Story>[];
+    similarStartups: SimilarStartup[];
 }
 
 export function StartupDetailContent({ startup, relatedStories, similarStartups }: StartupDetailContentProps) {
     const logoSrc = getSafeImageSrc(startup.logo || startup.og_image);
     const isSvgLogo = logoSrc.toLowerCase().endsWith(".svg");
 
-    const founders: any[] =
+    const founders: FounderData[] =
         startup.founders_data && Array.isArray(startup.founders_data)
             ? startup.founders_data
             : startup.founder_name
@@ -48,7 +102,7 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                     name: startup.founder_name,
                     role: "Founder",
                     linkedin: startup.founder_linkedin,
-                    initials: startup.founder_name.split(" ").map((n: string) => n[0]).join(""),
+                    initials: (startup.founder_name as string).split(" ").map((n: string) => n[0]).join(""),
                 }]
                 : [];
 
@@ -103,16 +157,16 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
         return () => observer.disconnect();
     }, [tableOfContents]);
 
-    const getDisplayName = (field: any, fallbackField: string) => {
+    const getDisplayName = (field: string | { name?: string } | null | undefined, fallbackField: string): string => {
         if (typeof field === "object" && field?.name) return field.name;
-        if (startup[fallbackField]) return startup[fallbackField];
+        if (startup[fallbackField]) return String(startup[fallbackField]);
         if (typeof field === "string" && !/^\d+$/.test(field)) return field;
         return "";
     };
 
-    const cityName = getDisplayName(startup.city, "city_name");
-    const categoryName = getDisplayName(startup.category, "category_name");
-    const foundersString = founders.map((f: any) => f.name).join(", ");
+    const cityName = getDisplayName(startup.city as string | { name?: string }, "city_name");
+    const categoryName = getDisplayName(startup.category as string | { name?: string }, "category_name");
+    const foundersString = founders.map((f: FounderData) => f.name).join(", ");
 
     const infoRows = [
         { label: "Stage", value: startup.funding_stage || startup.stage, icon: TrendingUp },
@@ -124,9 +178,9 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
         { label: "Founders", value: foundersString, icon: User },
     ].filter((r) => r.value);
 
-    const websiteUrl = startup.website_url || (startup as any).website;
-    const industryTags: string[] = (startup as any).industry_tags ?? [];
-    const displayCategory = (typeof startup.category === 'object' && startup.category) ? startup.category.name : (startup.category || 'this sector');
+    const websiteUrl = startup.website_url || (startup.website as string | undefined);
+    const industryTags: string[] = (startup.industry_tags) ?? [];
+    const displayCategory = (typeof startup.category === 'object' && startup.category) ? (startup.category as { name?: string }).name : (startup.category as string || 'this sector');
 
     return (
         <div className="bg-transparent min-h-screen font-sans pb-16">
@@ -158,9 +212,9 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                             <Tag size={10} className="text-[#FF4F18]" strokeWidth={2.5} />{categoryName}
                                         </span>
                                     )}
-                                    {((startup as any).funding_stage ?? startup.stage) && (
+                                    {((startup.funding_stage) ?? startup.stage) && (
                                         <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-zinc-500 bg-white border border-zinc-200 px-2.5 py-1 rounded-full shadow-sm">
-                                            <TrendingUp size={10} className="text-[#FF4F18]" strokeWidth={2.5} />{(startup as any).funding_stage ?? startup.stage}
+                                            <TrendingUp size={10} className="text-[#FF4F18]" strokeWidth={2.5} />{(startup.funding_stage) ?? startup.stage}
                                         </span>
                                     )}
                                     {startup.founded_year && (
@@ -185,16 +239,16 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                 {founders.length > 0 && (
                                     <div className="flex items-center gap-3 mt-4 pt-1">
                                         <div className="flex -space-x-2">
-                                            {founders.map((f: any, i: number) => (
-                                                <div key={i} title={f.name}
+                                            {founders.map((f: FounderData, i: number) => (
+                                                <div key={i} title={f.name || ""}
                                                     className="w-7 h-7 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center text-[10px] font-semibold text-zinc-600 overflow-hidden shadow-sm">
                                                     {f.image
-                                                        ? <Image src={getSafeImageSrc(f.image)} alt={f.name} width={28} height={28} className="object-cover" />
+                                                        ? <Image src={getSafeImageSrc(f.image)} alt={f.name || "Founder"} width={28} height={28} className="object-cover" />
                                                         : f.name?.[0]}
                                                 </div>
                                             ))}
                                         </div>
-                                        <span className="text-[13px] font-semibold text-zinc-900">{founders.map((f: any) => f.name).join(", ")}</span>
+                                        <span className="text-[13px] font-semibold text-zinc-900">{founders.map((f: FounderData) => f.name).join(", ")}</span>
                                     </div>
                                 )}
 
@@ -434,7 +488,18 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             {similarStartups.map((s) => (
-                                <StartupCard key={s.slug} {...s} />
+                                <StartupCard
+                                    key={s.slug || Math.random().toString()}
+                                    slug={s.slug || ""}
+                                    name={s.name || ""}
+                                    logo={s.logo || ""}
+                                    category={s.category as unknown as Category}
+                                    city={s.city as unknown as City}
+                                    tagline={s.tagline}
+                                    stage={s.stage}
+                                    funding_stage={s.funding_stage}
+                                    team_size={s.team_size}
+                                />
                             ))}
                         </div>
                     </div>

@@ -1,10 +1,7 @@
-"use client";
-
 import Link from "next/link";
 import { MapPin, Users, TrendingUp } from "lucide-react";
-import { SafeImage } from "@/components/ui/SafeImage";
+import Image from "next/image";
 import { getSafeImageSrc } from "@/lib/images";
-import { cn } from "@/lib/utils";
 import { Category, City } from "@/types";
 
 interface StartupCardProps {
@@ -27,23 +24,18 @@ interface StartupCardProps {
 export function StartupCard({
   slug,
   name,
-  tagline,
   logo,
   category,
   city,
   stage,
   funding_stage,
-  website,
-  website_url,
   team_size = "100+",
   og_image,
-  is_featured,
   priority = false,
 }: StartupCardProps & { og_image?: string; is_featured?: boolean }) {
   const displayCategory = (typeof category === 'object' && category) ? category.name : category;
   const displayCity = (typeof city === 'object' && city) ? city.name : city;
   const logoSrc = getSafeImageSrc(logo || og_image);
-  const isSvgLogo = logoSrc.toLowerCase().endsWith(".svg");
   const displayStage = funding_stage ?? stage ?? "Series A";
 
   return (
@@ -54,14 +46,12 @@ export function StartupCard({
       <div className="flex items-start gap-4 mb-3 relative z-20">
         <div className="w-[50px] h-[50px] rounded-lg overflow-hidden bg-white border border-zinc-100 flex-shrink-0 relative flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-105">
           {logo || og_image ? (
-            <SafeImage
+            <Image
               src={logoSrc}
               alt={`${name} logo`}
-              fallbackLabel={name}
               fill
               className="object-contain p-1.5 transition-all duration-300"
               sizes="50px"
-              unoptimized={isSvgLogo}
               priority={priority}
             />
           ) : (

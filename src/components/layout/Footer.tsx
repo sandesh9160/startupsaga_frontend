@@ -49,8 +49,25 @@ const DEFAULT_SOCIALS = [
   { platform: "email", url: "mailto:hello@startupsaga.in" },
 ];
 
-export function Footer({ siteSettings }: { siteSettings?: any }) {
-  const [columns, setColumns] = useState(DEFAULT_COLUMNS);
+interface NavItem {
+  label?: string;
+  url?: string | null;
+  order?: number;
+  parent?: unknown;
+  children?: NavItem[];
+  platform?: string;
+}
+
+interface FooterSiteSettings {
+  socials?: Array<{ platform: string; url: string }>;
+  footer_tagline?: string;
+  footer_copyright?: string;
+  footer_bg_color?: string;
+  [key: string]: unknown;
+}
+
+export function Footer({ siteSettings }: { siteSettings?: FooterSiteSettings }) {
+  const [columns, setColumns] = useState<NavItem[]>(DEFAULT_COLUMNS as NavItem[]);
   const [socials, setSocials] = useState(siteSettings?.socials || DEFAULT_SOCIALS);
   const [tagline, setTagline] = useState(siteSettings?.footer_tagline || "Discovering and celebrating the incredible startup journeys across India. Every founder has a story worth telling.");
   const [copyright, setCopyright] = useState(siteSettings?.footer_copyright || "© 2026 StartupSaga.in. All rights reserved.");
@@ -61,7 +78,7 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
     // Fresh data (include footer_company and footer_links)
     fetch(`${API_BASE_URL}/navigation/?position=footer,footer_company,footer_links&hierarchical=true`)
       .then((r) => r.json())
-      .then((data: any[]) => {
+      .then((data: NavItem[]) => {
         if (data && Array.isArray(data)) {
           const cols = data
             .filter(Boolean)
@@ -70,9 +87,9 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
             .map((col) => ({
               label: col.label,
               url: col.url || null,
-              children: (col.children || []).sort((a: any, b: any) => (a.order || 0) - (b.order || 0)),
+              children: (col.children || []).sort((a: NavItem, b: NavItem) => (a.order || 0) - (b.order || 0)),
             }));
-          if (cols.length > 0) setColumns(cols);
+          if (cols.length > 0) setColumns(cols as NavItem[]);
         }
       })
       .catch(() => { });
@@ -110,16 +127,16 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
             </Link>
             <p className="text-zinc-400 text-sm leading-relaxed mb-6">{tagline}</p>
             <div className="flex items-center gap-4">
-              {socials.map((social: any, i: number) => (
+              {socials.map((social: NavItem, i: number) => (
                 <a
                   key={i}
-                  href={social.url}
+                  href={social.url || undefined}
                   target={social.platform === "email" ? undefined : "_blank"}
                   rel="noopener noreferrer"
                   className="text-zinc-500 hover:text-accent transition-colors"
                   aria-label={social.platform}
                 >
-                  {SOCIAL_ICON_MAP[social.platform] || <Globe className="h-5 w-5" />}
+                  {SOCIAL_ICON_MAP[social.platform ?? ''] || <Globe className="h-5 w-5" />}
                 </a>
               ))}
             </div>
@@ -132,7 +149,7 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                 {col.label}
               </h4>
               <ul className="space-y-3">
-                {col.children.map((link: any, j: number) => (
+                {(col.children || []).map((link: NavItem, j: number) => (
                   <li key={`${i}-${j}`}>
                     <Link
                       href={formatUrl(link.url)}

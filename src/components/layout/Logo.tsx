@@ -10,7 +10,7 @@ interface LogoProps {
     iconClassName?: string;
     showText?: boolean;
     variant?: "default" | "light";
-    initialSettings?: any;
+    initialSettings?: { site_name?: string; site_logo?: string;[key: string]: unknown };
 }
 
 export function Logo({ className, iconClassName, showText = true, variant = "default", initialSettings }: LogoProps) {

@@ -5,6 +5,7 @@ import { StoriesContent } from "@/components/stories/StoriesContent";
 import { HomeContent } from "@/components/home/HomeContent";
 import { getSections, getStories, getPlatformStats, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
+import type { PageSection, Story } from "@/types";
 
 // ISR: serve cached page, regenerate every 60 seconds in the background
 export const revalidate = 60;
@@ -50,10 +51,9 @@ export async function generateMetadata({
 }
 
 export default async function StoriesPage() {
-    let pageSections: any[] = [];
-    let stories: any[] = [];
+    let pageSections: PageSection[] = [];
+    let stories: Story[] = [];
     let platformStats = { total_startups: 0, total_stories: 0 };
-    let hasError = false;
 
     try {
         const [sectionsData, storiesData, statsData] = await Promise.all([
@@ -68,13 +68,12 @@ export default async function StoriesPage() {
         pageSections = sectionsData || [];
         stories = storiesData || [];
         if (statsData) platformStats = statsData;
-    } catch (error) {
-        hasError = true;
+    } catch (_error) {
     }
 
     // Extract header data from sections
     // We look for 'hero', 'banner', or 'text' sections
-    const headerSection = pageSections.find((s: any) =>
+    const headerSection = pageSections.find((s: PageSection) =>
         (s.section_type === 'hero' || s.section_type === 'banner' || s.section_type === 'text') &&
         (s.is_active === true || s.is_active === 1 || String(s.is_active).toLowerCase() === 'true')
     ) || pageSections[0];
@@ -103,12 +102,11 @@ export default async function StoriesPage() {
         <Layout>
             <Suspense fallback={<div>Loading...</div>}>
                 <HomeContent
-                    initialSections={pageSections.filter((s: any) =>
+                    initialSections={pageSections.filter((s: PageSection) =>
                         s.id ? s.id !== headerSection?.id : s !== headerSection
                     )}
                     initialStories={stories}
                     initialPlatformStats={platformStats}
-                    hasError={hasError}
                     defaultView={
                         <Suspense fallback={
                             <div className="container-wide py-20">

@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getStartups, getCategories, getCities } from "@/lib/api";
 import { Startup, Category, City } from "@/types";
 import { cn } from "@/lib/utils";
@@ -28,28 +28,48 @@ interface StartupsContentProps {
     title?: string;
     description?: string;
     content?: string;
+    initialStartups?: Startup[];
 }
 
 export function StartupsContent({
     title,
     description,
-    content
+    content,
+    initialStartups = []
 }: StartupsContentProps) {
-    const [startups, setStartups] = useState<Startup[]>([]);
+    const [startups, setStartups] = useState<Startup[]>(initialStartups);
     const [categories, setCategories] = useState<Category[]>([]);
     const [cities, setCities] = useState<City[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(initialStartups.length === 0);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [selectedCity, setSelectedCity] = useState("all");
     const [selectedStage, setSelectedStage] = useState("all");
 
+    // Only load if filters change or initial load is needed
     useEffect(() => {
+        // Skip first load if we already have initialStartups and no filters
+        if (initialStartups.length > 0 && !searchQuery && selectedCategory === "all" && selectedCity === "all" && selectedStage === "all") {
+            // But we still need categories and cities for filters
+            async function loadFilters() {
+                try {
+                    const [categoriesData, citiesData] = await Promise.all([
+                        getCategories(),
+                        getCities()
+                    ]);
+                    setCategories((categoriesData || []).filter(Boolean));
+                    setCities((citiesData || []).filter(Boolean));
+                } catch (err) { }
+            }
+            loadFilters();
+            return;
+        }
+
         async function loadData() {
             setIsLoading(true);
             try {
-                const params: any = {};
+                const params: Record<string, string> = {};
                 if (searchQuery) params.search = searchQuery;
                 if (selectedCategory !== "all") params.category = selectedCategory;
                 if (selectedCity !== "all") params.city = selectedCity;
@@ -69,7 +89,7 @@ export function StartupsContent({
             }
         }
         loadData();
-    }, [searchQuery, selectedCategory, selectedCity, selectedStage]);
+    }, [searchQuery, selectedCategory, selectedCity, selectedStage, initialStartups.length]);
 
     const clearFilters = () => {
         setSearchQuery("");
@@ -209,8 +229,8 @@ export function StartupsContent({
                     </div>
                 ) : startups.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {startups.map((startup) => (
-                            <StartupCard key={startup.slug} {...startup} />
+                        {startups.map((startup, idx) => (
+                            <StartupCard key={startup.slug} {...startup} priority={idx < 4} />
                         ))}
                     </div>
                 ) : (
@@ -218,7 +238,7 @@ export function StartupsContent({
                         <Rocket className="h-10 w-10 text-zinc-200 mx-auto mb-4" />
                         <h3 className="text-xl font-bold text-zinc-900 mb-1">No startups found</h3>
                         <p className="text-zinc-500 text-sm max-w-xs mx-auto mb-6">
-                            Try adjusting your search or filters to find what you're looking for.
+                            Try adjusting your search or filters to find what you&apos;re looking for.
                         </p>
                         <Button onClick={clearFilters} variant="outline" className="rounded-2xl px-6 h-12 font-bold uppercase tracking-wider text-xs">
                             Reset Filters

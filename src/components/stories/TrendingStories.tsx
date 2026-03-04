@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SafeImage } from "@/components/ui/SafeImage";
+import Image from "next/image";
 import { TrendingUp } from "lucide-react";
 import { Story } from "@/lib/api";
 import { getSafeImageSrc } from "@/lib/images";
@@ -19,7 +19,6 @@ export function TrendingStories({ stories }: TrendingStoriesProps) {
             <div className="flex flex-col gap-8">
                 {stories.slice(0, 5).map((story, index) => {
                     const thumbnailSrc = getSafeImageSrc(story.thumbnail);
-                    const isSvgThumbnail = thumbnailSrc.toLowerCase().endsWith(".svg");
 
                     return (
                         <Link
@@ -36,19 +35,17 @@ export function TrendingStories({ stories }: TrendingStoriesProps) {
                                     {story.title}
                                 </h3>
                                 <p className="text-[10px] text-[#FF4F18] font-bold tracking-wider">
-                                    {story.category}
+                                    {typeof story.category === 'object' && story.category ? story.category.name : story.category}
                                 </p>
                             </div>
 
                             <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-50 border border-zinc-300">
-                                <SafeImage
+                                <Image
                                     src={thumbnailSrc}
                                     alt={story.title}
-                                    fallbackLabel={story.title}
                                     fill
                                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                                     sizes="64px"
-                                    unoptimized={isSvgThumbnail}
                                 />
                             </div>
                         </Link>

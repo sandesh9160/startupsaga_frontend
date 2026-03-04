@@ -16,7 +16,7 @@ import {
     Search,
     X
 } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { getStoriesPage, getCategories, getCities } from "@/lib/api";
 import { Story, Category, City } from "@/types";
@@ -256,25 +256,28 @@ export function StoriesContent({
                         </div>
                     ) : stories.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {stories.map((story) => (
-                                <StoryCard
-                                    key={story.slug}
-                                    slug={story.slug}
-                                    title={story.title}
-                                    excerpt={story.excerpt}
-                                    thumbnail={story.thumbnail}
-                                    og_image={(story as any).og_image}
-                                    category={story.category}
-                                    categorySlug={(story as any).category_slug}
-                                    city={story.city}
-                                    citySlug={(story as any).city_slug}
-                                    publishDate={story.publishDate || (story as any).publish_date}
-                                    author_name={(story as any).author_name || (story as any).author}
-                                    read_time={(story as any).read_time}
-                                    featured={false}
-                                    isFeatured={false}
-                                />
-                            ))}
+                            {stories.map((story) => {
+                                const s = story as Story & { og_image?: string; category_slug?: string; city_slug?: string; publish_date?: string; author_name?: string; author?: string; read_time?: number };
+                                return (
+                                    <StoryCard
+                                        key={s.slug}
+                                        slug={s.slug}
+                                        title={s.title}
+                                        excerpt={s.excerpt}
+                                        thumbnail={s.thumbnail}
+                                        og_image={s.og_image}
+                                        category={s.category}
+                                        categorySlug={s.category_slug}
+                                        city={s.city}
+                                        citySlug={s.city_slug}
+                                        publishDate={s.publishDate || s.publish_date}
+                                        author_name={s.author_name || s.author}
+                                        read_time={s.read_time}
+                                        featured={false}
+                                        isFeatured={false}
+                                    />
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="text-center py-20 bg-card border-2 border-dashed border-border/50 rounded-2xl">
@@ -285,7 +288,7 @@ export function StoriesContent({
                                 No Results
                             </h2>
                             <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
-                                We couldn't find any stories matching your current filters.
+                                We couldn&apos;t find any stories matching your current filters.
                             </p>
                             <Button size="sm" variant="outline" onClick={clearFilters} className="rounded-xl px-8 border-accent/20 text-accent font-bold">
                                 Clear all filters

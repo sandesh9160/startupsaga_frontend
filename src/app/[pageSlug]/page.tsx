@@ -75,7 +75,7 @@ export default async function StaticPageRoute({ params }: { params: Promise<{ pa
         // This ensures content shows even if one endpoint has stale cache.
         const sections = (slugSections && slugSections.length > 0)
             ? slugSections
-            : ((page as any).sections || []);
+            : (page.sections || []);
 
         const hasSections = sections && sections.length > 0;
         const canonical = `${SITE_URL}/${page.slug}`;
@@ -91,12 +91,15 @@ export default async function StaticPageRoute({ params }: { params: Promise<{ pa
         // Extract FAQ items for Schema
         // Based on HomeContent.tsx, FAQs are stored in settings.cards
         const faqItems = (sections || [])
-            .filter((s: any) => (s.section_type || s.type) === 'faq')
-            .flatMap((s: any) => (s.settings?.cards || []))
-            .filter((c: any) => (c.question || c.title) && (c.answer || c.description))
-            .map((c: any) => ({
-                question: c.question || c.title,
-                answer: c.answer || c.description
+            .filter((s) => (s.section_type || s.type) === 'faq')
+            .flatMap((s) => {
+                const cards = (s.settings?.cards as Array<{ question?: string; title?: string; answer?: string; description?: string }>) || [];
+                return cards;
+            })
+            .filter((c) => (c.question || c.title) && (c.answer || c.description))
+            .map((c) => ({
+                question: (c.question || c.title) as string,
+                answer: (c.answer || c.description) as string
             }));
 
         return (

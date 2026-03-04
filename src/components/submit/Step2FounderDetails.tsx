@@ -1,13 +1,18 @@
 "use client";
 
-import { UseFormReturn } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { User, Briefcase, Linkedin, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+interface FounderEntry {
+    name: string;
+    role: string;
+    linkedin?: string; // Made optional to match the parent component
+}
+
 interface Step2Props {
-    founders: any[];
+    founders: FounderEntry[];
     addFounder: () => void;
     removeFounder: (index: number) => void;
     updateFounder: (index: number, field: "name" | "role" | "linkedin", value: string) => void;
@@ -79,7 +84,7 @@ export function Step2FounderDetails({
                             <IconInput
                                 icon={Linkedin}
                                 placeholder="https://linkedin.com/in/..."
-                                value={founder.linkedin}
+                                value={founder.linkedin || ""}
                                 onChange={(e) => updateFounder(index, "linkedin", e.target.value)}
                             />
                         </div>

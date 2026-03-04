@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { StoryCard } from "@/components/cards/StoryCard";
 import { StartupCard } from "@/components/cards/StartupCard";
 import { CityCard } from "@/components/cards/CityCard";
@@ -15,11 +16,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { Story, Startup, City, Category } from "@/types";
+
 interface CategoryDetailContentProps {
-    category: any;
-    categoryStartups: any[];
-    categoryStories: any[];
-    topCities: any[];
+    category: Category & { icon?: string };
+    categoryStartups: Startup[];
+    categoryStories: Story[];
+    topCities: City[];
 }
 
 const CATEGORY_THEMES: Record<string, { bg: string; icon: string; border: string; accent: string; iconBg: string }> = {
@@ -44,12 +47,14 @@ export function CategoryDetailContent({ category, categoryStartups, categoryStor
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 text-center md:text-left">
                         {/* Icon */}
 
-                        <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm", theme.iconBg)}>
+                        <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm relative", theme.iconBg)}>
                             {category.icon && typeof category.icon === "string" ? (
-                                <img
+                                <Image
                                     src={category.icon.startsWith("http") ? category.icon : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000"}${category.icon}`}
                                     alt={category.name || "Category Icon"}
-                                    className="w-8 h-8 object-contain"
+                                    width={32}
+                                    height={32}
+                                    className="object-contain"
                                 />
                             ) : <Sparkles className={cn("h-7 w-7", theme.icon)} />}
                         </div>
@@ -96,7 +101,7 @@ export function CategoryDetailContent({ category, categoryStartups, categoryStor
                                     prose-strong:text-[#0F172A] prose-strong:font-semibold
                                     prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8">
                         <p>{category.description || `The Indian ${category.name} ecosystem is undergoing a massive transformation, driven by digital adoption, innovative business models, and significant venture capital activity. From early-stage disruptors to established giants, these companies are redefining the landscape of the Indian economy.`}</p>
-                        <p>Whether you're an entrepreneur exploring the {category.name} model, an investor scouting opportunities, or a professional considering joining a high-growth startup, StartupSaga's {category.name} category provides comprehensive coverage of funding announcements, founder stories, market analysis, and startup profiles.</p>
+                        <p>Whether you&apos;re an entrepreneur exploring the {category.name} model, an investor scouting opportunities, or a professional considering joining a high-growth startup, StartupSaga&apos;s {category.name} category provides comprehensive coverage of funding announcements, founder stories, market analysis, and startup profiles.</p>
                     </div>
                 </div>
 

@@ -13,7 +13,12 @@ interface BannerProps {
     image?: string;
     link_text?: string;
     link_url?: string;
-    settings?: any;
+    settings?: {
+        bg_color?: string;
+        text_color?: string;
+        overlay?: boolean;
+        [key: string]: unknown;
+    };
 }
 
 export function Banner({

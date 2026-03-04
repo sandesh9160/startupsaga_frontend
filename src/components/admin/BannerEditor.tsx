@@ -17,8 +17,24 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Loader2, Sparkles, Layout, Palette, Image as ImageIcon, Link as LinkIcon } from "lucide-react";
 
+interface BannerData {
+    id?: string | number;
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    link_text?: string;
+    link_url?: string;
+    order?: number;
+    is_active?: boolean;
+    image?: string;
+    settings?: {
+        bg_color?: string;
+        text_color?: string;
+    };
+}
+
 interface BannerEditorProps {
-    banner?: any;
+    banner?: BannerData;
     onClose: () => void;
     onSaved: () => void;
 }
@@ -86,15 +102,15 @@ export function BannerEditor({ banner, onClose, onSaved }: BannerEditorProps) {
                 section_type: 'banner'
             };
 
-            // If image is not updated and we're editing, don't send the null/empty image field to avoid overwriting
+            const payloadToSend: Record<string, unknown> = { ...payload };
             if (isEditing && !formData.image) {
-                delete (payload as any).image;
+                delete payloadToSend.image;
             }
 
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payloadToSend)
             });
 
             if (res.ok) {
@@ -103,7 +119,7 @@ export function BannerEditor({ banner, onClose, onSaved }: BannerEditorProps) {
             } else {
                 toast.error("Failed to save banner");
             }
-        } catch (error) {
+        } catch (_error) {
             toast.error("Error saving banner");
         } finally {
             setIsLoading(false);

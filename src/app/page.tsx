@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
-import { HomeContent } from "@/components/home/HomeContent";
 import { getSections, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 import { DynamicSections } from "@/components/sections/DynamicSections";
 import { DefaultHomeView } from "@/components/home/DefaultHomeView";
+import { PageSection } from "@/types";
 
 // ISR: serve cached page, regenerate every 60 seconds in the background
 export const revalidate = 60;
@@ -52,7 +52,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function IndexPage() {
     // Fetch critical data only
-    let pageSections: any[] = [];
+    let pageSections: PageSection[] = [];
 
     try {
         // Only await sections as they define the page structure.
@@ -61,8 +61,8 @@ export default async function IndexPage() {
 
         // Fallback for sections if 'homepage' is empty
         pageSections = sectionsData && sectionsData.length > 0
-            ? sectionsData
-            : await getSections('home').catch(() => []);
+            ? sectionsData as PageSection[]
+            : await getSections('home').catch(() => []) as PageSection[];
     }
     catch (error) {
         console.error("Home page sections fetching error:", error);
@@ -75,8 +75,8 @@ export default async function IndexPage() {
                     sections={pageSections}
                     data={{
                         heroData: {
-                            title: (pageSections || []).find((s: any) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
-                            content: (pageSections || []).find((s: any) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
+                            title: (pageSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
+                            content: (pageSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
                         }
                     }}
                 />

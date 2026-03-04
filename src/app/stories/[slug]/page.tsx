@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StoryDetailContent } from "@/components/stories/StoryDetailContent";
 import { getStoryBySlug, getStories, getStartups } from "@/lib/api";
-import { Story, Startup } from "@/types";
+import { Story, Startup, PaginatedResponse } from "@/types";
 import { StorySchema } from "@/components/seo/Schema/StorySchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
@@ -82,8 +82,8 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
         getStartups()
     ]);
 
-    const stories = (Array.isArray(allStories) ? allStories : (allStories as any)?.results || []) as Story[];
-    const startups = (Array.isArray(allStartups) ? allStartups : (allStartups as any)?.results || []) as Startup[];
+    const stories = (Array.isArray(allStories) ? allStories : (allStories as PaginatedResponse<Story>).results || []) as Story[];
+    const startups = (Array.isArray(allStartups) ? allStartups : (allStartups as PaginatedResponse<Startup>).results || []) as Startup[];
 
     // Related stories: same category or same city, excluding current story
     const relatedStories = stories
@@ -103,9 +103,6 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
     const canonical = story.canonical_override
         ? (story.canonical_override.startsWith("http") ? story.canonical_override : `${SITE_URL}${story.canonical_override.startsWith("/") ? "" : "/"}${story.canonical_override}`)
         : `${SITE_URL}/stories/${story.slug}`;
-    const cleanContent = story.content?.replace(/<[^>]*>?/gm, '') || "";
-    const description = story.meta_description || story.excerpt || (cleanContent.slice(0, 160) || "Startup story on StartupSaga.in");
-    const ogImage = getAbsoluteImageUrl(story.thumbnail);
 
     return (
         <>

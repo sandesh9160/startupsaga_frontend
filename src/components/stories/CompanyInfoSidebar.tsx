@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Building2, MapPin, Calendar, Users, ExternalLink, ArrowRight } from "lucide-react";
+import { Building2, ExternalLink, ArrowRight } from "lucide-react";
 
 interface CompanyInfoSidebarProps {
     company: {
@@ -31,12 +32,14 @@ export function CompanyInfoSidebar({ company }: CompanyInfoSidebarProps) {
             <div className="p-6">
                 <div className="flex items-center gap-3.5 mb-5">
                     {/* Logo */}
-                    <div className="w-12 h-12 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                         {company.logo ? (
-                            <img
+                            <Image
                                 src={company.logo}
                                 alt={company.name}
-                                className="w-full h-full object-cover"
+                                fill
+                                className="object-cover"
+                                sizes="48px"
                             />
                         ) : (
                             <Building2 className="h-5 w-5 text-zinc-300" />

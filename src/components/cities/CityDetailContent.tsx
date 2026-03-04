@@ -16,21 +16,23 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
+import { Story, Startup, City, Category } from "@/types";
+
 interface CityDetailContentProps {
-    city: any;
-    cityStartups: any[];
-    cityStories: any[];
-    topCategories: any[];
-    allCities?: any[];
+    city: City;
+    cityStartups: Startup[];
+    cityStories: Story[];
+    topCategories: Category[];
+    allCities?: City[];
 }
 
-export function CityDetailContent({ city, cityStartups, cityStories, topCategories, allCities = [] }: CityDetailContentProps) {
+export function CityDetailContent({ city, cityStartups, cityStories, allCities = [] }: CityDetailContentProps) {
     const [selectedStage, setSelectedStage] = useState("all");
     const heroImage = city.image ? getSafeImageSrc(city.image) : "https://images.unsplash.com/photo-1562426620-1e71f9cf3d1c?q=80&w=2600&auto=format&fit=crop";
 
     const filteredStartups = useMemo(() => {
         if (selectedStage === "all") return cityStartups;
-        return cityStartups.filter(s => ((s as any).funding_stage ?? s.stage) === selectedStage);
+        return cityStartups.filter(s => ((s as Startup & { funding_stage?: string }).funding_stage ?? s.stage) === selectedStage);
     }, [cityStartups, selectedStage]);
 
     return (
@@ -70,7 +72,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
                         <div className="flex items-center gap-2">
                             <Users className="h-4.5 w-4.5 text-white/60" />
                             <span>
-                                {city.unicornCount > 0 ? `${city.unicornCount} Unicorns` : "Accelerating Ecosystem"}
+                                {(city.unicornCount || 0) > 0 ? `${city.unicornCount} Unicorns` : "Accelerating Ecosystem"}
                             </span>
                         </div>
                     </div>
@@ -95,7 +97,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
                         ) : (
                             <div className="space-y-2">
                                 <p>
-                                    {city.name} has emerged as one of India's most vibrant startup ecosystems, attracting entrepreneurs, investors, and talent from across the country and beyond. Known for its strong IT infrastructure, favorable government policies, and quality of life, the city has become a preferred destination for building technology companies.
+                                    {city.name} has emerged as one of India&apos;s most vibrant startup ecosystems, attracting entrepreneurs, investors, and talent from across the country and beyond. Known for its strong IT infrastructure, favorable government policies, and quality of life, the city has become a preferred destination for building technology companies.
                                 </p>
                                 <p>
                                     The city is home to over {(city.startupCount || 8500).toLocaleString()} startups spanning diverse sectors including SaaS, HealthTech, SpaceTech, FinTech, and Electric Vehicles. Major success stories like Darwinbox, Zenoti, and Skyroot Aerospace have put {city.name} on the global startup map, attracting significant venture capital investments and inspiring the next generation of founders.
@@ -151,8 +153,8 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
 
                 {filteredStartups.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {filteredStartups.slice(0, 6).map((startup) => (
-                            <StartupCard key={startup.slug} {...startup} />
+                        {filteredStartups.slice(0, 6).map((startup, idx) => (
+                            <StartupCard key={startup.slug} {...startup} priority={idx < 3} />
                         ))}
                     </div>
                 ) : (
@@ -172,7 +174,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {cityStories.slice(0, 4).map((story) => (
+                    {cityStories.slice(0, 4).map((story, idx) => (
                         <StoryCard
                             key={story.slug}
                             slug={story.slug}
@@ -189,6 +191,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, topCategori
                             read_time={story.read_time}
                             featured={false}
                             isFeatured={false}
+                            priority={idx < 4}
                         />
                     ))}
                     {cityStories.length === 0 && (

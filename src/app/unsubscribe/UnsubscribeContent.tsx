@@ -26,9 +26,9 @@ export function UnsubscribeContent() {
             try {
                 await unsubscribeNewsletter(email, token);
                 setStatus("success");
-            } catch (err: any) {
+            } catch (err: unknown) {
                 setStatus("error");
-                setMessage(err.message || "Failed to unsubscribe. Please try again later.");
+                setMessage((err instanceof Error ? err.message : null) || "Failed to unsubscribe. Please try again later.");
             }
         };
 

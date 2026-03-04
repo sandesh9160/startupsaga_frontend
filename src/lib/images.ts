@@ -1,5 +1,3 @@
-import { API_BASE_URL } from "./api";
-
 const BASE_URL = process.env.NEXT_PUBLIC_IMAGE_URL ?? "";
 
 /**

@@ -6,6 +6,8 @@ import { StartupPageSchema } from "@/components/seo/Schema/StartupPageSchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
+
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
 
 function getAbsoluteImageUrl(url: string | null | undefined): string {
@@ -85,31 +87,41 @@ export default async function StartupDetailPage({ params }: { params: Promise<{ 
         getStartups()
     ]);
 
-    const stories = Array.isArray(allStories) ? allStories : (allStories as any)?.results || [];
+    const stories = Array.isArray(allStories) ? allStories : [];
     const startups = Array.isArray(allStartups) ? allStartups : [];
 
     const startupCategorySlug = startup.categorySlug || (typeof startup.category === 'object' ? startup.category?.slug : null);
-    const relatedStories = stories.filter((s: any) => {
-        const sCatSlug = s.categorySlug || (typeof s.category === 'object' ? s.category?.slug : null);
+    const relatedStories = stories.filter((s: { categorySlug?: string; category?: { slug?: string } | string }) => {
+        const sCatSlug = s.categorySlug || (typeof s.category === 'object' ? (s.category as { slug?: string })?.slug : null);
         return sCatSlug && sCatSlug === startupCategorySlug;
     }).slice(0, 3);
     const currentCategorySlug = startup.categorySlug || (typeof startup.category === 'object' ? startup.category?.slug : null);
     const currentCitySlug = startup.citySlug || (typeof startup.city === 'object' ? startup.city?.slug : null);
 
-    const similarStartups = startups
-        .filter((s: any) => {
+    type StartupItem = {
+        slug: string;
+        categorySlug?: string;
+        category?: { slug?: string } | string;
+        citySlug?: string;
+        city?: { slug?: string } | string;
+        tagline?: string;
+        description?: string;
+    };
+
+    const similarStartups = (startups as StartupItem[])
+        .filter((s: StartupItem) => {
             if (s.slug === startup.slug) return false;
-            const sCatSlug = s.categorySlug || (typeof s.category === 'object' ? s.category?.slug : null);
-            const sCitySlug = s.citySlug || (typeof s.city === 'object' ? s.city?.slug : null);
+            const sCatSlug = s.categorySlug || (typeof s.category === 'object' ? (s.category as { slug?: string })?.slug : null);
+            const sCitySlug = s.citySlug || (typeof s.city === 'object' ? (s.city as { slug?: string })?.slug : null);
 
             return (currentCategorySlug && sCatSlug === currentCategorySlug) ||
                 (currentCitySlug && sCitySlug === currentCitySlug);
         })
-        .sort((a: any, b: any) => {
-            const aCatSlug = a.categorySlug || (typeof a.category === 'object' ? a.category?.slug : null);
-            const aCitySlug = a.citySlug || (typeof a.city === 'object' ? a.city?.slug : null);
-            const bCatSlug = b.categorySlug || (typeof b.category === 'object' ? b.category?.slug : null);
-            const bCitySlug = b.citySlug || (typeof b.city === 'object' ? b.city?.slug : null);
+        .sort((a: StartupItem, b: StartupItem) => {
+            const aCatSlug = a.categorySlug || (typeof a.category === 'object' ? (a.category as { slug?: string })?.slug : null);
+            const aCitySlug = a.citySlug || (typeof a.city === 'object' ? (a.city as { slug?: string })?.slug : null);
+            const bCatSlug = b.categorySlug || (typeof b.category === 'object' ? (b.category as { slug?: string })?.slug : null);
+            const bCitySlug = b.citySlug || (typeof b.city === 'object' ? (b.city as { slug?: string })?.slug : null);
 
             const scoreA = (currentCategorySlug && aCatSlug === currentCategorySlug ? 1 : 0) +
                 (currentCitySlug && aCitySlug === currentCitySlug ? 1 : 0);
@@ -118,20 +130,12 @@ export default async function StartupDetailPage({ params }: { params: Promise<{ 
             return scoreB - scoreA;
         })
         .slice(0, 4)
-        .map((s: any) => ({ ...s, tagline: s.tagline || s.description?.slice(0, 140) }));
+        .map((s: StartupItem) => ({ ...s, tagline: s.tagline || s.description?.slice(0, 140) }));
 
 
     const canonical = startup.canonical_override
         ? (startup.canonical_override.startsWith("http") ? startup.canonical_override : `${SITE_URL}${startup.canonical_override.startsWith("/") ? "" : "/"}${startup.canonical_override}`)
         : `${SITE_URL}/startups/${startup.slug}`;
-
-    // Resolve founders for schema
-    const schemaFounders = (startup.founders_data && Array.isArray(startup.founders_data))
-        ? startup.founders_data.filter(Boolean).map((f: any) => ({ name: f.name, role: f.role, linkedin: f.linkedin }))
-        : startup.founder_name ? [{ name: startup.founder_name, role: "Founder" }] : [];
-
-    const cityName = (typeof startup.city === 'object' && startup.city) ? startup.city.name : (startup.city || "");
-    const linkedinUrl = (startup as any).linkedin_url;
 
     return (
         <>

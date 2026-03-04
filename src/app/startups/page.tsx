@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StartupsContent } from "@/components/startups/StartupsContent";
 import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getStartups, getPlatformStats, getStartupsPage, getPageBySlug } from "@/lib/api";
+import { getSections, getPlatformStats, getStartupsPage, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
+import { PageSection, PaginatedResponse, Startup } from "@/types";
 
 // ISR: serve cached page, regenerate every 120 seconds in the background
 export const revalidate = 120;
@@ -48,18 +49,16 @@ export async function generateMetadata({
     };
 }
 
-
 export default async function StartupsPage() {
-    let pageSections: any[] = [];
-    let startupsResponse: any = {};
+    let pageSections: PageSection[] = [];
+    let startupsResponse: PaginatedResponse<Startup> = { count: 0, next: null, previous: null, results: [] };
     let platformStats = { total_startups: 0, total_stories: 0 };
     let hasError = false;
 
     try {
         const [sectionsData, startupsData, statsData] = await Promise.all([
-            // Try both page_key and page_slug to ensure we get sections from admin
             getSections("startups").then(data =>
-                data.length > 0 ? data : getSections("", "startups")
+                data.length > 0 ? (data as PageSection[]) : (getSections("", "startups") as Promise<PageSection[]>)
             ),
             getStartupsPage({ page_size: 15 }),
             getPlatformStats().catch(() => null),
@@ -68,25 +67,23 @@ export default async function StartupsPage() {
         pageSections = sectionsData || [];
         startupsResponse = startupsData;
         if (statsData) platformStats = statsData;
-    } catch (error) {
+    } catch {
         hasError = true;
     }
 
     // Extract header data from sections
-    // We look for 'hero', 'banner', or 'text' sections
-    const headerSection = pageSections.find((s: any) =>
-        (s.section_type === 'hero' || s.section_type === 'banner' || s.section_type === 'text') &&
-        (s.is_active === true || s.is_active === 1 || String(s.is_active).toLowerCase() === 'true')
+    const headerSection = pageSections.find((s: PageSection) =>
+        (s.section_type === 'hero' || s.section_type === 'banner' || s.section_type === 'text')
     ) || pageSections[0];
 
     const displayTitle = headerSection?.title || headerSection?.name || "Indian Startups";
-    const displaySubtitle = headerSection?.subtitle || "";
-    const displayContent = (headerSection?.description || headerSection?.content) || "";
+    const displaySubtitle = headerSection?.description || "";
+    const displayContent = headerSection?.content || "";
 
     return (
         <Layout>
             <HomeContent
-                initialSections={pageSections.filter((s: any) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
+                initialSections={pageSections.filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
                 initialStartups={startupsResponse.results || []}
                 initialPlatformStats={platformStats}
                 hasError={hasError}
@@ -95,6 +92,7 @@ export default async function StartupsPage() {
                         title={displayTitle}
                         description={displaySubtitle}
                         content={displayContent}
+                        initialStartups={startupsResponse.results || []}
                     />
                 }
             />

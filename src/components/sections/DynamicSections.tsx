@@ -17,17 +17,18 @@ import {
     getCategories,
     getPlatformStats
 } from "@/lib/api";
+import { Story, City, Category, PageSection, Startup } from "@/types";
 
 interface DynamicSectionsProps {
-    sections: any[];
+    sections: PageSection[];
     // Transitioning to internal fetching, data prop is now optional for backward compatibility
     data?: {
-        trendingStories?: any[];
-        latestStories?: any[];
-        featuredStartups?: any[];
-        topCities?: any[];
-        topCategories?: any[];
-        platformStats?: any;
+        trendingStories?: Story[];
+        latestStories?: Story[];
+        featuredStartups?: Startup[];
+        topCities?: City[];
+        topCategories?: Category[];
+        platformStats?: Record<string, number>;
         heroData?: { title: string, content: string };
     };
 }
@@ -36,36 +37,37 @@ interface DynamicSectionsProps {
  * Wrappers for individual sections that fetch their own data
  */
 
-async function TrendingStoriesWrapper(props: any) {
+async function TrendingStoriesWrapper({ type: _, ...props }: PageSection & { index: number }) {
     const data = await getTrendingStories().catch(() => []);
-    return <StoriesGridSection stories={data} type="trending_stories" {...props} />;
+    return <StoriesGridSection {...props} stories={data} type="trending_stories" />;
 }
 
-async function LatestStoriesWrapper(props: any) {
+async function LatestStoriesWrapper({ type: _, ...props }: PageSection & { index: number }) {
     const [latest, trending] = await Promise.all([
         getStories({ page_size: 6 }).catch(() => []),
         getTrendingStories().catch(() => [])
     ]);
 
-    return <StoriesGridSection stories={latest} trendingStories={trending} type="latest_stories" {...props} />;
+    return <StoriesGridSection {...props} stories={latest} trendingStories={trending} type="latest_stories" />;
 }
 
-async function FeaturedStartupsWrapper(props: any) {
+async function FeaturedStartupsWrapper(props: PageSection & { index: number }) {
     const data = await getStartups({ page_size: 8 }).catch(() => []);
     return <StartupsGridSection startups={data} {...props} />;
 }
 
-async function CitiesWrapper(props: any) {
+async function CitiesWrapper({ type: _, section_type, ...props }: PageSection & { index: number }) {
     const data = await getCities().catch(() => []);
-    return <CityGridSection cities={data} type={props.section_type || props.type} {...props} />;
+    const sectionType = (section_type === 'rising_hubs' ? 'rising_hubs' : 'city_grid') as 'city_grid' | 'rising_hubs';
+    return <CityGridSection {...props} cities={data} type={sectionType} />;
 }
 
-async function CategoriesWrapper(props: any) {
+async function CategoriesWrapper(props: PageSection & { index: number }) {
     const data = await getCategories().catch(() => []);
     return <CategoryGridSection categories={data} {...props} />;
 }
 
-async function StatsWrapper(props: any) {
+async function StatsWrapper(props: PageSection & { index: number }) {
     const data = await getPlatformStats().catch(() => ({ total_startups: 0, total_stories: 0 }));
     return <StatsSection stats={data} {...props} />;
 }
@@ -93,12 +95,12 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
 
     // Extract FAQ items for Schema integration
     const faqItems = (sections || [])
-        .filter((s: any) => (s.section_type || s.type) === 'faq')
-        .flatMap((s: any) => (s.settings?.cards || []))
-        .filter((c: any) => (c.question || c.title) && (c.answer || c.description))
-        .map((c: any) => ({
-            question: c.question || c.title,
-            answer: c.answer || c.description
+        .filter((s: PageSection) => (s.section_type || s.type) === 'faq')
+        .flatMap((s: PageSection) => ((s.settings?.cards || []) as Array<{ question?: string; title?: string; answer?: string; description?: string }>))
+        .filter((c) => (c.question || c.title) && (c.answer || c.description))
+        .map((c) => ({
+            question: (c.question || c.title) as string,
+            answer: (c.answer || c.description) as string
         }));
 
     return (
@@ -106,7 +108,7 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
             {faqItems.length > 0 && <FAQSchema items={faqItems} />}
             {sections.map((section, index) => {
                 const type = section.section_type || section.type;
-                const isHero = type === 'hero';
+
 
                 const HeadingTag = (!h1Rendered) ? 'h1' : 'h2';
                 if (HeadingTag === 'h1') h1Rendered = true;

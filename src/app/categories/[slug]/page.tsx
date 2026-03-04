@@ -97,8 +97,9 @@ export default async function CategoryDetailPage(
     slug: categoryData.slug,
     description: categoryData.description,
     icon: categoryData.icon,
+    startupCount: categoryData.startupCount ?? (categoryData.startups || []).length,
   };
-  const categoryStartups = (categoryData.startups || []).map((s: any) => ({
+  const categoryStartups = (categoryData.startups || []).map((s: { slug: string; description?: string;[key: string]: unknown }) => ({
     ...s,
     tagline: s.description?.slice(0, 140) || s.description,
   }));

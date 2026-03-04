@@ -3,10 +3,11 @@
 import { HomeContent } from "@/components/home/HomeContent";
 import { useEffect, useState } from "react";
 import { getSections } from "@/lib/api";
+import { PageSection } from "@/types";
 
 interface PageSectionsProps {
     pageSlug: string;
-    initialSections?: any[];
+    initialSections?: PageSection[];
 }
 
 export function PageSections({ pageSlug, initialSections = [] }: PageSectionsProps) {

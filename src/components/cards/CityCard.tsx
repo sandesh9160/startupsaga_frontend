@@ -1,8 +1,6 @@
-"use client";
-
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { SafeImage } from "@/components/ui/SafeImage";
+import Image from "next/image";
 import { getSafeImageSrc } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
@@ -41,10 +39,8 @@ export function CityCard({
   name,
   image,
   startupCount = 0,
-  storyCount = 0,
   unicornCount = 0,
   tier,
-  paletteIndex = 0,
   className,
   variant = 'compact',
   description,
@@ -62,10 +58,9 @@ export function CityCard({
           {/* Top Image Section */}
           <div className="relative h-48 md:h-56 w-full overflow-hidden">
             {image ? (
-              <SafeImage
+              <Image
                 src={getSafeImageSrc(image)}
                 alt={name}
-                fallbackLabel={name}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700"
                 sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1400px) 33vw, 460px"
@@ -131,12 +126,10 @@ export function CityCard({
       >
         {/* Full Background Image */}
         {image && (
-          <SafeImage
+          <Image
             src={getSafeImageSrc(image)}
             alt={name}
-            fallbackLabel={name}
             fill
-            unoptimized={getSafeImageSrc(image).endsWith(".svg")}
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, (max-width: 1400px) 16vw, 230px"
           />

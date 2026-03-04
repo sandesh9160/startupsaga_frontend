@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Building2, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";

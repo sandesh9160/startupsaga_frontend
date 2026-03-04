@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, ArrowRight, CheckCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { CheckCircle } from "lucide-react";
 
 interface NewsletterProps {
   title?: string;
@@ -15,7 +14,7 @@ interface NewsletterProps {
   bgColor?: string;
 }
 
-export function Newsletter({ title, description, buttonText, align = 'center', paddingY, bgColor }: NewsletterProps) {
+export function Newsletter({ title, description, buttonText, bgColor }: NewsletterProps) {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -34,8 +33,8 @@ export function Newsletter({ title, description, buttonText, align = 'center', p
       await subscribeNewsletter(email);
       setSubmitted(true);
       setEmail("");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : null) || "Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -70,7 +69,7 @@ export function Newsletter({ title, description, buttonText, align = 'center', p
                   <div className="w-16 h-16 bg-white/10 text-emerald-400 rounded-full flex items-center justify-center mb-4 border border-emerald-400/20 backdrop-blur-sm">
                     <CheckCircle className="h-8 w-8" />
                   </div>
-                  <h4 className="text-xl font-semibold text-white mb-2">You're on the list!</h4>
+                  <h4 className="text-xl font-semibold text-white mb-2">You&apos;re on the list!</h4>
                   <p className="text-zinc-400">Check your inbox for a confirmation email coming soon.</p>
                 </div>
               ) : (

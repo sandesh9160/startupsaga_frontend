@@ -2,6 +2,7 @@ import Link from "next/link";
 import { StoryCard } from "@/components/cards/StoryCard";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Story } from "@/types";
 import { Button } from "../ui/button";
 
 interface StoriesGridSectionProps {
@@ -9,8 +10,8 @@ interface StoriesGridSectionProps {
     index: number;
     title?: string;
     type: 'latest_stories' | 'featured_stories' | 'trending_stories';
-    stories: any[];
-    trendingStories?: any[];
+    stories: Story[];
+    trendingStories?: Story[];
     settings?: {
         backgroundColor?: string;
         paddingY?: number;
@@ -68,7 +69,7 @@ export function StoriesGridSection({
                                 className="text-2xl md:text-3xl lg:text-4xl font-bold font-serif tracking-tight"
                                 style={{
                                     color: textColor.startsWith('#') ? textColor : '#' + textColor,
-                                    textAlign: align as any
+                                    textAlign: align as React.CSSProperties['textAlign']
                                 }}
                             >
                                 {sectionTitle}
@@ -113,7 +114,7 @@ export function StoriesGridSection({
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="text-[10px] font-bold text-orange-600 uppercase tracking-widest mb-1.5 opacity-80 group-hover:opacity-100 italic">
-                                                    {story.category?.name || "Startup"}
+                                                    {(typeof story.category === 'object' ? story.category?.name : story.category) || "Startup"}
                                                 </div>
                                                 <h3 className="text-[15px] font-bold font-serif leading-snug line-clamp-2 text-[#0F172A] group-hover:text-orange-600 transition-colors">
                                                     {story.title}

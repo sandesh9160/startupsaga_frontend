@@ -19,7 +19,7 @@ import {
 import {
     Rocket, AlignLeft, Globe, MapPin, Calendar,
     Tag as TagIcon, TrendingUp, Briefcase, Mail,
-    Upload, X, Image as ImageIcon
+    Upload, X, Image as ImageIcon, Building2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -27,10 +27,11 @@ import { cn } from "@/lib/utils";
 import { City, Category } from "@/types";
 
 interface Step1Props {
-    form: UseFormReturn<any>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    form: UseFormReturn<any>; // react-hook-form generics require any here for dynamic field schemas
     cities: City[];
     categories: Category[];
-    BUSINESS_MODELS: any[];
+    BUSINESS_MODELS: { value: string; label: string }[];
     STAGES: string[];
     TEAM_SIZES: string[];
     SECTORS: string[];
@@ -43,8 +44,8 @@ interface Step1Props {
     removeTag: (tag: string) => void;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>, field: "logo" | "ogImage") => void;
     removeImage: (field: "logo" | "ogImage") => void;
-    fileInputRef: React.RefObject<HTMLInputElement | null>;
-    ogInputRef: React.RefObject<HTMLInputElement | null>;
+    fileInputRef: React.RefObject<HTMLInputElement>;
+    ogInputRef: React.RefObject<HTMLInputElement>;
 }
 
 // Reusable input wrapper with leading icon

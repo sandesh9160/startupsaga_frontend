@@ -2,6 +2,15 @@ import Link from "next/link";
 import { CityCard } from "@/components/cards/CityCard";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { City } from "@/types";
+
+type ApiCity = City & {
+    title?: string;
+    id?: string | number;
+    imageUrl?: string;
+    thumbnail?: string;
+    story_count?: number;
+};
 
 interface CityGridSectionProps {
     id?: string;
@@ -9,7 +18,7 @@ interface CityGridSectionProps {
     title?: string;
     subtitle?: string;
     type: 'city_grid' | 'rising_hubs';
-    cities: any[];
+    cities: ApiCity[];
     settings?: {
         backgroundColor?: string;
         paddingY?: number;
@@ -40,8 +49,8 @@ export function CityGridSection({
 
     // Logic from HomeContent for filtering cities
     const items = isRising
-        ? cities.filter((c: any) => String(c.tier).includes('2') || String(c.tier).includes('3')).slice(0, 12)
-        : cities.filter((c: any) => !c.tier || String(c.tier) === '1').slice(0, 6);
+        ? cities.filter((c: ApiCity) => String(c.tier).includes('2') || String(c.tier).includes('3')).slice(0, 12)
+        : cities.filter((c: ApiCity) => !c.tier || String(c.tier) === '1').slice(0, 6);
 
     return (
         <section
@@ -87,13 +96,13 @@ export function CityGridSection({
                     "grid gap-6",
                     isRising ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
                 )}>
-                    {items.map((city: any) => {
+                    {items.map((city: ApiCity) => {
                         const citySlug = city.slug || (city.title || city.name || "").toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
                         return (
                             <CityCard
                                 key={city.slug || city.id || citySlug}
                                 slug={citySlug}
-                                name={city.name || city.title}
+                                name={city.name || city.title || ""}
                                 image={city.image || city.imageUrl || city.thumbnail}
                                 startupCount={city.startup_count || city.startupCount || 0}
                                 storyCount={city.story_count || city.storyCount || 0}

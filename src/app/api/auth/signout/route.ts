@@ -1,10 +1,7 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { API_BASE_URL } from "@/lib/api";
 
 export async function GET(request: Request) {
-    const cookieStore = await cookies();
-
     // Call backend to invalidate session
     try {
         // Try to get cookies from the incoming request to pass them to backend
@@ -17,7 +14,8 @@ export async function GET(request: Request) {
                 "Content-Type": "application/json",
             },
         });
-    } catch (e: any) {
+    } catch {
+        // Silently fail as we prioritize clearing local cookies anyway
     }
 
     // Redirect to login page
@@ -42,7 +40,8 @@ export async function POST(request: Request) {
                 "Content-Type": "application/json",
             },
         });
-    } catch (e: any) {
+    } catch {
+        // Silently fail
     }
 
     const response = NextResponse.json({ success: true });
