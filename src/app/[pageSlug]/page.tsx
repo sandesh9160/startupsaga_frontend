@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { notFound, redirect } from "next/navigation";
@@ -17,7 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ pageSlug:
     if (RESERVED_SLUGS.includes(pageSlug)) return {};
     try {
         const page = await getPageBySlug(pageSlug);
-        if (!page) return { title: "Page Not Found" };
+        // if (!page) return { title: "Page Not Found" };
+        if (!page) notFound();
         // Respect canonical_override from CMS if set
         const canonical = page.canonical_override || `${SITE_URL}/${page.slug}`;
         const title = page.meta_title || `${page.title} | StartupSaga.in`;
@@ -43,9 +45,13 @@ export async function generateMetadata({ params }: { params: Promise<{ pageSlug:
                 description,
             },
         };
-    } catch {
-        return { title: "Page Not Found" };
-    }
+    } 
+    // catch {
+    //     return { title: "Page Not Found" };
+    // }
+    catch {
+    notFound();
+}
 }
 
 export default async function StaticPageRoute({ params }: { params: Promise<{ pageSlug: string }> }) {
