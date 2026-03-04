@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { HeroSection } from "./HeroSection";
 import { StoriesGridSection } from "./StoriesGridSection";
 import { StartupsGridSection } from "./StartupsGridSection";
@@ -7,33 +8,102 @@ import { StatsSection } from "./StatsSection";
 import { CtaSection } from "./CtaSection";
 import { ImageSection } from "./ImageSection";
 import { Newsletter } from "./Newsletter";
+import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
+import {
+    getTrendingStories,
+    getStories,
+    getStartups,
+    getCities,
+    getCategories,
+    getPlatformStats
+} from "@/lib/api";
 
 interface DynamicSectionsProps {
     sections: any[];
-    data: {
-        trendingStories: any[];
-        latestStories: any[];
-        featuredStartups: any[];
-        topCities: any[];
-        topCategories: any[];
-        platformStats: any;
+    // Transitioning to internal fetching, data prop is now optional for backward compatibility
+    data?: {
+        trendingStories?: any[];
+        latestStories?: any[];
+        featuredStartups?: any[];
+        topCities?: any[];
+        topCategories?: any[];
+        platformStats?: any;
         heroData?: { title: string, content: string };
     };
 }
 
-export function DynamicSections({ sections, data }: DynamicSectionsProps) {
+/** 
+ * Wrappers for individual sections that fetch their own data
+ */
+
+async function TrendingStoriesWrapper(props: any) {
+    const data = await getTrendingStories().catch(() => []);
+    return <StoriesGridSection stories={data} type="trending_stories" {...props} />;
+}
+
+async function LatestStoriesWrapper(props: any) {
+    const data = await getStories({ page_size: 8 }).catch(() => []);
+    return <StoriesGridSection stories={data} type="latest_stories" {...props} />;
+}
+
+async function FeaturedStartupsWrapper(props: any) {
+    const data = await getStartups({ page_size: 8 }).catch(() => []);
+    return <StartupsGridSection startups={data} {...props} />;
+}
+
+async function CitiesWrapper(props: any) {
+    const data = await getCities().catch(() => []);
+    return <CityGridSection cities={data} type={props.section_type || props.type} {...props} />;
+}
+
+async function CategoriesWrapper(props: any) {
+    const data = await getCategories().catch(() => []);
+    return <CategoryGridSection categories={data} {...props} />;
+}
+
+async function StatsWrapper(props: any) {
+    const data = await getPlatformStats().catch(() => ({ total_startups: 0, total_stories: 0 }));
+    return <StatsSection stats={data} {...props} />;
+}
+
+/** 
+ * Skeletons for smooth loading experience
+ */
+function SectionSkeleton() {
+    return (
+        <div className="w-full py-12 animate-pulse bg-white">
+            <div className="container-wide">
+                <div className="h-8 w-1/4 bg-zinc-100 rounded mb-8" />
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map(i => <div key={i} className="aspect-[4/3] bg-zinc-50 rounded-xl" />)}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
     if (!sections || sections.length === 0) return null;
 
     let h1Rendered = false;
 
+    // Extract FAQ items for Schema integration
+    const faqItems = (sections || [])
+        .filter((s: any) => (s.section_type || s.type) === 'faq')
+        .flatMap((s: any) => (s.settings?.cards || []))
+        .filter((c: any) => (c.question || c.title) && (c.answer || c.description))
+        .map((c: any) => ({
+            question: c.question || c.title,
+            answer: c.answer || c.description
+        }));
+
     return (
         <div className="flex flex-col w-full">
+            {faqItems.length > 0 && <FAQSchema items={faqItems} />}
             {sections.map((section, index) => {
                 const type = section.section_type || section.type;
                 const isHero = type === 'hero';
 
-                // Decide on heading tag for SEO (only one H1 per page)
-                // Hierarchy: If no H1 has been rendered, the first section gets it.
                 const HeadingTag = (!h1Rendered) ? 'h1' : 'h2';
                 if (HeadingTag === 'h1') h1Rendered = true;
 
@@ -44,97 +114,65 @@ export function DynamicSections({ sections, data }: DynamicSectionsProps) {
                                 key={section.id || index}
                                 index={index}
                                 {...section}
-                                heroData={data.heroData}
+                                heroData={data?.heroData}
                                 HeadingTag={HeadingTag}
                             />
                         );
 
                     case 'trending_stories':
+                        return (
+                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                <TrendingStoriesWrapper index={index} {...section} />
+                            </Suspense>
+                        );
+
                     case 'latest_stories':
                     case 'featured_stories':
                         return (
-                            <StoriesGridSection
-                                key={section.id || index}
-                                index={index}
-                                type={type}
-                                stories={
-                                    type === 'trending_stories' ? data.trendingStories :
-                                        data.latestStories // fallback for latest and featured
-                                }
-                                {...section}
-                            />
+                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                <LatestStoriesWrapper index={index} {...section} />
+                            </Suspense>
                         );
 
                     case 'featured_startups':
                         return (
-                            <StartupsGridSection
-                                key={section.id || index}
-                                index={index}
-                                startups={data.featuredStartups}
-                                {...section}
-                            />
+                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                <FeaturedStartupsWrapper index={index} {...section} />
+                            </Suspense>
                         );
 
                     case 'city_grid':
                     case 'rising_hubs':
                         return (
-                            <CityGridSection
-                                key={section.id || index}
-                                index={index}
-                                type={type}
-                                cities={data.topCities}
-                                {...section}
-                            />
+                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                <CitiesWrapper index={index} {...section} />
+                            </Suspense>
                         );
 
                     case 'category_grid':
                         return (
-                            <CategoryGridSection
-                                key={section.id || index}
-                                index={index}
-                                categories={data.topCategories}
-                                {...section}
-                            />
+                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                <CategoriesWrapper index={index} {...section} />
+                            </Suspense>
                         );
 
                     case 'stats':
                         return (
-                            <StatsSection
-                                key={section.id || index}
-                                index={index}
-                                stats={data.platformStats}
-                                {...section}
-                            />
+                            <Suspense key={section.id || index} fallback={<div className="h-40 bg-white" />}>
+                                <StatsWrapper index={index} {...section} />
+                            </Suspense>
                         );
 
                     case 'cta':
                     case 'banner':
-                        return (
-                            <CtaSection
-                                key={section.id || index}
-                                index={index}
-                                {...section}
-                            />
-                        );
+                        return <CtaSection key={section.id || index} index={index} {...section} />;
 
                     case 'image':
-                        return (
-                            <ImageSection
-                                key={section.id || index}
-                                index={index}
-                                {...section}
-                            />
-                        );
+                        return <ImageSection key={section.id || index} index={index} {...section} />;
 
                     case 'text':
                     case 'custom_content':
-                        return (
-                            <CtaSection
-                                key={section.id || index}
-                                index={index}
-                                {...section}
-                            />
-                        );
+                        return <CtaSection key={section.id || index} index={index} {...section} />;
 
                     case 'newsletter':
                         return (

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { WebSiteSchema } from "@/components/seo/Schema/WebSiteSchema";
@@ -91,7 +92,9 @@ export default function RootLayout({
             <head />
             <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
                 <Providers>
-                    <GoogleAnalytics />
+                    <Suspense fallback={null}>
+                        <GoogleAnalytics />
+                    </Suspense>
                     <WebSiteSchema />
                     {children}
                 </Providers>

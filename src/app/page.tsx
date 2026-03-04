@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { HomeContent } from "@/components/home/HomeContent";
-import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
-import { getTrendingStories, getSections, getStories, getStartups, getCities, getCategories, getPlatformStats, getPageBySlug } from "@/lib/api";
+import { getSections, getPageBySlug } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 import { DynamicSections } from "@/components/sections/DynamicSections";
@@ -52,84 +51,45 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function IndexPage() {
-    // Fetch data on the server in parallel
-    let trendingStories: any[] = [];
+    // Fetch critical data only
     let pageSections: any[] = [];
-    let latestStories: any[] = [];
-    let featuredStartups: any[] = [];
-    let topCities: any[] = [];
-    let topCategories: any[] = [];
-    let platformStats = { total_startups: 0, total_stories: 0 };
-    let hasError = false;
 
     try {
-        // Parallelize ALL data fetching to minimize TTFB
-        const [sectionsData, trending, latest, featured, cities, categories, stats] = await Promise.all([
-            getSections('homepage').catch(() => []),
-            getTrendingStories().catch(() => []),
-            getStories({ page_size: 6 }).catch(() => []),
-            getStartups({ page_size: 6 }).catch(() => []),
-            getCities().catch(() => []),
-            getCategories().catch(() => []),
-            getPlatformStats().catch(() => null)
-        ]);
+        // Only await sections as they define the page structure.
+        // Other data fetching has been moved into individual sections via DynamicSections.
+        const sectionsData = await getSections('homepage').catch(() => []);
 
         // Fallback for sections if 'homepage' is empty
         pageSections = sectionsData && sectionsData.length > 0
             ? sectionsData
             : await getSections('home').catch(() => []);
-
-        trendingStories = trending;
-        latestStories = latest;
-        featuredStartups = featured;
-        topCities = cities;
-        topCategories = categories;
-        if (stats) platformStats = stats;
     }
     catch (error) {
-        hasError = true;
-        console.error("Home page data fetching error:", error);
+        console.error("Home page sections fetching error:", error);
     }
 
-    // Extract FAQ items for Schema integration
-    const faqItems = (pageSections || [])
-        .filter((s: any) => (s.section_type || s.type) === 'faq')
-        .flatMap((s: any) => (s.settings?.cards || []))
-        .filter((c: any) => (c.question || c.title) && (c.answer || c.description))
-        .map((c: any) => ({
-            question: c.question || c.title,
-            answer: c.answer || c.description
-        }));
-
     return (
-        <>
-            {faqItems.length > 0 && <FAQSchema items={faqItems} />}
-            <Layout>
-                {pageSections && pageSections.length > 0 ? (
-                    <DynamicSections
-                        sections={pageSections}
-                        data={{
-                            trendingStories,
-                            latestStories,
-                            featuredStartups,
-                            topCities,
-                            topCategories,
-                            platformStats,
-                            heroData: {
-                                title: (pageSections || []).find((s: any) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
-                                content: (pageSections || []).find((s: any) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
-                            }
-                        }}
-                    />
-                ) : (
-                    <DefaultHomeView
-                        trendingStories={trendingStories}
-                        latestStories={latestStories}
-                        featuredStartups={featuredStartups}
-                        topCities={topCities}
-                    />
-                )}
-            </Layout>
-        </>
+        <Layout>
+            {pageSections && pageSections.length > 0 ? (
+                <DynamicSections
+                    sections={pageSections}
+                    data={{
+                        heroData: {
+                            title: (pageSections || []).find((s: any) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
+                            content: (pageSections || []).find((s: any) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
+                        }
+                    }}
+                />
+            ) : (
+                <DefaultHomeView
+                    // Fallback view might still need data, but the path forward is DynamicSections anyway.
+                    // If DefaultHomeView is used, it will fetch its own data on the client or we can just leave it as is.
+                    trendingStories={[]}
+                    latestStories={[]}
+                    featuredStartups={[]}
+                    topCities={[]}
+                />
+            )}
+        </Layout>
     );
 }

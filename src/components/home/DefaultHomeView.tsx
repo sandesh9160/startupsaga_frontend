@@ -8,19 +8,34 @@ import { CityCard } from "@/components/cards/CityCard";
 import { Newsletter } from "@/components/sections/Newsletter";
 import { getSafeImageSrc } from "@/lib/images";
 
+import {
+    getTrendingStories,
+    getStories,
+    getStartups,
+    getCities
+} from "@/lib/api";
+
 interface DefaultHomeViewProps {
-    trendingStories: any[];
-    latestStories: any[];
-    featuredStartups: any[];
-    topCities: any[];
+    trendingStories?: any[];
+    latestStories?: any[];
+    featuredStartups?: any[];
+    topCities?: any[];
 }
 
-export function DefaultHomeView({
-    trendingStories = [],
-    latestStories = [],
-    featuredStartups = [],
-    topCities = []
+export async function DefaultHomeView({
+    trendingStories: initialTrending,
+    latestStories: initialLatest,
+    featuredStartups: initialFeatured,
+    topCities: initialCities
 }: DefaultHomeViewProps) {
+    // Fetch data in parallel if not provided
+    const [trendingStories, latestStories, featuredStartups, topCities] = await Promise.all([
+        initialTrending && initialTrending.length > 0 ? Promise.resolve(initialTrending) : getTrendingStories().catch(() => []),
+        initialLatest && initialLatest.length > 0 ? Promise.resolve(initialLatest) : getStories({ page_size: 6 }).catch(() => []),
+        initialFeatured && initialFeatured.length > 0 ? Promise.resolve(initialFeatured) : getStartups({ page_size: 6 }).catch(() => []),
+        initialCities && initialCities.length > 0 ? Promise.resolve(initialCities) : getCities().catch(() => [])
+    ]);
+
     return (
         <div className="flex flex-col w-full">
             {/* Trending Section */}
