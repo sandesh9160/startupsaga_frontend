@@ -144,13 +144,20 @@ export const publicApi = {
   },
 
   /** Get theme/layout settings */
-  getLayout: () => fetchAPI("/layout-settings/"),
+  getLayout: () => fetchAPI("/layout-settings/", { next: { revalidate: 3600 } }),
 
   /** Get navigation menus */
-  getNav: (pos: string = "header") => fetchList<any>(`/navigation/?position=${pos}&hierarchical=true`),
+  getNav: (pos: string = "header") => fetchAPI(`/navigation/?position=${pos}&hierarchical=true`, { next: { revalidate: 3600 } }).then(data => {
+    if (!data) return [];
+    if (Array.isArray(data)) return data.filter(Boolean);
+    if (typeof data === 'object' && Array.isArray(data.results)) {
+      return data.results.filter(Boolean);
+    }
+    return [];
+  }),
 
   getTheme: (params: { pageKey?: string; pageSlug?: string }) => getThemeSettings(params),
-  getSEO: () => fetchAPI("/seo-settings/"),
+  getSEO: () => fetchAPI("/seo-settings/", { next: { revalidate: 3600 } }),
   getPlatformStats: () => fetchAPI("/platform-stats/"),
 };
 

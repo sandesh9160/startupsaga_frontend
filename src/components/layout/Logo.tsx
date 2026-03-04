@@ -14,16 +14,17 @@ interface LogoProps {
 
 export function Logo({ className, iconClassName, showText = true, variant = "default", initialSettings }: LogoProps) {
     const isLight = variant === "light";
-    const [isMounted, setIsMounted] = useState(false);
     const [settings, setSettings] = useState<{ site_name?: string; site_logo?: string } | null>(initialSettings || null);
 
     useEffect(() => {
-        setIsMounted(true);
+        // If we already have settings from the server, don't fetch on the client
+        if (initialSettings && initialSettings.site_name) return;
+
         fetch(`${API_BASE_URL}/layout-settings/`)
             .then(res => res.json())
             .then(data => setSettings(data))
             .catch(() => { });
-    }, []);
+    }, [initialSettings]);
 
     const siteName = settings?.site_name || "StartupSaga";
 

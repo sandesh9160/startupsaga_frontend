@@ -63,32 +63,32 @@ export default async function IndexPage() {
     let hasError = false;
 
     try {
-        const sectionsData = await getSections('homepage');
-        pageSections = sectionsData && sectionsData.length > 0
-            ? sectionsData
-            : await getSections('home');
-
-        let statsData = null;
-        [
-            trendingStories,
-            latestStories,
-            featuredStartups,
-            topCities,
-            topCategories,
-            statsData
-        ] = await Promise.all([
-            getTrendingStories(),
-            getStories({ page_size: 6 }),
-            getStartups({ page_size: 6 }),
-            getCities(),
-            getCategories(),
+        // Parallelize ALL data fetching to minimize TTFB
+        const [sectionsData, trending, latest, featured, cities, categories, stats] = await Promise.all([
+            getSections('homepage').catch(() => []),
+            getTrendingStories().catch(() => []),
+            getStories({ page_size: 6 }).catch(() => []),
+            getStartups({ page_size: 6 }).catch(() => []),
+            getCities().catch(() => []),
+            getCategories().catch(() => []),
             getPlatformStats().catch(() => null)
         ]);
 
-        if (statsData) platformStats = statsData;
+        // Fallback for sections if 'homepage' is empty
+        pageSections = sectionsData && sectionsData.length > 0
+            ? sectionsData
+            : await getSections('home').catch(() => []);
+
+        trendingStories = trending;
+        latestStories = latest;
+        featuredStartups = featured;
+        topCities = cities;
+        topCategories = categories;
+        if (stats) platformStats = stats;
     }
     catch (error) {
         hasError = true;
+        console.error("Home page data fetching error:", error);
     }
 
     // Extract FAQ items for Schema integration
