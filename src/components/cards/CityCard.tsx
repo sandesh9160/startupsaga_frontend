@@ -121,7 +121,7 @@ export function CityCard({
   return (
     <Link href={`/cities/${slug}`} className={cn("block group h-full", className)}>
       <article
-        className="relative rounded-2xl h-32 md:h-40 border overflow-hidden flex flex-col justify-end text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+        className="relative rounded-2xl aspect-[4/3] border overflow-hidden flex flex-col justify-end text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
         style={{ borderColor: image ? 'transparent' : palette.border, backgroundColor: palette.bg }}
       >
         {/* Full Background Image */}
@@ -131,7 +131,7 @@ export function CityCard({
             alt={name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, (max-width: 1400px) 16vw, 230px"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
           />
         )}
 

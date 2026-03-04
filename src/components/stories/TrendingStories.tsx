@@ -46,6 +46,7 @@ export function TrendingStories({ stories }: TrendingStoriesProps) {
                                     fill
                                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                                     sizes="64px"
+                                    fetchPriority="low"
                                 />
                             </div>
                         </Link>

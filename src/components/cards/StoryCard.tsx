@@ -53,8 +53,9 @@ export function StoryCard({
           alt={title}
           fill
           priority={priority}
+          fetchPriority={priority ? 'high' : 'auto'}
           className="object-cover transition-transform duration-700 group-hover:scale-110"
-          sizes="(max-width: 1400px) 100vw, 1400px"
+          sizes="100vw"
         />
         <div className="absolute inset-0 p-8 lg:p-10 flex flex-col justify-end bg-gradient-to-t from-[#0F172A]/95 via-[#0F172A]/40 to-transparent">
           {categoryName && (
@@ -96,8 +97,9 @@ export function StoryCard({
           alt={title}
           fill
           priority={priority}
+          fetchPriority={priority ? 'high' : 'auto'}
           className="object-cover transition-transform duration-700 group-hover:scale-110"
-          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1400px) 25vw, 350px"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 350px"
         />
       </Link>
 
