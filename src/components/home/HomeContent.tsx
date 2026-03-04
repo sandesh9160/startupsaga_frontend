@@ -363,7 +363,7 @@ export function HomeContent({
                                                         publishDate={story.publish_date}
                                                         author_name={story.author_name || story.author}
                                                         read_time={story.read_time}
-                                                        priority={index < 1 && idx < 4}
+                                                        priority={index <= 2 && idx < 2}
                                                     />
                                                 ))}
                                             </div>
@@ -417,7 +417,7 @@ export function HomeContent({
                                                         publishDate={story.publish_date}
                                                         author_name={story.author_name || story.author}
                                                         read_time={story.read_time}
-                                                        priority={index < 1 && idx < 4}
+                                                        priority={index <= 2 && idx < 2}
                                                     />
                                                 ))}
                                             </div>
@@ -471,7 +471,7 @@ export function HomeContent({
                                                         publishDate={story.publish_date}
                                                         author_name={story.author_name || story.author}
                                                         read_time={story.read_time}
-                                                        priority={index < 1 && idx < 4}
+                                                        priority={index <= 2 && idx < 2}
                                                     />
                                                 ))}
                                             </div>
@@ -750,7 +750,7 @@ export function HomeContent({
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                                             {((items.length > 0 ? items as Startup[] : featuredStartups)).slice(0, 6).map((startup: Startup, idx: number) => (
-                                                <StartupCard key={startup.slug || startup.id} {...startup} priority={index < 1 && idx < 4} />
+                                                <StartupCard key={startup.slug || startup.id} {...startup} priority={index <= 2 && idx < 2} />
                                             ))}
                                         </div>
                                     </section>
@@ -1345,7 +1345,7 @@ export function HomeContent({
                                         </Link>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                                        {latestStories.map((story) => (
+                                        {latestStories.map((story, idx) => (
                                             <StoryCard
                                                 key={story.slug}
                                                 slug={story.slug}
@@ -1362,6 +1362,7 @@ export function HomeContent({
                                                 read_time={story.read_time}
                                                 featured={false}
                                                 isFeatured={false}
+                                                priority={idx < 2}
                                             />
                                         ))}
                                     </div>

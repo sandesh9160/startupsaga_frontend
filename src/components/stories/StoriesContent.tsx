@@ -256,7 +256,7 @@ export function StoriesContent({
                         </div>
                     ) : stories.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {stories.map((story) => {
+                            {stories.map((story, idx) => {
                                 const s = story as Story & { og_image?: string; category_slug?: string; city_slug?: string; publish_date?: string; author_name?: string; author?: string; read_time?: number };
                                 return (
                                     <StoryCard
@@ -275,6 +275,7 @@ export function StoriesContent({
                                         read_time={s.read_time}
                                         featured={false}
                                         isFeatured={false}
+                                        priority={idx < 4}
                                     />
                                 );
                             })}
