@@ -94,7 +94,7 @@ export function HeroSection({
                 )}>
                     <Link href={link_url || "/stories"} className="w-full sm:w-auto">
                         <Button className={cn(
-                            "w-full h-14 px-10 rounded-xl shadow-xl transition-all group border-none",
+                            "w-full h-14 px-10 rounded-2xl shadow-xl transition-all group border-none",
                             (settings?.buttonStyle === 'secondary') ? "bg-white hover:bg-zinc-100 text-slate-900 border border-zinc-200" :
                                 (settings?.buttonStyle === 'outline') ? "bg-transparent border-2 border-current hover:bg-white/10" :
                                     "bg-[#F2542D] hover:bg-[#D94111] text-white shadow-orange-600/20"
@@ -109,7 +109,7 @@ export function HeroSection({
                     {(settings?.secondaryButtonText || settings?.secondaryButtonLink) && (
                         <Link href={settings?.secondaryButtonLink || "/submit"} className="w-full sm:w-auto">
                             <Button className={cn(
-                                "w-full h-14 px-10 rounded-xl active:scale-95 transition-all border-none bg-white hover:bg-zinc-100 text-[#0F172A]",
+                                "w-full h-14 px-10 rounded-2xl active:scale-95 transition-all border-none bg-white hover:bg-zinc-100 text-[#0F172A]",
                             )}>
                                 <span className="font-bold text-lg text-[#0F172A]">
                                     {settings?.secondaryButtonText || "Submit Your Startup"}

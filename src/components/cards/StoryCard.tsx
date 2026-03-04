@@ -40,15 +40,16 @@ export function StoryCard({
   author_name,
   read_time,
   priority = false,
-}: StoryCardProps) {
+  variant = 'standard',
+}: StoryCardProps & { variant?: 'standard' | 'overlay' }) {
   const thumbnailSrc = getSafeImageSrc(thumbnail || og_image);
   const isSvg = thumbnailSrc.toLowerCase().endsWith(".svg");
-  const isFeaturedCard = featured || isFeatured;
+  const isOverlay = variant === 'overlay';
   const authorDisplay = author_name || author;
   const readTimeDisplay = read_time ? `${read_time} min read` : null;
 
   // Featured: full-bleed with gradient text overlay
-  if (isFeaturedCard) {
+  if (isOverlay) {
     return (
       <article className="relative overflow-hidden aspect-[16/6] w-full group rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500">
         <SafeImage

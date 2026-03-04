@@ -42,8 +42,12 @@ async function TrendingStoriesWrapper(props: any) {
 }
 
 async function LatestStoriesWrapper(props: any) {
-    const data = await getStories({ page_size: 8 }).catch(() => []);
-    return <StoriesGridSection stories={data} type="latest_stories" {...props} />;
+    const [latest, trending] = await Promise.all([
+        getStories({ page_size: 6 }).catch(() => []),
+        getTrendingStories().catch(() => [])
+    ]);
+
+    return <StoriesGridSection stories={latest} trendingStories={trending} type="latest_stories" {...props} />;
 }
 
 async function FeaturedStartupsWrapper(props: any) {

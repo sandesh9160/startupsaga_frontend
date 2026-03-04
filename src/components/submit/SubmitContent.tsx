@@ -3,40 +3,29 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-// import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} 
-from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import {
     Loader2, CheckCircle, Rocket, User, FileText,
-    ChevronRight, ChevronLeft, Upload, X, Plus,
-    Globe, Mail, Calendar, MapPin, Tag, TrendingUp,
-    Briefcase, Linkedin, BookOpen, Image as ImageIcon,
-    AlignLeft, Building2
+    ChevronRight, ChevronLeft, Building2
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { submitStartup, getCities, getCategories } from "@/lib/api";
 import { City, Category } from "@/types";
-import Image from "next/image";
+import dynamic from "next/dynamic";
+
+// Dynamically import step components to reduce initial bundle size
+const Step1StartupDetails = dynamic(() => import("./Step1StartupDetails").then(mod => mod.Step1StartupDetails), {
+    loading: () => <div className="h-[400px] w-full bg-white animate-pulse rounded-2xl" />
+});
+const Step2FounderDetails = dynamic(() => import("./Step2FounderDetails").then(mod => mod.Step2FounderDetails), {
+    loading: () => <div className="h-[400px] w-full bg-white animate-pulse rounded-2xl" />
+});
+const Step3StoryDetails = dynamic(() => import("./Step3StoryDetails").then(mod => mod.Step3StoryDetails), {
+    loading: () => <div className="h-[400px] w-full bg-white animate-pulse rounded-2xl" />
+});
 
 const BUSINESS_MODELS = [
     { value: "b2b", label: "B2B" },
@@ -99,26 +88,6 @@ const storySchema = z.object({
 
 const combinedSchema = startupSchema.merge(founderSchema).merge(storySchema);
 
-const LayoutGrid = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={className}
-        {...props}
-    >
-        <rect width="7" height="7" x="3" y="3" rx="1" />
-        <rect width="7" height="7" x="14" y="3" rx="1" />
-        <rect width="7" height="7" x="14" y="14" rx="1" />
-        <rect width="7" height="7" x="3" y="14" rx="1" />
-    </svg>
-);
 type FormValues = z.infer<typeof combinedSchema>;
 
 const STEPS = [
@@ -126,22 +95,6 @@ const STEPS = [
     { id: 2, title: "Founder Details", icon: User, description: "Who is behind the vision?" },
     { id: 3, title: "Your Story", icon: FileText, description: "Share your journey" },
 ];
-
-// Reusable input wrapper with leading icon
-function IconInput({ icon: Icon, ...props }: { icon: React.ElementType } & React.InputHTMLAttributes<HTMLInputElement>) {
-    return (
-        <div className="relative">
-            <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
-            <input
-                {...props}
-                className={cn(
-                    "w-full h-11 pl-10 pr-4 rounded-lg border border-zinc-200 bg-white text-[#0F172A] text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-all",
-                    props.className
-                )}
-            />
-        </div>
-    );
-}
 
 export function SubmitContent() {
     const router = useRouter();
@@ -176,9 +129,9 @@ export function SubmitContent() {
         },
     });
 
-    const { trigger, handleSubmit, setValue, watch, control } = form;
-    const logoValue = watch("logo");
-    const ogImageValue = watch("ogImage");
+    const { trigger, handleSubmit, setValue, watch } = form;
+    const logoValue = watch("logo") || "";
+    const ogImageValue = watch("ogImage") || "";
     const industryTags = watch("industryTags") || [];
     const founders = watch("founders") || [];
 
@@ -237,7 +190,10 @@ export function SubmitContent() {
         if (currentStep === 1) fields = ["startupName", "tagline", "email", "website", "city", "foundedYear", "category", "fundingStage", "businessModel", "teamSize", "sector"];
         else if (currentStep === 2) fields = ["founders"];
         const ok = await trigger(fields);
-        if (ok) setCurrentStep(p => p + 1);
+        if (ok) {
+            setCurrentStep(p => p + 1);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
     };
 
     const onSubmit = async (values: FormValues) => {
@@ -265,14 +221,8 @@ export function SubmitContent() {
             setIsSuccess(true);
             toast.success("Startup submitted successfully!");
             window.scrollTo({ top: 0, behavior: "smooth" });
-        // } catch (error: any) {
-        //     toast.error(error.message || "Failed to submit. Please try again.");
         } catch (error: unknown) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Failed to submit. Please try again.";
-
+            const message = error instanceof Error ? error.message : "Failed to submit. Please try again.";
             toast.error(message);
         } finally {
             setIsSubmitting(false);
@@ -301,14 +251,12 @@ export function SubmitContent() {
 
     return (
         <div className="bg-[#FAFAFA] min-h-screen pb-20">
-            {/* Title + Stepper — compact, no wasted space */}
             <div className="max-w-2xl mx-auto px-4 pt-5 pb-2">
                 <div className="text-center mb-4">
                     <h1 className="text-2xl md:text-3xl font-bold font-serif text-[#0F172A] mb-1">Submit Your Startup</h1>
                     <p className="text-zinc-400 text-sm">Share your founder journey with India’s startup community</p>
                 </div>
                 <div className="flex items-start justify-between relative">
-                    {/* connector line */}
                     <div className="absolute top-5 left-0 right-0 h-px bg-zinc-200 z-0" />
                     <div
                         className="absolute top-5 left-0 h-px bg-[#F2542D] z-0 transition-all duration-500"
@@ -340,12 +288,10 @@ export function SubmitContent() {
                 </div>
             </div>
 
-            {/* Form Card */}
             <div className="max-w-2xl mx-auto px-4">
                 <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
                     <Form {...form}>
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            {/* Step Header */}
+                        <form onSubmit={handleSubmit(onSubmit)} id="submit-form">
                             <div className="px-5 pt-4 pb-3 border-b border-zinc-50 flex items-center gap-2.5">
                                 {(() => {
                                     const StepIcon = STEPS[currentStep - 1].icon;
@@ -361,447 +307,35 @@ export function SubmitContent() {
                             </div>
 
                             <div className="px-5 py-4 space-y-3.5">
-                                {/* ── STEP 1 ── */}
-                                {currentStep === 1 && (
-                                    <div className="space-y-3.5">
-                                        <FormField
-                                            control={form.control}
-                                            name="startupName"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-sm font-semibold text-[#0F172A]">Startup Name <span className="text-[#F2542D]">*</span></FormLabel>
-                                                    <FormControl>
-                                                        <IconInput icon={Rocket} placeholder="e.g., Zepto" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
+                                <Suspense fallback={<div className="h-[400px] bg-white animate-pulse rounded-xl" />}>
+                                    {currentStep === 1 && (
+                                        <Step1StartupDetails
+                                            form={form} cities={cities} categories={categories}
+                                            BUSINESS_MODELS={BUSINESS_MODELS} STAGES={STAGES}
+                                            TEAM_SIZES={TEAM_SIZES} SECTORS={SECTORS}
+                                            logoValue={logoValue} ogImageValue={ogImageValue}
+                                            industryTags={industryTags} tagInput={tagInput}
+                                            setTagInput={setTagInput} addTag={addTag} removeTag={removeTag}
+                                            handleFileChange={handleFileChange} removeImage={removeImage}
+                                            fileInputRef={fileInputRef} ogInputRef={ogInputRef}
                                         />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="tagline"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-sm font-semibold text-[#0F172A]">Tagline <span className="text-[#F2542D]">*</span></FormLabel>
-                                                    <FormControl>
-                                                        <IconInput icon={AlignLeft} placeholder="One line describing what you do" {...field} />
-                                                    </FormControl>
-                                                    <FormDescription className="text-xs text-zinc-400">10-150 characters</FormDescription>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
+                                    )}
+                                    {currentStep === 2 && (
+                                        <Step2FounderDetails
+                                            founders={founders} addFounder={addFounder}
+                                            removeFounder={removeFounder} updateFounder={updateFounder}
                                         />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="website"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-sm font-semibold text-[#0F172A]">Website</FormLabel>
-                                                    <FormControl>
-                                                        <IconInput icon={Globe} placeholder="https://yourstartup.com" type="url" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <FormField
-                                                control={form.control}
-                                                name="city"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-sm font-semibold text-[#0F172A]">City <span className="text-[#F2542D]">*</span></FormLabel>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                            <FormControl>
-                                                                <SelectTrigger className="h-11 border-zinc-200 focus:ring-orange-500/20 focus:border-orange-400">
-                                                                    <MapPin className="h-4 w-4 text-zinc-400 mr-2" />
-                                                                    <SelectValue placeholder="Select city" />
-                                                                </SelectTrigger>
-                                                            </FormControl>
-                                                            <SelectContent>
-                                                                {cities.map((city: City) => (
-                                                                    <SelectItem key={city.slug} value={city.name}>{city.name}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-
-                                            <FormField
-                                                control={form.control}
-                                                name="foundedYear"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-sm font-semibold text-[#0F172A]">Founded Year <span className="text-[#F2542D]">*</span></FormLabel>
-                                                        <FormControl>
-                                                            <IconInput icon={Calendar} placeholder="2023" maxLength={4} {...field} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <FormField
-                                                control={form.control}
-                                                name="category"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-sm font-semibold text-[#0F172A]">Category <span className="text-[#F2542D]">*</span></FormLabel>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                            <FormControl>
-                                                                <SelectTrigger className="h-11 border-zinc-200 focus:ring-orange-500/20 focus:border-orange-400">
-                                                                    <Tag className="h-4 w-4 text-zinc-400 mr-2" />
-                                                                    <SelectValue placeholder="Select" />
-                                                                </SelectTrigger>
-                                                            </FormControl>
-                                                            <SelectContent>
-                                                                {categories.map((cat: Category) => (
-                                                                    <SelectItem key={cat.slug} value={cat.name}>{cat.name}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-
-                                            <FormField
-                                                control={form.control}
-                                                name="fundingStage"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-sm font-semibold text-[#0F172A]">Funding Stage <span className="text-[#F2542D]">*</span></FormLabel>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                            <FormControl>
-                                                                <SelectTrigger className="h-11 border-zinc-200 focus:ring-orange-500/20 focus:border-orange-400">
-                                                                    <TrendingUp className="h-4 w-4 text-zinc-400 mr-2" />
-                                                                    <SelectValue placeholder="Select" />
-                                                                </SelectTrigger>
-                                                            </FormControl>
-                                                            <SelectContent>
-                                                                {STAGES.map(s => (
-                                                                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <FormField
-                                                control={form.control}
-                                                name="businessModel"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-sm font-semibold text-[#0F172A]">Business Model <span className="text-[#F2542D]">*</span></FormLabel>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                            <FormControl>
-                                                                <SelectTrigger className="h-11 border-zinc-200 focus:ring-orange-500/20 focus:border-orange-400">
-                                                                    <Briefcase className="h-4 w-4 text-zinc-400 mr-2" />
-                                                                    <SelectValue placeholder="Select" />
-                                                                </SelectTrigger>
-                                                            </FormControl>
-                                                            <SelectContent>
-                                                                {BUSINESS_MODELS.map(m => (
-                                                                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-
-                                            <FormField
-                                                control={form.control}
-                                                name="teamSize"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-sm font-semibold text-[#0F172A]">Team Size <span className="text-[#F2542D]">*</span></FormLabel>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                            <FormControl>
-                                                                <SelectTrigger className="h-11 border-zinc-200 focus:ring-orange-500/20 focus:border-orange-400">
-                                                                    <TrendingUp className="h-4 w-4 text-zinc-400 mr-2" />
-                                                                    <SelectValue placeholder="Select" />
-                                                                </SelectTrigger>
-                                                            </FormControl>
-                                                            <SelectContent>
-                                                                {TEAM_SIZES.map(s => (
-                                                                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
-
-                                        <FormField
-                                            control={form.control}
-                                            name="sector"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-sm font-semibold text-[#0F172A]">Sector / Industry <span className="text-[#F2542D]">*</span></FormLabel>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className="h-11 border-zinc-200 focus:ring-orange-500/20 focus:border-orange-400">
-                                                                <LayoutGrid className="h-4 w-4 text-zinc-400 mr-2" />
-                                                                <SelectValue placeholder="Select Sector" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {SECTORS.map(s => (
-                                                                <SelectItem key={s} value={s}>{s}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormItem>
-                                            <FormLabel className="text-sm font-semibold text-[#0F172A]">Industry Tags</FormLabel>
-                                            <FormControl>
-                                                <div className="flex gap-2">
-                                                    <div className="relative flex-1">
-                                                        <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
-                                                        <input
-                                                            placeholder="Add a tag and press Enter"
-                                                            value={tagInput}
-                                                            onChange={(e) => setTagInput(e.target.value)}
-                                                            onKeyDown={addTag}
-                                                            className="w-full h-11 pl-10 pr-4 rounded-lg border border-zinc-200 bg-white text-[#0F172A] text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-all"
-                                                        />
-                                                    </div>
-                                                    <Button type="button" variant="outline" className="h-11 px-4" onClick={() => addTag()}>Add</Button>
-                                                </div>
-                                            </FormControl>
-                                            {industryTags.length > 0 && (
-                                                <div className="flex flex-wrap gap-1.5 mt-2">
-                                                    {industryTags.map((tag) => (
-                                                        <span key={tag} className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-600 px-3 py-1.5 rounded-lg text-xs font-bold border border-orange-100">
-                                                            {tag}
-                                                            <X className="h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </FormItem>
-
-                                        <FormField
-                                            control={form.control}
-                                            name="email"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-sm font-semibold text-[#0F172A]">Contact Email <span className="text-[#F2542D]">*</span></FormLabel>
-                                                    <FormControl>
-                                                        <IconInput icon={Mail} placeholder="founder@yourstartup.com" type="email" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        {/* Logo Upload */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <FormField
-                                                control={form.control}
-                                                name="logo"
-                                                render={() => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-sm font-semibold text-[#0F172A]">Startup Logo <span className="text-zinc-400 font-normal">(Optional)</span></FormLabel>
-                                                        <FormControl>
-                                                            <div>
-                                                                {!logoValue ? (
-                                                                    <div
-                                                                        onClick={() => fileInputRef.current?.click()}
-                                                                        className="border-2 border-dashed border-zinc-200 hover:border-orange-300 transition-colors rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer gap-2 bg-zinc-50/50"
-                                                                    >
-                                                                        <Upload className="h-4 w-4 text-zinc-400" />
-                                                                        <span className="text-xs font-medium">Upload Logo</span>
-                                                                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, "logo")} />
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="relative w-full h-24 bg-zinc-50 rounded-xl border border-zinc-200 overflow-hidden">
-                                                                        <Image src={logoValue} alt="Logo Preview" className="object-contain p-2" fill />
-                                                                        <button type="button" onClick={() => removeImage("logo")} className="absolute top-1 right-1 p-1 bg-white border border-zinc-200 rounded-full shadow-sm hover:bg-red-50">
-                                                                            <X className="h-3 w-3 text-zinc-500" />
-                                                                        </button>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-
-                                            <FormField
-                                                control={form.control}
-                                                name="ogImage"
-                                                render={() => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-sm font-semibold text-[#0F172A]">Social Card (OG) <span className="text-zinc-400 font-normal">(Optional)</span></FormLabel>
-                                                        <FormControl>
-                                                            <div>
-                                                                {!ogImageValue ? (
-                                                                    <div
-                                                                        onClick={() => ogInputRef.current?.click()}
-                                                                        className="border-2 border-dashed border-zinc-200 hover:border-orange-300 transition-colors rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer gap-2 bg-zinc-50/50"
-                                                                    >
-                                                                        <ImageIcon className="h-4 w-4 text-zinc-400" />
-                                                                        <span className="text-xs font-medium">Upload OG Image</span>
-                                                                        <input type="file" ref={ogInputRef} className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, "ogImage")} />
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="relative w-full h-24 bg-zinc-50 rounded-xl border border-zinc-200 overflow-hidden">
-                                                                        <Image src={ogImageValue} alt="OG Preview" className="object-cover" fill />
-                                                                        <button type="button" onClick={() => removeImage("ogImage")} className="absolute top-1 right-1 p-1 bg-white border border-zinc-200 rounded-full shadow-sm hover:bg-red-50">
-                                                                            <X className="h-3 w-3 text-zinc-500" />
-                                                                        </button>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* ── STEP 2 ── */}
-                                {currentStep === 2 && (
-                                    <div className="space-y-6">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-xs text-zinc-400 font-medium">Add founders or key leadership members.</p>
-                                            <Button type="button" variant="outline" size="sm" onClick={addFounder} className="h-8 gap-1.5 border-orange-100 text-orange-600 hover:bg-orange-50 font-bold">
-                                                <Plus className="h-3.5 w-3.5" /> Add Member
-                                            </Button>
-                                        </div>
-
-                                        <div className="space-y-8">
-                                            {founders.map((founder, index) => (
-                                                <div key={index} className="relative p-5 rounded-2xl bg-zinc-50/50 border border-zinc-100 space-y-4">
-                                                    {founders.length > 1 && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeFounder(index)}
-                                                            className="absolute -top-2 -right-2 w-7 h-7 bg-white border border-zinc-200 rounded-full flex items-center justify-center text-zinc-400 hover:text-red-500 shadow-sm transition-all"
-                                                        >
-                                                            <X className="h-3.5 w-3.5" />
-                                                        </button>
-                                                    )}
-
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div className="space-y-1.5">
-                                                            <Label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Full Name</Label>
-                                                            <IconInput
-                                                                icon={User}
-                                                                placeholder="e.g. Kunal Shah"
-                                                                value={founder.name}
-                                                                onChange={(e) => updateFounder(index, "name", e.target.value)}
-                                                            />
-                                                        </div>
-                                                        <div className="space-y-1.5">
-                                                            <Label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Role / Designation</Label>
-                                                            <IconInput
-                                                                icon={Briefcase}
-                                                                placeholder="e.g. Founder & CEO"
-                                                                value={founder.role}
-                                                                onChange={(e) => updateFounder(index, "role", e.target.value)}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="space-y-1.5">
-                                                        <Label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">LinkedIn Profile (URL)</Label>
-                                                        <IconInput
-                                                            icon={Linkedin}
-                                                            placeholder="https://linkedin.com/in/..."
-                                                            value={founder.linkedin}
-                                                            onChange={(e) => updateFounder(index, "linkedin", e.target.value)}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* ── STEP 3 ── */}
-                                {currentStep === 3 && (
-                                    <div className="space-y-5">
-                                        <FormField
-                                            control={form.control}
-                                            name="storyTitle"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-sm font-semibold text-[#0F172A]">Journey Title <span className="text-[#F2542D]">*</span></FormLabel>
-                                                    <FormControl>
-                                                        <IconInput icon={BookOpen} placeholder="e.g. How we scaled to 1M users in 6 months" {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="storyContent"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-sm font-semibold text-[#0F172A]">Your Story <span className="text-[#F2542D]">*</span></FormLabel>
-                                                    <FormControl>
-                                                        <Textarea
-                                                            placeholder="Write your journey here — the challenges you faced, milestones you hit, and lessons learned..."
-                                                            className="min-h-[260px] border-zinc-200 focus:border-orange-400 focus:ring-orange-500/20 text-sm leading-relaxed resize-none"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-                                                    <FormDescription className="text-xs text-zinc-400">Min 200 characters. Inspire others with your journey.</FormDescription>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="coverImageUrl"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-sm font-semibold text-[#0F172A]">Cover Image URL <span className="text-zinc-400 font-normal">(Optional)</span></FormLabel>
-                                                    <FormControl>
-                                                        <IconInput icon={ImageIcon} placeholder="https://..." {...field} />
-                                                    </FormControl>
-                                                    <FormDescription className="text-xs text-zinc-400">A high-quality image to engage readers.</FormDescription>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                )}
+                                    )}
+                                    {currentStep === 3 && (
+                                        <Step3StoryDetails form={form} />
+                                    )}
+                                </Suspense>
                             </div>
-
                         </form>
                     </Form>
                 </div>
 
-                {/* Nav Buttons — outside card */}
-                <div className="max-w-2xl mx-auto px-4 mt-4 flex items-center justify-between">
+                <div className="max-w-2xl mx-auto px-0 mt-4 flex items-center justify-between">
                     {currentStep > 1 ? (
                         <button
                             type="button"
@@ -827,7 +361,6 @@ export function SubmitContent() {
                             form="submit-form"
                             type="submit"
                             disabled={isSubmitting}
-                            onClick={handleSubmit(onSubmit)}
                             className="flex items-center gap-2 h-10 px-6 rounded-lg bg-[#F2542D] hover:bg-[#D94111] disabled:opacity-60 text-white text-sm font-bold transition-all shadow-sm shadow-orange-200"
                         >
                             {isSubmitting ? (
@@ -839,7 +372,6 @@ export function SubmitContent() {
                     )}
                 </div>
 
-                {/* Terms */}
                 <p className="text-center text-xs text-zinc-400 mt-4">
                     By submitting, you agree to our{" "}
                     <a href="/terms" className="text-[#F2542D] hover:underline">terms of service</a>
