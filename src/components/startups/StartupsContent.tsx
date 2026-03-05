@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
+// import Link from "next/link";
 import { StartupCard } from "@/components/cards/StartupCard";
 import { Button } from "@/components/ui/button";
 import {
-    ChevronLeft,
-    ChevronRight,
+    // ChevronLeft,
+    // ChevronRight,
     Search,
     X,
     Rocket,

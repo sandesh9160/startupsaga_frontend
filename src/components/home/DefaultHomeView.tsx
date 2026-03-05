@@ -8,10 +8,10 @@ import { CityCard } from "@/components/cards/CityCard";
 import { Newsletter } from "@/components/sections/Newsletter";
 import { getSafeImageSrc } from "@/lib/images";
 
-import {
+import { 
     getTrendingStories,
     getStories,
-    getStartups,  
+    getStartups, 
     getCities
 } from "@/lib/api";
 

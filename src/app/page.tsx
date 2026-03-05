@@ -85,20 +85,20 @@ export default async function IndexPage() {
     }
 
     // ── LCP optimisation: preload the first story's thumbnail ──────────
-    // The browser can start downloading the image immediately (from the
-    // <head>) instead of waiting for the <img> tag inside a Suspense
-    // boundary to be parsed/streamed.
-    if (latestStories.length > 0) {
-        const firstThumb = getSafeImageSrc(
-            latestStories[0].thumbnail || latestStories[0].og_image
-        );
-        if (firstThumb && firstThumb !== '/placeholder.svg') {
-            preloadResource(firstThumb, {
-                as: 'image',
-                fetchPriority: 'high',
-            });
-        }
+    // Inject a <link rel="preload"> into <head> so the browser starts the
+    // image download immediately, before the <img> tag is even parsed.
+    const lcpStory = latestStories[0] ?? null;
+    const lcpImageSrc = lcpStory
+        ? getSafeImageSrc(lcpStory.thumbnail || lcpStory.og_image)
+        : null;
+
+    if (lcpImageSrc && lcpImageSrc !== '/placeholder.svg') {
+        preloadResource(lcpImageSrc, {
+            as: 'image',
+            fetchPriority: 'high',
+        });
     }
+
 
     return (
         <Layout>
@@ -111,7 +111,7 @@ export default async function IndexPage() {
                         heroData: {
                             title: (pageSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
                             content: (pageSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
-                        }
+                        },
                     }}
                 />
             ) : (

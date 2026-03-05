@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
     ArrowLeft,
     Calendar,
-    Link as LinkIcon,
+    // Link as LinkIcon,
     Share2,
     MapPin,
     Lightbulb,
@@ -27,8 +27,8 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getSafeImageSrc } from "@/lib/images";
 import { cn } from "@/lib/utils";
-import { API_BASE_URL } from "@/lib/api";
-import dynamic from "next/dynamic";
+// import { API_BASE_URL } from "@/lib/api";
+// import dynamic from "next/dynamic";
 import { Story, Startup } from "@/types";
 import Image from "next/image";
 
@@ -251,7 +251,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                         {story.excerpt && (
                             <section id="tldr" className="bg-[#FEF6F2] rounded-xl p-4 border border-orange-100 shadow-sm relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
-                                    <Lightbulb className="h-16 w-16 text-[#D94111]" />
+                                    <Lightbulb className="h-16 w-16 text-[#D9F4111]" />
                                 </div>
                                 <h2 className="text-[16px] font-serif font-bold text-[#D94111] mb-2 flex items-center gap-2 tracking-tight relative z-10">
                                     <Sparkles className="h-3.5 w-3.5 fill-[#FF4F18] text-[#FF4F18]" />

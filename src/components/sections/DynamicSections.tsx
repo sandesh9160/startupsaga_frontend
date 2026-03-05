@@ -136,7 +136,23 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
                         );
 
                     case 'latest_stories':
-                    case 'featured_stories':
+                    case 'featured_stories': {
+                        // When stories are pre-seeded, render directly (no Suspense)
+                        // so the LCP image is in the initial HTML stream.
+                        const hasSeeded = data?.latestStories && data.latestStories.length > 0;
+                        if (hasSeeded) {
+                            return (
+                                <StoriesGridSection
+                                    key={section.id || index}
+                                    index={index}
+                                    {...section}
+                                    stories={data.latestStories!}
+                                    trendingStories={data?.trendingStories ?? []}
+                                    type="latest_stories"
+                                />
+                            );
+                        }
+                        // Fallback: fetch inside an async wrapper with Suspense
                         return (
                             <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
                                 <LatestStoriesWrapper
@@ -147,6 +163,7 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
                                 />
                             </Suspense>
                         );
+                    }
 
                     case 'featured_startups':
                         return (

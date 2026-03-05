@@ -7,7 +7,7 @@ import Underline from "@tiptap/extension-underline";
 import { cn } from "@/lib/utils";
 import {
     Bold, Italic, Underline as UnderlineIcon, List,
-    ListOrdered, Link as LinkIcon, Quote, Redo, Undo
+    ListOrdered, Quote, Redo, Undo
 } from "lucide-react";
 
 interface RichTextEditorProps {

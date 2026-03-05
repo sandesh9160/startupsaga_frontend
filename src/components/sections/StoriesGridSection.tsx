@@ -12,6 +12,8 @@ interface StoriesGridSectionProps {
     type: 'latest_stories' | 'featured_stories' | 'trending_stories';
     stories: Story[];
     trendingStories?: Story[];
+    /** When true, no card in this grid gets priority (the LCP card was rendered separately) */
+    skipFirstPriority?: boolean;
     settings?: {
         backgroundColor?: string;
         paddingY?: number;
@@ -28,6 +30,7 @@ export function StoriesGridSection({
     type,
     stories = [],
     trendingStories = [],
+    skipFirstPriority = false,
     settings = {}
 }: StoriesGridSectionProps) {
     const bgColor = settings.backgroundColor || '#ffffffae';
@@ -88,7 +91,7 @@ export function StoriesGridSection({
                                     key={story.slug}
                                     {...story}
                                     variant="standard"
-                                    priority={idx === 0}
+                                    priority={!skipFirstPriority && idx === 0}
                                 />
                             ))}
                         </div>
