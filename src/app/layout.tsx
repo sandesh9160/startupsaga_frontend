@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { WebSiteSchema } from "@/components/seo/Schema/WebSiteSchema";
-import { getSEOSettings } from "@/lib/api";
+import { getSEOSettings, getLayoutSettings } from "@/lib/api";
 import { GoogleAnalytics } from "@/components/seo/GoogleAnalytics";
-import { getLayoutSettings } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 const playfair = Playfair_Display({
@@ -21,11 +20,20 @@ const inter = Inter({
     display: "swap",
 });
 
+// ── Deduplicate across generateMetadata + child server components ──
+// React cache() ensures only ONE fetch per request lifecycle, even when
+// called from generateMetadata AND GoogleAnalytics/Layout within the
+// same render pass.
+const getCachedSEO = cache(() => getSEOSettings().catch(() => ({})));
+const getCachedLayout = cache(() => getLayoutSettings().catch(() => ({})));
+
+// Re-export so Layout.tsx can import the same cached fetcher
+export { getCachedSEO, getCachedLayout };
 
 export async function generateMetadata(): Promise<Metadata> {
     const [layout, seo] = await Promise.all([
-        getLayoutSettings().catch(() => ({})),
-        getSEOSettings().catch(() => ({})),
+        getCachedLayout(),
+        getCachedSEO(),
     ]);
 
     const siteName = layout.site_name || "StartupSaga.in";

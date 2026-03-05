@@ -1,8 +1,13 @@
 import Script from "next/script";
+import { cache } from "react";
 import { getSEOSettings } from "@/lib/api";
 
+// Reuse the same cache key as the root layout so we don't
+// trigger a separate fetch call for SEO settings.
+const getCachedSEO = cache(() => getSEOSettings().catch(() => ({})));
+
 export async function GoogleAnalytics() {
-    const seo = await getSEOSettings().catch(() => ({})) as { google_analytics_id?: string };
+    const seo = await getCachedSEO() as { google_analytics_id?: string };
     const gaId = seo?.google_analytics_id;
 
     if (!gaId) return null;

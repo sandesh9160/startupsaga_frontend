@@ -9,10 +9,10 @@ import { PageSections } from "@/components/sections/PageSections";
 import { SITE_URL } from "@/config/site";
 import { PageSection } from "@/types";
 
-// ISR: serve cached page, regenerate every 60 seconds in the background
-// (replaces the previous `force-dynamic` which made every request go
-// through the full server-render pipeline, hurting FCP/LCP)
-export const revalidate = 60;
+// This catch-all MUST be force-dynamic so that notFound() properly
+// returns a 404 HTTP status for unknown slugs. ISR would cache the
+// fallback shell with a 200 status, breaking 404 detection.
+export const dynamic = "force-dynamic";
 
 const RESERVED_SLUGS = [
     "stories", "startups", "categories", "cities", "submit",
@@ -23,6 +23,11 @@ const RESERVED_SLUGS = [
 // within the same request so we don't hit the API twice for the same slug.
 const getCachedPage = cache((slug: string) =>
     getPageBySlug(slug).catch(() => null)
+);
+
+// Shares the same fetch with the root layout's generateMetadata
+const getCachedSEO = cache(() =>
+    getSEOSettings().catch(() => ({}))
 );
 
 export async function generateMetadata({ params }: { params: Promise<{ pageSlug: string }> }): Promise<Metadata> {
@@ -36,10 +41,10 @@ export async function generateMetadata({ params }: { params: Promise<{ pageSlug:
 
     const [page, seo] = await Promise.all([
         getCachedPage(pageSlug),
-        getSEOSettings().catch(() => ({})),
+        getCachedSEO(),
     ]);
 
-   
+
 
     // 2. CRITICAL: If no valid page object or it's inactive, return 404 status
     if (!page || !page.slug || (page.is_active !== undefined && !page.is_active)) {

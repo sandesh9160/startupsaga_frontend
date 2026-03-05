@@ -7,6 +7,7 @@ import { FrontendBreadcrumbs } from "./FrontendBreadcrumbs";
 
 // Deduplicate getLayoutSettings calls within the same request
 // so Header and Footer share one fetch instead of making two.
+// This also piggybacks on the root layout's cache when possible.
 const getCachedLayoutSettings = cache(() => getLayoutSettings().catch(() => ({})));
 const getCachedNav = cache(() => getNav('header').catch(() => []));
 
@@ -36,14 +37,14 @@ async function FooterServer() {
 export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col" suppressHydrationWarning>
-      <Suspense fallback={<div className="h-20 bg-white border-b border-zinc-200 animate-pulse" />}>
+      <Suspense fallback={<div className="h-[72px] bg-white border-b border-zinc-200" />}>
         <HeaderServer />
       </Suspense>
       <main className="flex-1 bg-white">
         <FrontendBreadcrumbs />
         {children}
       </main>
-      <Suspense fallback={<div className="h-[400px] bg-zinc-50 animate-pulse" />}>
+      <Suspense fallback={<div className="h-[400px] bg-zinc-50" />}>
         <FooterServer />
       </Suspense>
     </div>

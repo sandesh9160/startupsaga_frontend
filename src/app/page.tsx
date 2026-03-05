@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { getSections, getPageBySlug, getStories, getTrendingStories, getSEOSettings } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
@@ -10,10 +11,14 @@ import { PageSection, Story } from "@/types";
 // ISR: serve cached page, regenerate every 60 seconds in the background
 export const revalidate = 60;
 
+// Deduplicate between generateMetadata and IndexPage
+const getCachedHomePage = cache(() => getPageBySlug('home').catch(() => null));
+const getCachedSEO = cache(() => getSEOSettings().catch(() => ({})));
+
 export async function generateMetadata(): Promise<Metadata> {
     const [page, seo] = await Promise.all([
-        getPageBySlug('home').catch(() => null),
-        getSEOSettings().catch(() => ({})),
+        getCachedHomePage(),
+        getCachedSEO(),
     ]);
 
     const rawTitle = page?.meta_title || seo.default_meta_title || "Startup Stories of India";

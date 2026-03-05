@@ -53,15 +53,16 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   // }
 
   try {
+    // Respect caller-supplied `next` config (e.g. revalidate: 3600 for
+    // layout/SEO settings) instead of always overriding with 60s.
+    const callerNext = (options as Record<string, unknown>)?.next as Record<string, unknown> | undefined;
     const res = await fetch(url, {
       ...options,
       headers: {
         "Content-Type": "application/json",
         ...((options.headers as Record<string, string>) || {}),
       },
-      // Use ISR (60s) to allow static generation while keeping content fresh.
-      // Avoids "Dynamic server usage" errors during build.
-      next: { revalidate: 60 },
+      next: { revalidate: 60, ...callerNext },
     });
 
     if (!res.ok) {
