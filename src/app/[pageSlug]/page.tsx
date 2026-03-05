@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: { params: Promise<{ pageSlug:
     const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
-        title: title.includes('|') ? { absolute: title } : title,
+        title: title,
         description,
         alternates: { canonical },
         ...(page.noindex ? { robots: { index: false, follow: false } } : {}),
@@ -71,12 +71,18 @@ export async function generateMetadata({ params }: { params: Promise<{ pageSlug:
             siteName: "StartupSaga.in",
             type: "website",
             locale: "en_IN",
-            images: [{ url: `${SITE_URL}/og-image.jpg`, width: 1200, height: 630 }],
+            images: [{
+                url: page.og_image || `${SITE_URL}/og-image.jpg`,
+                width: 1200,
+                height: 630,
+                alt: title
+            }],
         },
         twitter: {
             card: "summary_large_image",
             title,
             description,
+            images: [page.og_image || `${SITE_URL}/og-image.jpg`],
         },
     };
 }

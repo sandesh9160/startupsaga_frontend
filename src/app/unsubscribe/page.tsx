@@ -5,7 +5,7 @@ import { UnsubscribeContent } from "./UnsubscribeContent";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Unsubscribe | StartupSaga.in",
+    title: "Unsubscribe",
     description: "Unsubscribe from the StartupSaga newsletter.",
     robots: {
         index: false,

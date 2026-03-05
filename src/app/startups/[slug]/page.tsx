@@ -40,9 +40,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const description = (rawDescription || "").replace(/<[^>]*>?/gm, '');
 
     return {
-        title: title.includes('|') ? { absolute: title } : title,
+        title: title,
         description,
-        keywords: startup.meta_keywords,
+        keywords: [
+            ...(Array.isArray(seo.global_keywords) ? seo.global_keywords : [seo.global_keywords || ""]),
+            ...(Array.isArray(startup.meta_keywords) ? startup.meta_keywords : [startup.meta_keywords || ""])
+        ].filter(Boolean).join(", "),
         alternates: { canonical },
         // FIX-002: Respect noindex from CMS
         ...(startup.noindex ? { robots: { index: false, follow: false } } : {}),
@@ -50,11 +53,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             title,
             description,
             url: canonical,
-            siteName: "StartupSaga.in",
             type: "website",
-            locale: "en_IN",
             // FIX-005: Add width + height to OG image
-            images: [{ url: ogImage, width: 1200, height: 630, alt: startup.name }],
+            images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
         },
         twitter: {
             card: "summary_large_image",

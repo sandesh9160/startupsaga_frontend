@@ -168,7 +168,7 @@ export function Footer({ siteSettings }: { siteSettings?: FooterSiteSettings }) 
         <div className="pt-8 border-t border-zinc-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-zinc-500">{copyright}</p>
-            <p className="text-sm text-zinc-500">Made with ❤️ for Indian Startups</p>
+            {/* <p className="text-sm text-zinc-500">Made with ❤️ for Indian Startups</p> */}
           </div>
         </div>
       </div>

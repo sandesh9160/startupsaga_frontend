@@ -33,9 +33,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
-        title: title.includes('|') ? { absolute: title } : title,
+        title: title,
         description,
-        keywords: city.meta_keywords,
+        keywords: [
+            ...(Array.isArray(seo.global_keywords) ? seo.global_keywords : [seo.global_keywords || ""]),
+            ...(Array.isArray(city.meta_keywords) ? city.meta_keywords : [city.meta_keywords || ""])
+        ].filter(Boolean).join(", "),
         alternates: { canonical },
         // Respect noindex from CMS
         ...(city.noindex ? { robots: { index: false, follow: false } } : {}),
@@ -43,10 +46,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             title,
             description,
             url: canonical,
-            siteName: "StartupSaga.in",
             type: "website",
-            locale: "en_IN",
-            images: [{ url: ogImage, width: 1200, height: 630, alt: city.name }],
+            images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
         },
         twitter: {
             card: "summary_large_image",

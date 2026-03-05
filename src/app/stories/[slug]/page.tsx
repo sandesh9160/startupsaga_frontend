@@ -37,21 +37,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
-        title: title.includes('|') ? { absolute: title } : title,
+        title: title,
         description,
-        keywords: story.meta_keywords,
+        keywords: [
+            ...(Array.isArray(seo.global_keywords) ? seo.global_keywords : [seo.global_keywords || ""]),
+            ...(Array.isArray(story.meta_keywords) ? story.meta_keywords : [story.meta_keywords || ""])
+        ].filter(Boolean).join(", "),
         alternates: { canonical },
-        // FIX-002: Respect noindex from CMS
         ...(story.noindex ? { robots: { index: false, follow: false } } : {}),
         openGraph: {
             title,
             description,
             url: canonical,
-            siteName: "StartupSaga.in",
             type: "article",
-            locale: "en_IN",
-            // FIX-005: Add width + height to OG image
-            images: [{ url: ogImage, width: 1200, height: 630, alt: story.title }],
+            images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
         },
         twitter: {
             card: "summary_large_image",

@@ -43,9 +43,12 @@ export async function generateMetadata(
   const ogImage = getAbsoluteImageUrl(category.og_image);
 
   return {
-    title: title.includes('|') ? { absolute: title } : title,
+    title: title,
     description,
-    keywords: category.meta_keywords,
+    keywords: [
+      ...(Array.isArray(seo.global_keywords) ? seo.global_keywords : [seo.global_keywords || ""]),
+      ...(Array.isArray(category.meta_keywords) ? category.meta_keywords : [category.meta_keywords || ""])
+    ].filter(Boolean).join(", "),
     alternates: { canonical },
     // Respect noindex from CMS
     ...(category.noindex ? { robots: { index: false, follow: false } } : {}),
@@ -53,10 +56,8 @@ export async function generateMetadata(
       title,
       description,
       url: canonical,
-      siteName: "StartupSaga.in",
       type: "website",
-      locale: "en_IN",
-      images: [{ url: ogImage, width: 1200, height: 630, alt: category.name }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: "summary_large_image",

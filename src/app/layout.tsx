@@ -47,15 +47,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
     return {
         metadataBase: new URL(SITE_URL),
-        title,
+        title: {
+            default: title,
+            template: `%s | ${siteName}`,
+        },
         description,
         keywords: seo.global_keywords,
         robots: {
             index: true,
             follow: true,
-        },
-        alternates: {
-            canonical: "/",
         },
         ...(seo.google_site_verification && {
             verification: {
@@ -66,14 +66,14 @@ export async function generateMetadata(): Promise<Metadata> {
             title,
             description,
             url: SITE_URL,
-            siteName: layout.site_name || "StartupSaga.in",
+            siteName: siteName,
             type: "website",
             images: [
                 {
                     url: layout.site_logo || "/og-image.jpg",
                     width: 1200,
                     height: 630,
-                    alt: layout.site_name || "StartupSaga.in",
+                    alt: siteName,
                 },
             ],
         },
@@ -104,13 +104,15 @@ export default function RootLayout({
                 <link rel="dns-prefetch" href="https://api.startupsaga.in" />
                 {/* Preconnect for Google Fonts (already loaded via next/font but helps for fallback) */}
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+                {/* Keep global meta details inside head */}
+                <Suspense fallback={null}>
+                    <GoogleAnalytics />
+                </Suspense>
+                <WebSiteSchema />
             </head>
             <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
                 <Providers>
-                    <Suspense fallback={null}>
-                        <GoogleAnalytics />
-                    </Suspense>
-                    <WebSiteSchema />
                     {children}
                 </Providers>
             </body>

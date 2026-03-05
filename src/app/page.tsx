@@ -40,14 +40,13 @@ export async function generateMetadata(): Promise<Metadata> {
             title,
             description,
             url: SITE_URL,
-            siteName: "StartupSaga.in",
             type: "website",
             images: [
                 {
                     url: page?.og_image || "/og-image.jpg",
                     width: 1200,
                     height: 630,
-                    alt: "StartupSaga.in",
+                    alt: title,
                 },
             ],
         },
