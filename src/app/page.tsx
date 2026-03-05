@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { cache } from "react";
+import { preload as preloadResource } from "react-dom";
 import { Layout } from "@/components/layout/Layout";
 import { getSections, getPageBySlug, getStories, getTrendingStories, getSEOSettings } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
+import { getSafeImageSrc } from "@/lib/images";
 
 import { DynamicSections } from "@/components/sections/DynamicSections";
 import { DefaultHomeView } from "@/components/home/DefaultHomeView";
@@ -80,6 +82,22 @@ export default async function IndexPage() {
         trendingStories = trendingData as Story[];
     } catch {
         // silently handle fetch errors — fallback values are already set
+    }
+
+    // ── LCP optimisation: preload the first story's thumbnail ──────────
+    // The browser can start downloading the image immediately (from the
+    // <head>) instead of waiting for the <img> tag inside a Suspense
+    // boundary to be parsed/streamed.
+    if (latestStories.length > 0) {
+        const firstThumb = getSafeImageSrc(
+            latestStories[0].thumbnail || latestStories[0].og_image
+        );
+        if (firstThumb && firstThumb !== '/placeholder.svg') {
+            preloadResource(firstThumb, {
+                as: 'image',
+                fetchPriority: 'high',
+            });
+        }
     }
 
     return (

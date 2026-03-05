@@ -11,7 +11,7 @@ import { getSafeImageSrc } from "@/lib/images";
 import {
     getTrendingStories,
     getStories,
-    getStartups,
+    getStartups,  
     getCities
 } from "@/lib/api";
 
@@ -56,7 +56,7 @@ export async function DefaultHomeView({
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {latestStories.slice(0, 6).map((story, idx: number) => (
-                                <StoryCard key={story.slug} {...story} priority={idx < 2} />
+                                <StoryCard key={story.slug} {...story} priority={idx === 0} />
                             ))}
                         </div>
                     </div>

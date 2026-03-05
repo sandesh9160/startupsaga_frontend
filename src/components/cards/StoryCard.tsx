@@ -97,9 +97,13 @@ export function StoryCard({
           alt={title}
           fill
           priority={priority}
+          loading={priority ? 'eager' : 'lazy'}
           fetchPriority={priority ? 'high' : 'auto'}
           className={`object-cover ${priority ? '' : 'transition-transform duration-700 group-hover:scale-110'}`}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 350px"
+          sizes={priority
+            ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px'
+            : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 350px'
+          }
         />
       </Link>
 
