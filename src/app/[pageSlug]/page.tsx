@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+import { cache } from "react";
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { notFound, redirect } from "next/navigation";
@@ -9,13 +9,25 @@ import { PageSections } from "@/components/sections/PageSections";
 import { SITE_URL } from "@/config/site";
 import { PageSection } from "@/types";
 
+// ISR: serve cached page, regenerate every 60 seconds in the background
+// (replaces the previous `force-dynamic` which made every request go
+// through the full server-render pipeline, hurting FCP/LCP)
+export const revalidate = 60;
+
 const RESERVED_SLUGS = [
     "stories", "startups", "categories", "cities", "submit",
     "dashboard", "admin", "api", "sitemap.xml", "robots.txt", "favicon.ico"
 ];
 
+// Deduplicate the page fetch between generateMetadata and the page component
+// within the same request so we don't hit the API twice for the same slug.
+const getCachedPage = cache((slug: string) =>
+    getPageBySlug(slug).catch(() => null)
+);
+
 export async function generateMetadata({ params }: { params: Promise<{ pageSlug: string }> }): Promise<Metadata> {
     const { pageSlug } = await params;
+
 
     // 1. Block reserved slugs
     if (RESERVED_SLUGS.includes(pageSlug)) {
@@ -23,9 +35,11 @@ export async function generateMetadata({ params }: { params: Promise<{ pageSlug:
     }
 
     const [page, seo] = await Promise.all([
-        getPageBySlug(pageSlug).catch(() => null),
+        getCachedPage(pageSlug),
         getSEOSettings().catch(() => ({})),
     ]);
+
+   
 
     // 2. CRITICAL: If no valid page object or it's inactive, return 404 status
     if (!page || !page.slug || (page.is_active !== undefined && !page.is_active)) {
@@ -80,8 +94,9 @@ export default async function StaticPageRoute({ params }: { params: Promise<{ pa
     if (redirectTo) redirect(redirectTo);
 
     // Fetch page + sections in parallel. Both are safe — never throw.
+    // getCachedPage reuses the same fetch from generateMetadata.
     const [page, slugSections] = await Promise.all([
-        getPageBySlug(pageSlug).catch(() => null),
+        getCachedPage(pageSlug),
         getSections('', pageSlug).catch(() => [] as PageSection[]),
     ]);
 

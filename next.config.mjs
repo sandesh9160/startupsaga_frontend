@@ -73,6 +73,13 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    // Cache optimised images for 24 h on the server (avoids re-fetching from origin)
+    minimumCacheTTL: 86400,
+    // Prefer AVIF (much smaller) then WebP
+    formats: ['image/avif', 'image/webp'],
+    // Tighter set of widths → fewer variants to generate, faster cache hits
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
   async rewrites() {
