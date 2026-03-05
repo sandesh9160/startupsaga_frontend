@@ -28,7 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
         getSEOSettings().catch(() => ({})),
     ]);
 
-    const rawTitle = seo.default_meta_title || "StartupSaga.in | Startup Stories of India";
+    const siteName = layout.site_name || "StartupSaga.in";
+    const rawTitle = seo.default_meta_title || `${siteName} | Startup Stories of India`;
     const rawDescription = seo.default_meta_description || "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.";
     const favicon = layout.site_favicon || "/favicon.png";
 

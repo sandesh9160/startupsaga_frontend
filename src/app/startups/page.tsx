@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StartupsContent } from "@/components/startups/StartupsContent";
 import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getPlatformStats, getStartupsPage, getPageBySlug } from "@/lib/api";
+import { getSections, getPlatformStats, getStartupsPage, getPageBySlug, getSEOSettings } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 import { PageSection, PaginatedResponse, Startup } from "@/types";
 
@@ -17,16 +17,19 @@ export async function generateMetadata({
     const resolved = searchParams ? await searchParams : undefined;
     const hasQuery = !!(resolved && Object.keys(resolved).length > 0);
 
-    const page = await getPageBySlug('startups').catch(() => null);
+    const [page, seo] = await Promise.all([
+        getPageBySlug('startups').catch(() => null),
+        getSEOSettings().catch(() => ({})),
+    ]);
 
-    const rawTitle = page?.meta_title || "Startups in India | StartupSaga.in";
-    const rawDescription = page?.meta_description || "Explore India’s most innovative startups across fintech, edtech, healthtech, and more.";
+    const rawTitle = page?.meta_title || "Startups in India";
+    const rawDescription = page?.meta_description || seo.default_meta_description || "Explore India’s most innovative startups across fintech, edtech, healthtech, and more.";
 
     const title = rawTitle.replace(/<[^>]*>?/gm, '');
     const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
-        title,
+        title: title.includes('|') ? { absolute: title } : title,
         description,
         alternates: {
             canonical: `${SITE_URL}/startups`,

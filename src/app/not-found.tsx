@@ -1,6 +1,17 @@
+import type { Metadata } from "next";
+import { SITE_URL } from "@/config/site";
 import Link from "next/link";
 import Image from "next/image";
 import { Home, Search, ArrowRight, BookOpen, Rocket, MapPin } from "lucide-react";
+
+
+export const metadata: Metadata = {
+  title: "404 - Page Not Found",
+  description: "The page you are looking for does not exist on StartupSaga.in.",
+  alternates: {
+    canonical: `${SITE_URL}/404`,
+  },
+};
 
 export default function NotFound() {
   return (

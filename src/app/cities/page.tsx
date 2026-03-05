@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { CitiesContent } from "@/components/cities/CitiesContent";
 import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getCities, getPlatformStats, getPageBySlug } from "@/lib/api";
+import { getSections, getCities, getPlatformStats, getPageBySlug, getSEOSettings } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 import type { PageSection, City } from "@/types";
 
@@ -10,16 +10,19 @@ import type { PageSection, City } from "@/types";
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-    const page = await getPageBySlug('cities').catch(() => null);
+    const [page, seo] = await Promise.all([
+        getPageBySlug('cities').catch(() => null),
+        getSEOSettings().catch(() => ({})),
+    ]);
 
-    const rawTitle = page?.meta_title || "Startup Cities in India | StartupSaga.in";
-    const rawDescription = page?.meta_description || "Explore India’s thriving startup hubs. From Bengaluru to Mumbai, discover where innovation happens.";
+    const rawTitle = page?.meta_title || "Startup Cities in India";
+    const rawDescription = page?.meta_description || seo.default_meta_description || "Explore India’s thriving startup hubs. From Bengaluru to Mumbai, discover where innovation happens.";
 
     const title = rawTitle.replace(/<[^>]*>?/gm, '');
     const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
-        title,
+        title: title.includes('|') ? { absolute: title } : title,
         description,
         alternates: {
             canonical: `${SITE_URL}/cities`,

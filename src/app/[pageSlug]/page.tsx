@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { notFound, redirect } from "next/navigation";
-import { getPageBySlug, resolveRedirect, getSections } from "@/lib/api";
+import { getPageBySlug, resolveRedirect, getSections, getSEOSettings } from "@/lib/api";
 import { JsonLd } from "@/components/seo/Schema/JsonLd";
 import { FAQSchema } from "@/components/seo/Schema/FAQSchema";
 import { PageSections } from "@/components/sections/PageSections";
@@ -16,18 +16,32 @@ const RESERVED_SLUGS = [
 
 export async function generateMetadata({ params }: { params: Promise<{ pageSlug: string }> }): Promise<Metadata> {
     const { pageSlug } = await params;
-    if (RESERVED_SLUGS.includes(pageSlug)) return {};
 
-    const page = await getPageBySlug(pageSlug).catch(() => null);
-    if (!page) return { title: "Page Not Found" };
+    // 1. Block reserved slugs
+    if (RESERVED_SLUGS.includes(pageSlug)) {
+        notFound();
+    }
+
+    const [page, seo] = await Promise.all([
+        getPageBySlug(pageSlug).catch(() => null),
+        getSEOSettings().catch(() => ({})),
+    ]);
+
+    // 2. CRITICAL: If no valid page object or it's inactive, return 404 status
+    if (!page || !page.slug || (page.is_active !== undefined && !page.is_active)) {
+        notFound();
+    }
 
     // Respect canonical_override from CMS if set
     const canonical = page.canonical_override || `${SITE_URL}/${page.slug}`;
-    const title = page.meta_title || `${page.title} | StartupSaga.in`;
-    const description = page.meta_description || page.content?.replace(/<[^>]*>?/gm, '').slice(0, 160) || "";
+    const rawTitle = page.meta_title || `${page.title}`;
+    const rawDescription = page.meta_description || seo.default_meta_description || page.content?.replace(/<[^>]*>?/gm, '').slice(0, 160) || "";
+
+    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
-        title,
+        title: title.includes('|') ? { absolute: title } : title,
         description,
         alternates: { canonical },
         ...(page.noindex ? { robots: { index: false, follow: false } } : {}),
@@ -71,8 +85,8 @@ export default async function StaticPageRoute({ params }: { params: Promise<{ pa
         getSections('', pageSlug).catch(() => [] as PageSection[]),
     ]);
 
-    // Page not in CMS → show custom 404
-    if (!page) {
+    // Fail fast: Page not in CMS, missing required slug property, or inactive → show custom 404
+    if (!page || !page.slug || (page.is_active !== undefined && !page.is_active)) {
         notFound();
     }
 

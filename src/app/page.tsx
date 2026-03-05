@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
-import { getSections, getPageBySlug, getStories, getTrendingStories } from "@/lib/api";
+import { getSections, getPageBySlug, getStories, getTrendingStories, getSEOSettings } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 
 import { DynamicSections } from "@/components/sections/DynamicSections";
@@ -11,17 +11,20 @@ import { PageSection, Story } from "@/types";
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-    const page = await getPageBySlug('home').catch(() => null);
+    const [page, seo] = await Promise.all([
+        getPageBySlug('home').catch(() => null),
+        getSEOSettings().catch(() => ({})),
+    ]);
 
-    const rawTitle = page?.meta_title || "StartupSaga.in | Startup Stories of India";
-    const rawDescription = page?.meta_description || "Discover the most inspiring stories from the Indian startup ecosystem.";
+    const rawTitle = page?.meta_title || seo.default_meta_title || "Startup Stories of India";
+    const rawDescription = page?.meta_description || seo.default_meta_description || "Discover the most inspiring stories from the Indian startup ecosystem.";
 
     // Strip HTML for head compatibility
     const title = rawTitle.replace(/<[^>]*>?/gm, '');
     const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
-        title,
+        title: title.includes('|') ? { absolute: title } : title,
         description,
         alternates: {
             canonical: SITE_URL,

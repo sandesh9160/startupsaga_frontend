@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { CityDetailContent } from "@/components/cities/CityDetailContent";
-import { getCityBySlug, getCategories, getCities } from "@/lib/api";
+import { getCityBySlug, getCategories, getCities, resolveRedirect, getSEOSettings } from "@/lib/api";
 import { JsonLd } from "@/components/seo/Schema/JsonLd";
 import { notFound, redirect } from "next/navigation";
-import { resolveRedirect } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
 
@@ -16,20 +15,25 @@ function getAbsoluteImageUrl(url: string | null | undefined): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const city = await getCityBySlug(slug);
-    if (!city) notFound();
+    const [city, seo] = await Promise.all([
+        getCityBySlug(slug),
+        getSEOSettings().catch(() => ({})),
+    ]);
+    if (!city || !city.slug) {
+        notFound();
+    }
     // Respect canonical_override from CMS if set
     const canonical = city.canonical_override || `${SITE_URL}/cities/${slug}`;
-    const rawDescription = city.meta_description || city.description || `Explore startups and stories from ${city.name}.`;
+    const rawDescription = city.meta_description || city.description || seo.default_meta_description || `Explore startups and stories from ${city.name}.`;
     const ogImage = getAbsoluteImageUrl(city.og_image || city.image);
-    const rawTitle = city.meta_title || `Startups in ${city.name} | StartupSaga.in`;
+    const rawTitle = city.meta_title || `Startups in ${city.name}`;
 
     // Security: strip tags
     const title = rawTitle.replace(/<[^>]*>?/gm, '');
     const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
-        title,
+        title: title.includes('|') ? { absolute: title } : title,
         description,
         keywords: city.meta_keywords,
         alternates: { canonical },
@@ -69,7 +73,7 @@ export default async function CityDetailPage({ params }: { params: Promise<{ slu
     // Fetch city data first to determine if we should 404 immediately
     const cityData = await getCityBySlug(slug);
 
-    if (!cityData) {
+    if (!cityData || !cityData.slug) {
         notFound();
     }
 

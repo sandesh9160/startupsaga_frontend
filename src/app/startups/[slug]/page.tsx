@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StartupDetailContent } from "@/components/startups/StartupDetailContent";
-import { getStartupBySlug, getStories, getStartups } from "@/lib/api";
+import { getStartupBySlug, getStories, getStartups, getSEOSettings } from "@/lib/api";
 import { StartupPageSchema } from "@/components/seo/Schema/StartupPageSchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
@@ -18,24 +18,29 @@ function getAbsoluteImageUrl(url: string | null | undefined): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const startup = await getStartupBySlug(slug);
-    if (!startup) notFound();
+    const [startup, seo] = await Promise.all([
+        getStartupBySlug(slug),
+        getSEOSettings().catch(() => ({})),
+    ]);
+    if (!startup || !startup.slug || (startup.is_active !== undefined && !startup.is_active)) {
+        notFound();
+    }
     // FIX-002: Respect canonical_override from CMS if set
     const canonical = startup.canonical_override
         ? (startup.canonical_override.startsWith("http") ? startup.canonical_override : `${SITE_URL}${startup.canonical_override.startsWith("/") ? "" : "/"}${startup.canonical_override}`)
         : `${SITE_URL}/startups/${startup.slug}`;
-    const rawDescription = startup.meta_description || startup.tagline || startup.description;
+    const rawDescription = startup.meta_description || startup.tagline || startup.description || seo.default_meta_description;
 
     // FIX-006: Prefer og_image over logo (logos are often small/square)
     const ogImage = getAbsoluteImageUrl(startup.og_image || startup.logo);
-    const rawTitle = startup.meta_title || `${startup.name} | StartupSaga.in`;
+    const rawTitle = startup.meta_title || `${startup.name}`;
 
     // Safety: strip accidental tags from CMS strings
     const title = (rawTitle || "").replace(/<[^>]*>?/gm, '');
     const description = (rawDescription || "").replace(/<[^>]*>?/gm, '');
 
     return {
-        title,
+        title: title.includes('|') ? { absolute: title } : title,
         description,
         keywords: startup.meta_keywords,
         alternates: { canonical },
@@ -78,7 +83,7 @@ export default async function StartupDetailPage({ params }: { params: Promise<{ 
     // Fetch startup first to determine if we should 404 immediately
     const startup = await getStartupBySlug(slug);
 
-    if (!startup) {
+    if (!startup || !startup.slug || (startup.is_active !== undefined && !startup.is_active)) {
         notFound();
     }
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StoryDetailContent } from "@/components/stories/StoryDetailContent";
-import { getStoryBySlug, getStories, getStartups } from "@/lib/api";
+import { getStoryBySlug, getStories, getStartups, getSEOSettings } from "@/lib/api";
 import { Story, Startup, PaginatedResponse } from "@/types";
 import { StorySchema } from "@/components/seo/Schema/StorySchema";
 import { notFound, redirect } from "next/navigation";
@@ -17,22 +17,27 @@ function getAbsoluteImageUrl(url: string | null | undefined): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
-    const story = await getStoryBySlug(slug);
-    if (!story) notFound();
+    const [story, seo] = await Promise.all([
+        getStoryBySlug(slug),
+        getSEOSettings().catch(() => ({})),
+    ]);
+    if (!story || !story.slug || (story.status !== undefined && story.status !== 'published')) {
+        notFound();
+    }
     // FIX-002: Respect canonical_override from CMS if set
     const canonical = story.canonical_override
         ? (story.canonical_override.startsWith("http") ? story.canonical_override : `${SITE_URL}${story.canonical_override.startsWith("/") ? "" : "/"}${story.canonical_override}`)
         : `${SITE_URL}/stories/${story.slug}`;
     const cleanContent = story.content?.replace(/<[^>]*>?/gm, '') || "";
-    const rawDescription = story.meta_description || story.excerpt || (cleanContent.slice(0, 160) || "Startup story on StartupSaga.in");
+    const rawDescription = story.meta_description || story.excerpt || (cleanContent.slice(0, 160) || seo.default_meta_description || "Startup story on StartupSaga.in");
     const ogImage = getAbsoluteImageUrl(story.og_image || story.thumbnail);
-    const rawTitle = story.meta_title || `${story.title} | StartupSaga.in`;
+    const rawTitle = story.meta_title || `${story.title}`;
 
     const title = rawTitle.replace(/<[^>]*>?/gm, '');
     const description = rawDescription.replace(/<[^>]*>?/gm, '');
 
     return {
-        title,
+        title: title.includes('|') ? { absolute: title } : title,
         description,
         keywords: story.meta_keywords,
         alternates: { canonical },
@@ -73,7 +78,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
     // Fetch story first to determine if we should 404 immediately
     const story = await getStoryBySlug(slug);
 
-    if (!story) {
+    if (!story || !story.slug || (story.status !== undefined && story.status !== 'published')) {
         notFound();
     }
 

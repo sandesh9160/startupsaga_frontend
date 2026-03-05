@@ -1,8 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { CategoryDetailContent } from "@/components/categories/CategoryDetailContent";
-import { getCategoryBySlug, getCities } from "@/lib/api";
+import { getCategoryBySlug, getCities, resolveRedirect, getSEOSettings } from "@/lib/api";
 import { notFound, redirect } from "next/navigation";
-import { resolveRedirect } from "@/lib/api";
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/Schema/JsonLd";
 import { SITE_URL } from "@/config/site";
@@ -19,15 +18,20 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await params;
 
-  const category = await getCategoryBySlug(slug);
-  if (!category) {
+  const [category, seo] = await Promise.all([
+    getCategoryBySlug(slug),
+    getSEOSettings().catch(() => ({})),
+  ]);
+
+  if (!category || !category.slug) {
     notFound();
   }
 
-  const rawTitle = category.meta_title || `${category.name} Startups in India | StartupSaga.in`;
+  const rawTitle = category.meta_title || `${category.name} Startups in India`;
   const rawDescription =
     category.meta_description ||
     category.description ||
+    seo.default_meta_description ||
     `Explore top ${category.name} startups in India.`;
 
   // Safety: strip tags
@@ -39,7 +43,7 @@ export async function generateMetadata(
   const ogImage = getAbsoluteImageUrl(category.og_image);
 
   return {
-    title,
+    title: title.includes('|') ? { absolute: title } : title,
     description,
     keywords: category.meta_keywords,
     alternates: { canonical },
@@ -84,7 +88,7 @@ export default async function CategoryDetailPage(
   // Fetch category data first to determine if we should 404 immediately
   const categoryData = await getCategoryBySlug(slug);
 
-  if (!categoryData) {
+  if (!categoryData || !categoryData.slug) {
     notFound();
   }
 
