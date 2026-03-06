@@ -4,6 +4,8 @@ import { CityDetailContent } from "@/components/cities/CityDetailContent";
 import { getCityBySlug, getCategories, getCities, resolveRedirect, getSEOSettings } from "@/lib/api";
 import { JsonLd } from "@/components/seo/Schema/JsonLd";
 import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
+import { preload } from "react-dom";
 import { SITE_URL } from "@/config/site";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
 
@@ -66,20 +68,43 @@ export const revalidate = 3600;
 
 export default async function CityDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
+
+    // Preliminary check for navigation
     if (slug === "cities") redirect("/cities");
     if (slug === "startups") redirect("/startups");
     if (slug === "categories") redirect("/categories");
     if (slug === "stories") redirect("/stories");
 
-    const redirectTo = await resolveRedirect(`/cities/${slug}`);
+    // Parallelize redirect check and city fetch (primes cache)
+    const [redirectTo] = await Promise.all([
+        resolveRedirect(`/cities/${slug}`),
+        getCityBySlug(slug),
+    ]);
+
     if (redirectTo) redirect(redirectTo);
 
-    // Fetch city data first to determine if we should 404 immediately
+    return (
+        <Layout>
+            <Suspense fallback={<div className="min-h-screen bg-white animate-pulse" />}>
+                <CityContent slug={slug} />
+            </Suspense>
+        </Layout>
+    );
+}
+
+/**
+ * Async content component for city detail.
+ */
+async function CityContent({ slug }: { slug: string }) {
     const cityData = await getCityBySlug(slug);
 
     if (!cityData || !cityData.slug) {
         notFound();
     }
+
+    const cityImage = getAbsoluteImageUrl(cityData.og_image || cityData.image);
+    // Preload city hero image
+    preload(cityImage, { as: "image" });
 
     const [allCategories, allCities] = await Promise.all([
         getCategories(),
@@ -115,15 +140,13 @@ export default async function CityDetailPage({ params }: { params: Promise<{ slu
     return (
         <>
             <JsonLd data={breadcrumbSchema} />
-            <Layout>
-                <CityDetailContent
-                    city={city}
-                    cityStartups={cityStartups}
-                    cityStories={cityStories}
-                    topCategories={topCategories}
-                    allCities={allCities}
-                />
-            </Layout>
+            <CityDetailContent
+                city={city}
+                cityStartups={cityStartups}
+                cityStories={cityStories}
+                topCategories={topCategories}
+                allCities={allCities}
+            />
         </>
     );
 }

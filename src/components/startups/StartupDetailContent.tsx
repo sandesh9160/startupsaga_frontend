@@ -87,9 +87,10 @@ export type SimilarStartup = {
 interface StartupDetailContentProps {
     startup: StartupData;
     similarStartups: SimilarStartup[];
+    onlySimilar?: boolean;
 }
 
-export function StartupDetailContent({ startup, similarStartups }: StartupDetailContentProps) {
+export function StartupDetailContent({ startup, similarStartups, onlySimilar = false }: StartupDetailContentProps) {
     const logoSrc = getSafeImageSrc(startup.logo || startup.og_image);
     const isSvgLogo = logoSrc.toLowerCase().endsWith(".svg");
 
@@ -180,6 +181,40 @@ export function StartupDetailContent({ startup, similarStartups }: StartupDetail
     const websiteUrl = startup.website_url || (startup.website as string | undefined);
     const industryTags: string[] = (startup.industry_tags) ?? [];
     const displayCategory = (typeof startup.category === 'object' && startup.category) ? (startup.category as { name?: string }).name : (startup.category as string || 'this sector');
+
+    if (onlySimilar) {
+        return (
+            <div id="similar-startups" className="mt-16">
+                <div className="flex items-center justify-between mb-8">
+                    <div className="space-y-1">
+                        <h2 className="text-xl md:text-2xl font-serif font-semibold text-zinc-900 tracking-tight">
+                            Discover Similar Startups
+                        </h2>
+                        <p className="text-zinc-500 text-sm font-medium">Explore more startups in {displayCategory}.</p>
+                    </div>
+                    <Link href="/startups" className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest flex items-center gap-1">
+                        View Directory <ArrowRight className="h-2.5 w-2.5" />
+                    </Link>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {similarStartups.map((s) => (
+                        <StartupCard
+                            key={s.slug || Math.random().toString()}
+                            slug={s.slug || ""}
+                            name={s.name || ""}
+                            logo={s.logo || ""}
+                            category={s.category as unknown as Category}
+                            city={s.city as unknown as City}
+                            tagline={s.tagline}
+                            stage={s.stage}
+                            funding_stage={s.funding_stage}
+                            team_size={s.team_size}
+                        />
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-transparent min-h-screen font-sans pb-16">
@@ -471,38 +506,7 @@ export function StartupDetailContent({ startup, similarStartups }: StartupDetail
                     </aside>
                 </div>
 
-                {/* Similar Startups */}
-                {similarStartups.length > 0 && (
-                    <div id="similar-startups" className="mt-16">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="space-y-1">
-                                <h2 className="text-xl md:text-2xl font-serif font-semibold text-zinc-900 tracking-tight">
-                                    Discover Similar Startups
-                                </h2>
-                                <p className="text-zinc-500 text-sm font-medium">Explore more startups in {displayCategory}.</p>
-                            </div>
-                            <Link href="/startups" className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest flex items-center gap-1">
-                                View Directory <ArrowRight className="h-2.5 w-2.5" />
-                            </Link>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {similarStartups.map((s) => (
-                                <StartupCard
-                                    key={s.slug || Math.random().toString()}
-                                    slug={s.slug || ""}
-                                    name={s.name || ""}
-                                    logo={s.logo || ""}
-                                    category={s.category as unknown as Category}
-                                    city={s.city as unknown as City}
-                                    tagline={s.tagline}
-                                    stage={s.stage}
-                                    funding_stage={s.funding_stage}
-                                    team_size={s.team_size}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                )}
+                {/* Similar Startups are now handled externally via onlySimilar prop */}
             </main>
         </div>
     );

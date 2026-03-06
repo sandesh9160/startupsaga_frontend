@@ -118,7 +118,7 @@ export function StartupsContent({
                                     dangerouslySetInnerHTML={{ __html: description }}
                                 />
                             )}
-                            {content && (
+                            {content && content !== description && (
                                 <div className="text-sm text-zinc-400 leading-relaxed max-w-2xl mx-auto"
                                     dangerouslySetInnerHTML={{ __html: content }}
                                 />

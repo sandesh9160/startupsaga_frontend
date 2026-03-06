@@ -26,20 +26,27 @@ interface StoriesContentProps {
     title?: string;
     description?: string;
     content?: string;
+    initialStories?: Story[];
+    initialTotalCount?: number;
+    initialTotalPages?: number;
 }
 
 export function StoriesContent({
     title,
     description,
-    content
+    content,
+    initialStories = [],
+    initialTotalCount = 0,
+    initialTotalPages = 1
 }: StoriesContentProps) {
     const searchParams = useSearchParams();
-    const [stories, setStories] = useState<Story[]>([]);
-    const [totalCount, setTotalCount] = useState(0);
-    const [totalPages, setTotalPages] = useState(1);
+    const [stories, setStories] = useState<Story[]>(initialStories);
+    const [totalCount, setTotalCount] = useState(initialTotalCount);
+    const [totalPages, setTotalPages] = useState(initialTotalPages);
     const [categories, setCategories] = useState<Category[]>([]);
     const [cities, setCities] = useState<City[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(initialStories.length === 0);
+    const [isFirstRender, setIsFirstRender] = useState(true);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
@@ -79,6 +86,11 @@ export function StoriesContent({
     }, []);
 
     useEffect(() => {
+        if (isFirstRender && initialStories.length > 0) {
+            setIsFirstRender(false);
+            return;
+        }
+
         setIsLoading(true);
         const handle = setTimeout(async () => {
             try {
@@ -101,10 +113,11 @@ export function StoriesContent({
             } finally {
                 setIsLoading(false);
             }
-        }, searchQuery ? 300 : 0);
+        }, (searchQuery || !isFirstRender) ? 300 : 0);
 
+        setIsFirstRender(false);
         return () => clearTimeout(handle);
-    }, [searchQuery, selectedCategory, selectedCity, selectedStage, sortKey, page]);
+    }, [searchQuery, selectedCategory, selectedCity, selectedStage, sortKey, page, isFirstRender, initialStories.length]);
 
     useEffect(() => {
         setPage(1);
@@ -137,7 +150,7 @@ export function StoriesContent({
                                         dangerouslySetInnerHTML={{ __html: description }}
                                     />
                                 )}
-                                {content && (
+                                {content && content !== description && (
                                     <div className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-3xl mx-auto opacity-80"
                                         dangerouslySetInnerHTML={{ __html: content }}
                                     />

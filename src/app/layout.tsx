@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
-import { cache, Suspense } from "react";
+import { cache } from "react";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { WebSiteSchema } from "@/components/seo/Schema/WebSiteSchema";
@@ -36,13 +36,13 @@ export async function generateMetadata(): Promise<Metadata> {
         getCachedSEO(),
     ]);
 
-    const siteName = layout.site_name || "StartupSaga.in";
-    const rawTitle = seo.default_meta_title || `${siteName} | Startup Stories of India`;
-    const rawDescription = seo.default_meta_description || "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.";
-    const favicon = layout.site_favicon || "/favicon.png";
+    const siteName = layout?.site_name || "StartupSaga.in";
+    const rawTitle = seo?.default_meta_title || `${siteName} | Startup Stories of India`;
+    const rawDescription = seo?.default_meta_description || "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.";
+    const favicon = layout?.site_favicon || "/favicon.png";
 
     // Strip any accidental HTML tags from CMS fields to avoid breaking the head
-    const title = rawTitle.replace(/<[^>]*>?/gm, '');
+    const title = (rawTitle || "").replace(/<[^>]*>?/gm, '') || siteName;
     const description = (rawDescription || "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.").replace(/<[^>]*>?/gm, '');
 
     return {
@@ -52,7 +52,7 @@ export async function generateMetadata(): Promise<Metadata> {
             template: `%s | ${siteName}`,
         },
         description,
-        keywords: seo.global_keywords,
+        keywords: seo?.global_keywords,
         robots: {
             index: true,
             follow: true,
@@ -91,25 +91,34 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const [layout, seo] = await Promise.all([
+        getCachedLayout(),
+        getCachedSEO(),
+    ]);
+
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
                 {/* Preconnect to API origin so image/data requests don't pay TCP+TLS setup cost */}
                 <link rel="preconnect" href="https://api.startupsaga.in" crossOrigin="anonymous" />
                 <link rel="dns-prefetch" href="https://api.startupsaga.in" />
-                {/* Preconnect for Google Fonts (already loaded via next/font but helps for fallback) */}
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
-                {/* Keep global meta details inside head */}
-                <Suspense fallback={null}>
-                    <GoogleAnalytics />
-                </Suspense>
-                <WebSiteSchema />
+                <WebSiteSchema
+                    name={layout?.site_name}
+                    description={seo?.default_meta_description}
+                    logoUrl={layout?.site_logo}
+                />
+
+                {/* Google Analytics - Injected directly as a synchronous component to avoid Suspense markers in Head */}
+                {seo?.google_analytics_id && (
+                    <GoogleAnalytics gaId={seo.google_analytics_id} />
+                )}
             </head>
             <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
                 <Providers>

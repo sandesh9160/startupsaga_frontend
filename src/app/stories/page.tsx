@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StoriesContent } from "@/components/stories/StoriesContent";
 import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getStories, getPlatformStats, getPageBySlug, getSEOSettings } from "@/lib/api";
+import { getSections, getPlatformStats, getPageBySlug, getSEOSettings, getStoriesPage } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 import type { PageSection, Story } from "@/types";
 
@@ -32,6 +32,10 @@ export async function generateMetadata({
     return {
         title: title.includes('|') ? { absolute: title } : title,
         description,
+        keywords: [
+            ...(Array.isArray(seo.global_keywords) ? seo.global_keywords : [seo.global_keywords || ""]),
+            ...(page?.meta_keywords ? (Array.isArray(page.meta_keywords) ? page.meta_keywords : [page.meta_keywords]) : [])
+        ].filter(Boolean).join(", "),
         alternates: {
             canonical: `${SITE_URL}/stories`,
         },
@@ -55,21 +59,27 @@ export async function generateMetadata({
 
 export default async function StoriesPage() {
     let pageSections: PageSection[] = [];
-    let stories: Story[] = [];
+    let initialData: { results: Story[]; count: number; total_pages: number } = { results: [], count: 0, total_pages: 1 };
     let platformStats = { total_startups: 0, total_stories: 0 };
 
     try {
-        const [sectionsData, storiesData, statsData] = await Promise.all([
+        const [sectionsData, response, statsData] = await Promise.all([
             // Try both page_key and page_slug to ensure we get sections from admin
             getSections("stories").then(data =>
                 data.length > 0 ? data : getSections("", "stories")
             ),
-            getStories({ page_size: 10 }),
+            getStoriesPage({ page_size: 12 }),
             getPlatformStats().catch(() => null),
         ]);
 
         pageSections = sectionsData || [];
-        stories = storiesData || [];
+        if (response) {
+            initialData = {
+                results: response.results || [],
+                count: response.count || 0,
+                total_pages: response.total_pages || 1
+            };
+        }
         if (statsData) platformStats = statsData;
     } catch {
     }
@@ -108,7 +118,7 @@ export default async function StoriesPage() {
                     initialSections={pageSections.filter((s: PageSection) =>
                         s.id ? s.id !== headerSection?.id : s !== headerSection
                     )}
-                    initialStories={stories}
+                    initialStories={initialData.results}
                     initialPlatformStats={platformStats}
                     defaultView={
                         <Suspense fallback={
@@ -124,6 +134,9 @@ export default async function StoriesPage() {
                                 title={displayTitle}
                                 description={displaySubtitle}
                                 content={displayContent}
+                                initialStories={initialData.results}
+                                initialTotalCount={initialData.count}
+                                initialTotalPages={initialData.total_pages}
                             />
                         </Suspense>
                     }

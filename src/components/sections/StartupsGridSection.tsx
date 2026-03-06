@@ -66,7 +66,7 @@ export function StartupsGridSection({
                         <StartupCard
                             key={startup.slug || startup.id}
                             {...startup}
-                            priority={index < 1 && idx < 4}
+                            priority={index < 2 && idx < 4}
                         />
                     ))}
                 </div>

@@ -7,6 +7,8 @@ import { StorySchema } from "@/components/seo/Schema/StorySchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
+import { Suspense } from "react";
+import { preload } from "react-dom";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 function getAbsoluteImageUrl(url: string | null | undefined): string {
@@ -66,7 +68,6 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 export const revalidate = 3600;
 
-import { Suspense } from "react";
 
 /**
  * Story detail page - Optimized for FCP.
@@ -80,11 +81,12 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
     if (slug === "categories") redirect("/categories");
     if (slug === "cities") redirect("/cities");
 
-    // We do NOT await the story fetch here if we want the shell to flush immediately.
-    // However, we MUST check redirects. resolveRedirect is fast but it's an I/O call.
-    // To get a perfect FCP, we could even move redirects inside Suspense or use middleware.
-    // For now, we'll keep resolveRedirect here but move the heavy data work.
-    const redirectTo = await resolveRedirect(`/stories/${slug}`);
+    // Parallelize redirect check and story fetch
+    const [redirectTo] = await Promise.all([
+        resolveRedirect(`/stories/${slug}`),
+        getStoryBySlug(slug), // Primes cache
+    ]);
+
     if (redirectTo) redirect(redirectTo);
 
     return (
@@ -106,11 +108,34 @@ async function StoryContent({ slug }: { slug: string }) {
         notFound();
     }
 
-    // 2. LCP is handled by next/image with priority={true} in StoryDetailContent.
-    // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 
-    // because next/image uses the /_next/image proxy URL.
+    const storyImage = getAbsoluteImageUrl(story.og_image || story.thumbnail);
+    // Preload hero image
+    preload(storyImage, { as: "image" });
 
+    const canonical = story.canonical_override
+        ? (story.canonical_override.startsWith("http") ? story.canonical_override : `${SITE_URL}${story.canonical_override.startsWith("/") ? "" : "/"}${story.canonical_override}`)
+        : `${SITE_URL}/stories/${story.slug}`;
 
+    return (
+        <>
+            <StorySchema story={story} canonical={canonical} />
+            <StoryDetailContent
+                story={story}
+                relatedStories={[]}
+                categoryStartups={[]}
+            />
+            {/* Load recommendations in a separate stream */}
+            <Suspense fallback={<div className="h-96 animate-pulse bg-zinc-50 rounded-xl" />}>
+                <StoryRecommendationsSection story={story} />
+            </Suspense>
+        </>
+    );
+}
+
+/**
+ * Recommendations section component to avoid blocking the main story content.
+ */
+async function StoryRecommendationsSection({ story }: { story: Story }) {
     const [allStories, allStartups] = await Promise.all([
         getStories(),
         getStartups()
@@ -134,19 +159,13 @@ async function StoryContent({ slug }: { slug: string }) {
         .filter((s: Startup) => s.categorySlug === story.categorySlug)
         .slice(0, 4);
 
-    const canonical = story.canonical_override
-        ? (story.canonical_override.startsWith("http") ? story.canonical_override : `${SITE_URL}${story.canonical_override.startsWith("/") ? "" : "/"}${story.canonical_override}`)
-        : `${SITE_URL}/stories/${story.slug}`;
-
     return (
-        <>
-            <StorySchema story={story} canonical={canonical} />
-            <StoryDetailContent
-                story={story}
-                relatedStories={relatedStories}
-                categoryStartups={categoryStartups}
-            />
-        </>
+        <StoryDetailContent
+            story={story}
+            relatedStories={relatedStories}
+            categoryStartups={categoryStartups}
+            onlyRecommendations={true}
+        />
     );
 }
 

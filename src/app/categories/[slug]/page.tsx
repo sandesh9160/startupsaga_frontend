@@ -78,6 +78,7 @@ export const dynamicParams = true;
 export const revalidate = 3600;
 
 import { Suspense } from "react";
+import { preload } from "react-dom";
 
 /**
  * Category page - Optimized for FCP.
@@ -90,7 +91,12 @@ export default async function CategoryDetailPage({ params }: { params: Promise<{
   if (slug === "cities") redirect("/cities");
   if (slug === "stories") redirect("/stories");
 
-  const redirectTo = await resolveRedirect(`/categories/${slug}`);
+  // Parallelize redirect check and category fetch (primes cache)
+  const [redirectTo] = await Promise.all([
+    resolveRedirect(`/categories/${slug}`),
+    getCategoryBySlug(slug),
+  ]);
+
   if (redirectTo) redirect(redirectTo);
 
   return (
@@ -111,6 +117,10 @@ async function CategoryContent({ slug }: { slug: string }) {
   if (!categoryData || !categoryData.slug) {
     notFound();
   }
+
+  const categoryIcon = getAbsoluteImageUrl(categoryData.og_image || categoryData.icon);
+  // Preload category icon
+  preload(categoryIcon, { as: "image" });
 
   // 2. LCP is handled by next/image with priority={true} in CategoryDetailContent.
   // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 

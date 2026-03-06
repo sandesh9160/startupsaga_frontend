@@ -7,6 +7,7 @@ import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 import { Suspense } from "react";
+import { preload } from "react-dom";
 
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
@@ -84,7 +85,12 @@ export default async function StartupDetailPage({ params }: { params: Promise<{ 
     if (slug === "categories") redirect("/categories");
     if (slug === "cities") redirect("/cities");
 
-    const redirectTo = await resolveRedirect(`/startups/${slug}`);
+    // Initiate redirect check and data fetch in parallel
+    const [redirectTo] = await Promise.all([
+        resolveRedirect(`/startups/${slug}`),
+        getStartupBySlug(slug), // This primes the cache early
+    ]);
+
     if (redirectTo) redirect(redirectTo);
 
     return (
@@ -106,15 +112,35 @@ async function StartupContent({ slug }: { slug: string }) {
         notFound();
     }
 
-    // 2. LCP is handled by next/image with priority={true} in StartupDetailContent.
-    // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 
-    // because next/image uses the /_next/image proxy URL.
+    const logoSrc = getAbsoluteImageUrl(startup.og_image || startup.logo);
+    // Preload the hero image (logo) as early as possible
+    preload(logoSrc, { as: "image" });
 
+    const canonical = startup.canonical_override
+        ? (startup.canonical_override.startsWith("http") ? startup.canonical_override : `${SITE_URL}${startup.canonical_override.startsWith("/") ? "" : "/"}${startup.canonical_override}`)
+        : `${SITE_URL}/startups/${startup.slug}`;
 
-    const [allStartups] = await Promise.all([
-        getStartups()
-    ]);
+    return (
+        <>
+            <StartupPageSchema startup={startup} canonical={canonical} />
+            <StartupDetailContent
+                startup={{ ...startup, tagline: startup.tagline || startup.description?.slice(0, 140) }}
+                similarStartups={[]} // Pass empty first to render the shell
+            />
+            {/* Load similar startups as a separate suspended stream */}
+            <Suspense fallback={<div className="h-64 animate-pulse bg-zinc-50 rounded-xl" />}>
+                <SimilarStartupsSection startup={startup} />
+            </Suspense>
+        </>
+    );
+}
 
+/**
+ * Separate component for similar startups to avoid blocking the main content.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function SimilarStartupsSection({ startup }: { startup: any }) {
+    const allStartups = await getStartups();
     const startups = Array.isArray(allStartups) ? allStartups : [];
 
     const currentCategorySlug = startup.categorySlug || (typeof startup.category === 'object' ? startup.category?.slug : null);
@@ -154,19 +180,15 @@ async function StartupContent({ slug }: { slug: string }) {
         .slice(0, 4)
         .map((s: StartupItem) => ({ ...s, tagline: s.tagline || s.description?.slice(0, 140) }));
 
-
-    const canonical = startup.canonical_override
-        ? (startup.canonical_override.startsWith("http") ? startup.canonical_override : `${SITE_URL}${startup.canonical_override.startsWith("/") ? "" : "/"}${startup.canonical_override}`)
-        : `${SITE_URL}/startups/${startup.slug}`;
-
     return (
-        <>
-            <StartupPageSchema startup={startup} canonical={canonical} />
+        <div className="container-wide">
             <StartupDetailContent
-                startup={{ ...startup, tagline: startup.tagline || startup.description?.slice(0, 140) }}
+                startup={startup}
                 similarStartups={similarStartups}
+                onlySimilar={true}
             />
-        </>
+        </div>
     );
 }
+
 

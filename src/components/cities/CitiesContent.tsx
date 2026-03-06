@@ -11,29 +11,41 @@ interface CitiesContentProps {
     title?: string;
     description?: string;
     content?: string;
+    initialCities?: City[];
+    initialPlatformStats?: { total_startups?: number; total_unicorns?: number };
 }
 
 export function CitiesContent({
     title,
     description,
-    content
+    content,
+    initialCities = [],
+    initialPlatformStats = { total_startups: 0, total_unicorns: 0 }
 }: CitiesContentProps) {
-    const [cities, setCities] = useState<City[]>([]);
+    const [cities, setCities] = useState<City[]>(initialCities);
     const [activeTier, setActiveTier] = useState<'all' | '1' | '2' | '3'>('all');
     const [isMounted, setIsMounted] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(initialCities.length === 0);
 
     const [platformStats, setPlatformStats] = useState<{
         total_startups?: number;
         total_unicorns?: number;
-    }>({ total_startups: 0, total_unicorns: 0 });
+    }>(initialPlatformStats);
 
     const tier1Ref = useRef<HTMLElement>(null);
     const tier2Ref = useRef<HTMLElement>(null);
     const tier3Ref = useRef<HTMLElement>(null);
 
+    const isFirstRender = useRef(true);
+
     useEffect(() => {
         setIsMounted(true);
+
+        if (isFirstRender.current && initialCities.length > 0) {
+            isFirstRender.current = false;
+            return;
+        }
+
         setIsLoading(true);
         Promise.all([
             getCities().then(setCities),
@@ -41,7 +53,7 @@ export function CitiesContent({
         ])
             .catch(() => { })
             .finally(() => setIsLoading(false));
-    }, []);
+    }, [initialCities.length]);
 
     // Group cities by tier
     const tier1Cities = useMemo(() => cities.filter(c => String(c.tier).includes('1')), [cities]);
@@ -167,7 +179,7 @@ export function CitiesContent({
                                         dangerouslySetInnerHTML={{ __html: description }}
                                     />
                                 )}
-                                {content && (
+                                {content && content !== description && (
                                     <div className="text-sm text-muted-foreground leading-relaxed max-w-2xl mx-auto opacity-80"
                                         dangerouslySetInnerHTML={{ __html: content }}
                                     />

@@ -31,6 +31,10 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
         title: title.includes('|') ? { absolute: title } : title,
         description,
+        keywords: [
+            ...(Array.isArray(seo.global_keywords) ? seo.global_keywords : [seo.global_keywords || ""]),
+            ...(page?.meta_keywords ? (Array.isArray(page.meta_keywords) ? page.meta_keywords : [page.meta_keywords]) : [])
+        ].filter(Boolean).join(", "),
         alternates: {
             canonical: SITE_URL,
         },

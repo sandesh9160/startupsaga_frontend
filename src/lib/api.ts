@@ -13,6 +13,7 @@ import {
   Page,
   PaginatedResponse
 } from "@/types";
+import { cache } from "react";
 
 export type {
   Story,
@@ -167,22 +168,22 @@ export const publicApi = {
 };
 
 // Simplified exports for existing code
-export const getStories = publicApi.getStories;
-export const getStoryBySlug = publicApi.getStory;
-export const getTrendingStories = publicApi.getTrending;
-export const getStartups = publicApi.getStartups;
-export const getStartupBySlug = publicApi.getStartup;
-export const getCities = publicApi.getHubs;
-export const getCityBySlug = publicApi.getHub;
-export const getSections = publicApi.getSections;
-export const getNavigation = publicApi.getNav;
-export const getNav = publicApi.getNav;
-export const getLayoutSettings = publicApi.getLayout;
-export const getSEOSettings = publicApi.getSEO;
-export const getPlatformStats = publicApi.getPlatformStats;
-export const getPageBySlug = (slug: string): Promise<Page | null> => fetchAPI(`/pages/${slug}/`);
-export const getCategories = () => fetchList<Category>("/categories/");
-export const getCategoryBySlug = (slug: string) => fetchAPI(`/categories/${slug}/`);
+export const getStories = cache(publicApi.getStories);
+export const getStoryBySlug = cache(publicApi.getStory);
+export const getTrendingStories = cache(publicApi.getTrending);
+export const getStartups = cache(publicApi.getStartups);
+export const getStartupBySlug = cache(publicApi.getStartup);
+export const getCities = cache(publicApi.getHubs);
+export const getCityBySlug = cache(publicApi.getHub);
+export const getSections = cache(publicApi.getSections);
+export const getNavigation = cache(publicApi.getNav);
+export const getNav = cache(publicApi.getNav);
+export const getLayoutSettings = cache(publicApi.getLayout);
+export const getSEOSettings = cache(publicApi.getSEO);
+export const getPlatformStats = cache(publicApi.getPlatformStats);
+export const getPageBySlug = cache((slug: string): Promise<Page | null> => fetchAPI(`/pages/${slug}/`));
+export const getCategories = cache(() => fetchList<Category>("/categories/"));
+export const getCategoryBySlug = cache((slug: string) => fetchAPI(`/categories/${slug}/`));
 export const getStoriesPage = async (params?: Record<string, string | number | boolean | undefined>): Promise<PaginatedResponse<Story>> => {
 
   // Filter out undefined/null values to avoid sending "undefined" as string

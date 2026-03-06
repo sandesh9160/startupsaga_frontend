@@ -155,6 +155,7 @@ export interface Page {
     content?: string;
     meta_title?: string;
     meta_description?: string;
+    meta_keywords?: string;
     canonical_override?: string;
     noindex?: boolean;
     sections?: PageSection[];

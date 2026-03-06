@@ -112,7 +112,7 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
             {faqItems.length > 0 && <FAQSchema items={faqItems} />}
             {sections.map((section, index) => {
                 const type = section.section_type || section.type;
-                const isBelowFold = index > 0;
+                const isDeeplyBelowFold = index > 2;
 
                 const HeadingTag = (!h1Rendered) ? 'h1' : 'h2';
                 if (HeadingTag === 'h1') h1Rendered = true;
@@ -219,7 +219,7 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
                 };
 
                 return (
-                    <div key={section.id || index} className={cn(isBelowFold ? "content-auto" : "")}>
+                    <div key={section.id || index} className={cn(isDeeplyBelowFold ? "content-auto" : "")}>
                         {renderSection()}
                     </div>
                 );

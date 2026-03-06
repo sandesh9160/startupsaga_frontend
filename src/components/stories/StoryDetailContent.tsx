@@ -36,6 +36,7 @@ interface StoryDetailContentProps {
     story: Story;
     relatedStories: Story[];
     categoryStartups: Startup[];
+    onlyRecommendations?: boolean;
 }
 
 const getDisplayName = (val: string | { name?: string; title?: string } | undefined | null) => {
@@ -44,7 +45,7 @@ const getDisplayName = (val: string | { name?: string; title?: string } | undefi
     return val.name || val.title || "";
 };
 
-export function StoryDetailContent({ story, relatedStories, categoryStartups }: StoryDetailContentProps) {
+export function StoryDetailContent({ story, relatedStories, categoryStartups, onlyRecommendations = false }: StoryDetailContentProps) {
     const [tableOfContents, setTableOfContents] = useState<Array<{ id: number; title: string; anchor: string }>>([]);
     const [activeSection, setActiveSection] = useState<string>("");
 
@@ -110,6 +111,76 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
 
         return () => observer.disconnect();
     }, [tableOfContents]);
+
+    if (onlyRecommendations) {
+        return (
+            <div className="bg-transparent border-t border-zinc-100 py-16 md:py-20">
+                <div className="container-wide space-y-20">
+                    {relatedStories.length > 0 && (
+                        <div className="space-y-10">
+                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                                <div className="space-y-2">
+                                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#0F172A] tracking-tight font-serif">Explore Related Stories</h2>
+                                    <p className="text-zinc-500 font-medium text-lg">More insights from the {getDisplayName(story.category)} ecosystem.</p>
+                                </div>
+                                <Button asChild variant="ghost" className="text-xs font-bold uppercase tracking-wider gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
+                                    <Link href="/stories">
+                                        All Stories
+                                        <ArrowLeft className="h-4 w-4 rotate-180" />
+                                    </Link>
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {relatedStories.map((s) => (
+                                    <StoryCard
+                                        key={s.slug}
+                                        slug={s.slug}
+                                        title={s.title}
+                                        excerpt={s.excerpt}
+                                        thumbnail={s.thumbnail}
+                                        og_image={s.og_image}
+                                        category={s.category}
+                                        categorySlug={s.category_slug}
+                                        city={s.city}
+                                        citySlug={s.city_slug}
+                                        publishDate={s.publishDate || s.publish_date}
+                                        author_name={s.author_name || s.author}
+                                        read_time={s.read_time}
+                                        featured={false}
+                                        isFeatured={false}
+                                        priority={false}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {categoryStartups.length > 0 && (
+                        <div className="space-y-10">
+                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-10 border-t border-zinc-50">
+                                <div className="space-y-2">
+                                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#0F172A] tracking-tight font-serif">Companies in this Sector</h2>
+                                    <p className="text-zinc-500 font-medium text-lg">Explore startups shaping the future of {getDisplayName(story.category)}.</p>
+                                </div>
+                                <Button asChild variant="ghost" className="text-xs font-bold uppercase tracking-wider gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
+                                    <Link href="/startups">
+                                        Manage Directory
+                                        <ArrowLeft className="h-4 w-4 rotate-180" />
+                                    </Link>
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                {categoryStartups.map((s: any) => (
+                                    <StartupCard key={s.slug} {...s} priority={false} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <article className="bg-white min-h-screen font-sans selection:bg-orange-100 selection:text-orange-900 pb-12">
@@ -241,7 +312,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                     fill
                                     priority
                                     className="object-cover"
-                                    sizes="(max-width: 1200px) 100vw, 1200px"
+                                    sizes="(max-width: 1280px) 100vw, 1280px"
                                 />
                             </div>
                         )}
@@ -396,79 +467,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                 </div>
             </main>
 
-            {/* Recommendations Section */}
-            {
-                (relatedStories.length > 0 || categoryStartups.length > 0) && (
-                    <section className="bg-transparent border-t border-zinc-100 py-16 md:py-20">
-                        <div className="container-wide space-y-20">
-
-                            {/* Related Stories */}
-                            {relatedStories.length > 0 && (
-                                <div className="space-y-10">
-                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                                        <div className="space-y-2">
-                                            <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[#0F172A] tracking-tight font-serif">Explore Related Stories</h2>
-                                            <p className="text-zinc-500 font-medium text-lg">More insights from the {getDisplayName(story.category)} ecosystem.</p>
-                                        </div>
-                                        <Button asChild variant="ghost" className="text-xs font-bold uppercase tracking-wider gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
-                                            <Link href="/stories">
-                                                All Stories
-                                                <ArrowLeft className="h-4 w-4 rotate-180" />
-                                            </Link>
-                                        </Button>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                        {relatedStories.map((s) => (
-                                            <StoryCard
-                                                key={s.slug}
-                                                slug={s.slug}
-                                                title={s.title}
-                                                excerpt={s.excerpt}
-                                                thumbnail={s.thumbnail}
-                                                og_image={s.og_image}
-                                                category={s.category}
-                                                categorySlug={s.category_slug}
-                                                city={s.city}
-                                                citySlug={s.city_slug}
-                                                publishDate={s.publishDate || s.publish_date}
-                                                author_name={s.author_name || s.author}
-                                                read_time={s.read_time}
-                                                featured={false}
-                                                isFeatured={false}
-                                                priority={false}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Category Startups */}
-                            {categoryStartups.length > 0 && (
-                                <div className="space-y-10">
-                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-10 border-t border-zinc-50">
-                                        <div className="space-y-2">
-                                            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#0F172A] tracking-tight font-serif">Companies in this Sector</h2>
-                                            <p className="text-zinc-500 font-medium text-lg">Explore startups shaping the future of {getDisplayName(story.category)}.</p>
-                                        </div>
-                                        <Button asChild variant="ghost" className="text-xs font-bold uppercase tracking-wider gap-2 h-11 px-6 rounded-xl border border-zinc-100 hover:bg-zinc-50 w-fit">
-                                            <Link href="/startups">
-                                                Manage Directory
-                                                <ArrowLeft className="h-4 w-4 rotate-180" />
-                                            </Link>
-                                        </Button>
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        {categoryStartups.map((s) => (
-                                            <StartupCard key={s.slug} {...s} priority={false} />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                        </div>
-                    </section>
-                )
-            }
+            {/* Recommendations are now handled externally via onlyRecommendations prop */}
         </article >
     );
 }

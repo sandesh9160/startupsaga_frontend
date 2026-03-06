@@ -1,7 +1,7 @@
 "use client";
 
 import { CategoryCard } from "@/components/cards/CategoryCard";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getCategories, getPlatformStats } from "@/lib/api";
 import { Category } from "@/types";
 import { Building2, TrendingUp } from "lucide-react";
@@ -10,18 +10,29 @@ interface CategoriesContentProps {
     title?: string;
     description?: string;
     content?: string;
+    initialCategories?: Category[];
+    initialStats?: { total_startups: number; total_stories: number };
 }
 
 export function CategoriesContent({
     title,
     description,
-    content
+    content,
+    initialCategories = [],
+    initialStats = { total_startups: 0, total_stories: 0 }
 }: CategoriesContentProps) {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [stats, setStats] = useState({ total_startups: 0, total_stories: 0 });
-    const [isLoading, setIsLoading] = useState(true);
+    const [categories, setCategories] = useState<Category[]>(initialCategories);
+    const [stats, setStats] = useState(initialStats);
+    const [isLoading, setIsLoading] = useState(initialCategories.length === 0);
+
+    const isFirstRender = useRef(true);
 
     useEffect(() => {
+        if (isFirstRender.current && initialCategories.length > 0) {
+            isFirstRender.current = false;
+            return;
+        }
+
         Promise.all([
             getCategories(),
             getPlatformStats().catch(() => null),
@@ -33,7 +44,7 @@ export function CategoriesContent({
             });
         }).catch(() => { })
             .finally(() => setIsLoading(false));
-    }, []);
+    }, [initialCategories.length]);
 
     return (
         <div className="bg-[#FAF5F2] min-h-screen font-sans pb-16">
@@ -52,7 +63,7 @@ export function CategoriesContent({
                                     dangerouslySetInnerHTML={{ __html: description }}
                                 />
                             )}
-                            {content && (
+                            {content && content !== description && (
                                 <div className="text-sm md:text-base text-zinc-500 leading-relaxed max-w-3xl mx-auto opacity-90"
                                     dangerouslySetInnerHTML={{ __html: content }}
                                 />

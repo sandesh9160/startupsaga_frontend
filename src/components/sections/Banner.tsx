@@ -53,7 +53,7 @@ export function Banner({
                             fill
                             priority
                             className="object-cover"
-                            sizes="100vw"
+                            sizes="(max-width: 1280px) 100vw, 1280px"
                         />
                     </div>
                 )}
