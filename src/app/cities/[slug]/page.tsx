@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Story, Startup } from "@/types";
 import { Layout } from "@/components/layout/Layout";
 import { CityDetailContent } from "@/components/cities/CityDetailContent";
 import { getCityBySlug, getCategories, getCities, resolveRedirect, getSEOSettings } from "@/lib/api";
@@ -118,11 +119,34 @@ async function CityContent({ slug }: { slug: string }) {
         startupCount: cityData.startupCount ?? (cityData.startups || []).length,
         storyCount: cityData.storyCount ?? (cityData.stories || []).length,
     };
-    const cityStartups = (cityData.startups || []).map((s: { slug: string; tagline?: string; description?: string;[key: string]: unknown }) => ({
-        ...s,
-        tagline: s.tagline || s.description?.slice(0, 140) || s.description,
+    const cityStartups = (cityData.startups || []).map((s: Startup) => ({
+        slug: s.slug || "",
+        name: s.name || s.title || "",
+        logo: s.logo || s.og_image || "",
+        category: s.category || "",
+        city: s.city || cityData.name || "",
+        stage: s.stage || "",
+        funding_stage: s.funding_stage || s.stage || "",
+        team_size: s.team_size || "",
+        tagline: s.tagline || (typeof s.description === 'string' ? s.description.slice(0, 140) : ""),
+        description: "",
     }));
-    const cityStories = cityData.stories || [];
+    const cityStories = (cityData.stories || []).map((s: Story) => ({
+        slug: s.slug || "",
+        title: s.title || "",
+        excerpt: typeof s.excerpt === 'string' ? s.excerpt.slice(0, 200) : (typeof s.content === 'string' ? s.content.slice(0, 200) : ""),
+        content: "",
+        thumbnail: s.thumbnail || s.og_image || "",
+        category: s.category || "",
+        category_slug: s.category_slug || "",
+        city: s.city || cityData.name || "",
+        city_slug: s.city_slug || cityData.slug || "",
+        publish_date: s.publish_date || s.publishDate || "",
+        publishDate: s.publishDate || s.publish_date || "",
+        author: s.author || s.author_name || "",
+        author_name: s.author_name || s.author || "",
+        read_time: s.read_time || null,
+    }));
     const topCategories = (Array.isArray(allCategories) ? allCategories : []).slice(0, 4);
     const canonical = `${SITE_URL}/cities/${slug}`;
     const breadcrumbSchema = {

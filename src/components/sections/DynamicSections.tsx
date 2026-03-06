@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { HeroSection } from "./HeroSection";
 import { StoriesGridSection } from "./StoriesGridSection";
@@ -32,6 +32,7 @@ interface DynamicSectionsProps {
         platformStats?: Record<string, number>;
         heroData?: { title: string, content: string };
     };
+    defaultView?: ReactNode;
 }
 
 /** 
@@ -92,8 +93,8 @@ function SectionSkeleton() {
     );
 }
 
-export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
-    if (!sections || sections.length === 0) return null;
+export function DynamicSections({ sections, data = {}, defaultView }: DynamicSectionsProps) {
+    if (!sections || sections.length === 0) return defaultView ? <div>{defaultView}</div> : null;
 
     let h1Rendered = false;
 
@@ -213,6 +214,9 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
                                 </div>
                             );
 
+                        case 'main_content':
+                            return defaultView ? <div key={section.id || index} className="mb-12">{defaultView}</div> : null;
+
                         default:
                             return null;
                     }
@@ -224,6 +228,10 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
                     </div>
                 );
             })}
+
+            {defaultView && !sections.some(s => (s.section_type || s.type) === 'main_content') && (
+                <div>{defaultView}</div>
+            )}
         </div>
     );
 }

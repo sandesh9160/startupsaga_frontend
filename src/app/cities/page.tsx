@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { CitiesContent } from "@/components/cities/CitiesContent";
-import { HomeContent } from "@/components/home/HomeContent";
+import { DynamicSections } from "@/components/sections/DynamicSections";
 import { getSections, getCities, getPlatformStats, getPageBySlug, getSEOSettings } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 import type { PageSection, City } from "@/types";
@@ -48,7 +48,6 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-
 export default async function CitiesPage() {
     let pageSections: PageSection[] = [];
     let cities: City[] = [];
@@ -65,9 +64,20 @@ export default async function CitiesPage() {
         ]);
 
         pageSections = sectionsData || [];
-        cities = citiesData || [];
+        cities = (citiesData || []).map((city: City) => ({
+            slug: city.slug || "",
+            name: city.name || "",
+            thumbnail: city.thumbnail || "",
+            image: city.image || city.thumbnail || "",
+            tier: city.tier || "",
+            startupCount: city.startupCount || 0,
+            startup_count: city.startup_count || city.startupCount || 0,
+            unicornCount: city.unicornCount || 0,
+            description: city.description || ""
+        }));
         if (statsData) platformStats = statsData;
     } catch {
+        // handle error silently
     }
 
     // Extract header data from sections
@@ -83,10 +93,8 @@ export default async function CitiesPage() {
 
     return (
         <Layout>
-            <HomeContent
-                initialSections={pageSections.filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
-                initialCities={cities}
-                initialPlatformStats={platformStats}
+            <DynamicSections
+                sections={pageSections.filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
                 defaultView={
                     <CitiesContent
                         title={displayTitle}

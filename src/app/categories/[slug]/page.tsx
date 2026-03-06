@@ -3,6 +3,7 @@ import { CategoryDetailContent } from "@/components/categories/CategoryDetailCon
 import { getCategoryBySlug, getCities, resolveRedirect, getSEOSettings } from "@/lib/api";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { Story, Startup } from "@/types";
 import { JsonLd } from "@/components/seo/Schema/JsonLd";
 import { SITE_URL } from "@/config/site";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
@@ -137,11 +138,34 @@ async function CategoryContent({ slug }: { slug: string }) {
     icon: categoryData.icon,
     startupCount: categoryData.startupCount ?? (categoryData.startups || []).length,
   };
-  const categoryStartups = (categoryData.startups || []).map((s: { slug: string; description?: string;[key: string]: unknown }) => ({
-    ...s,
-    tagline: s.description?.slice(0, 140) || s.description,
+  const categoryStartups = (categoryData.startups || []).map((s: Startup) => ({
+    slug: s.slug || "",
+    name: s.name || s.title || "",
+    logo: s.logo || s.og_image || "",
+    category: s.category || categoryData.name || "",
+    city: s.city || "",
+    stage: s.stage || "",
+    funding_stage: s.funding_stage || s.stage || "",
+    team_size: s.team_size || "",
+    tagline: s.tagline || (typeof s.description === 'string' ? s.description.slice(0, 140) : ""),
+    description: "",
   }));
-  const categoryStories = categoryData.stories || [];
+  const categoryStories = (categoryData.stories || []).map((s: Story) => ({
+    slug: s.slug || "",
+    title: s.title || "",
+    excerpt: typeof s.excerpt === 'string' ? s.excerpt.slice(0, 200) : (typeof s.content === 'string' ? s.content.slice(0, 200) : ""),
+    content: "",
+    thumbnail: s.thumbnail || s.og_image || "",
+    category: s.category || categoryData.name || "",
+    category_slug: s.category_slug || categoryData.slug || "",
+    city: s.city || "",
+    city_slug: s.city_slug || "",
+    publish_date: s.publish_date || s.publishDate || "",
+    publishDate: s.publishDate || s.publish_date || "",
+    author: s.author || s.author_name || "",
+    author_name: s.author_name || s.author || "",
+    read_time: s.read_time || null,
+  }));
   const topCities = (Array.isArray(allCities) ? allCities : []).slice(0, 4);
   const canonical = `${SITE_URL}/categories/${slug}`;
 

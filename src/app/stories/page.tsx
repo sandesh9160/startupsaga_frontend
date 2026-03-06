@@ -1,11 +1,11 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StoriesContent } from "@/components/stories/StoriesContent";
-import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getPlatformStats, getPageBySlug, getSEOSettings, getStoriesPage } from "@/lib/api";
+import { DynamicSections } from "@/components/sections/DynamicSections";
+import { getSections, getPageBySlug, getSEOSettings, getStoriesPage } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 import type { PageSection, Story } from "@/types";
+import { Suspense } from "react";
 
 // ISR: serve cached page, regenerate every 60 seconds in the background
 export const revalidate = 60;
@@ -60,28 +60,41 @@ export async function generateMetadata({
 export default async function StoriesPage() {
     let pageSections: PageSection[] = [];
     let initialData: { results: Story[]; count: number; total_pages: number } = { results: [], count: 0, total_pages: 1 };
-    let platformStats = { total_startups: 0, total_stories: 0 };
 
     try {
-        const [sectionsData, response, statsData] = await Promise.all([
+        const [sectionsData, response] = await Promise.all([
             // Try both page_key and page_slug to ensure we get sections from admin
             getSections("stories").then(data =>
                 data.length > 0 ? data : getSections("", "stories")
             ),
             getStoriesPage({ page_size: 12 }),
-            getPlatformStats().catch(() => null),
         ]);
 
         pageSections = sectionsData || [];
         if (response) {
             initialData = {
-                results: response.results || [],
+                results: (response.results || []).map((s: Story) => ({
+                    slug: s.slug || "",
+                    title: s.title || "",
+                    excerpt: typeof s.excerpt === 'string' ? s.excerpt.slice(0, 200) : (typeof s.content === 'string' ? s.content.slice(0, 200) : ""),
+                    content: "",
+                    thumbnail: s.thumbnail || s.og_image || "",
+                    category_name: s.category_name || (typeof s.category === 'object' && s.category !== null && 'name' in s.category ? String((s.category as { name: string }).name) : ""),
+                    city_name: s.city_name || (typeof s.city === 'object' && s.city !== null && 'name' in s.city ? String((s.city as { name: string }).name) : ""),
+                    publish_date: s.publish_date || s.publishDate || "",
+                    publishDate: s.publishDate || s.publish_date || "",
+                    author_name: s.author_name || (typeof s.author === 'string' ? s.author : ""),
+                    read_time: typeof s.read_time === 'number' ? s.read_time : 5,
+                    category: s.category || "",
+                    city: s.city || "",
+                    author: s.author || ""
+                })),
                 count: response.count || 0,
                 total_pages: response.total_pages || 1
             };
         }
-        if (statsData) platformStats = statsData;
-    } catch {
+    } catch (e) {
+        console.error("Error fetching stories page data:", e);
     }
 
     // Extract header data from sections
@@ -95,54 +108,25 @@ export default async function StoriesPage() {
     const displaySubtitle = headerSection?.subtitle || "";
     const displayContent = (headerSection?.description || headerSection?.content) || "";
 
-    // return (
-    //     <Layout>
-    //         <HomeContent
-    //             initialSections={pageSections.filter((s: any) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
-    //             initialStories={stories}
-    //             initialPlatformStats={platformStats}
-    //             hasError={hasError}
-    //             defaultView={
-    //                 <StoriesContent
-    //                     title={displayTitle}
-    //                     description={displaySubtitle}
-    //                     content={displayContent}
-    //                 />
-    //             }
-    //         />
-    //     </Layout>
     return (
         <Layout>
-            <Suspense fallback={<div>Loading...</div>}>
-                <HomeContent
-                    initialSections={pageSections.filter((s: PageSection) =>
-                        s.id ? s.id !== headerSection?.id : s !== headerSection
-                    )}
-                    initialStories={initialData.results}
-                    initialPlatformStats={platformStats}
-                    defaultView={
-                        <Suspense fallback={
-                            <div className="container-wide py-20">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="h-[240px] rounded-2xl bg-muted animate-pulse border border-border/50" />
-                                    ))}
-                                </div>
-                            </div>
-                        }>
-                            <StoriesContent
-                                title={displayTitle}
-                                description={displaySubtitle}
-                                content={displayContent}
-                                initialStories={initialData.results}
-                                initialTotalCount={initialData.count}
-                                initialTotalPages={initialData.total_pages}
-                            />
-                        </Suspense>
-                    }
-                />
-            </Suspense>
+            <DynamicSections
+                sections={pageSections.filter((s: PageSection) =>
+                    s.id ? s.id !== headerSection?.id : s !== headerSection
+                )}
+                defaultView={
+                    <Suspense fallback={<div className="min-h-screen bg-white animate-pulse" />}>
+                        <StoriesContent
+                            title={displayTitle}
+                            description={displaySubtitle}
+                            content={displayContent}
+                            initialStories={initialData.results}
+                            initialTotalCount={initialData.count}
+                            initialTotalPages={initialData.total_pages}
+                        />
+                    </Suspense>
+                }
+            />
         </Layout>
-        // );
     );
 }

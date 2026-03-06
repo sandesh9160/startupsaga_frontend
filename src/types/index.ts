@@ -125,6 +125,9 @@ export interface Startup {
     meta_keywords?: string;
     is_active?: boolean | number;
     updated_at?: string;
+    valuation?: string | number;
+    category_name?: string;
+    city_name?: string;
 }
 
 export interface PageSection {

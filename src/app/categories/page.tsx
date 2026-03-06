@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { CategoriesContent } from "@/components/categories/CategoriesContent";
-import { HomeContent } from "@/components/home/HomeContent";
+import { DynamicSections } from "@/components/sections/DynamicSections";
 import { getSections, getCategories, getPlatformStats, getPageBySlug, getSEOSettings } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 import { PageSection, Category } from "@/types";
@@ -52,7 +52,6 @@ export default async function CategoriesPage() {
     let pageSections: PageSection[] = [];
     let categories: Category[] = [];
     let platformStats = { total_startups: 0, total_stories: 0 };
-    let hasError = false;
 
     try {
         const [sectionsData, categoriesData, statsData] = await Promise.all([
@@ -64,10 +63,18 @@ export default async function CategoriesPage() {
         ]);
 
         pageSections = sectionsData || [];
-        categories = categoriesData || [];
+        categories = (categoriesData || []).map((cat: Category) => ({
+            slug: cat.slug,
+            name: cat.name,
+            icon: cat.icon,
+            iconName: cat.iconName,
+            startupCount: cat.startupCount,
+            storyCount: cat.storyCount,
+            description: cat.description
+        }));
         if (statsData) platformStats = statsData;
     } catch {
-        hasError = true;
+        // error logged or ignored
     }
 
     // Extract header data from sections
@@ -81,11 +88,8 @@ export default async function CategoriesPage() {
 
     return (
         <Layout>
-            <HomeContent
-                initialSections={pageSections.filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
-                initialCategories={categories}
-                initialPlatformStats={platformStats}
-                hasError={hasError}
+            <DynamicSections
+                sections={pageSections.filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
                 defaultView={
                     <CategoriesContent
                         title={displayTitle}

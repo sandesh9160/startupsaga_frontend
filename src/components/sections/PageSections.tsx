@@ -1,7 +1,4 @@
-"use client";
-
-import { HomeContent } from "@/components/home/HomeContent";
-import { useEffect, useState } from "react";
+import { DynamicSections } from "@/components/sections/DynamicSections";
 import { getSections } from "@/lib/api";
 import { PageSection } from "@/types";
 
@@ -10,32 +7,18 @@ interface PageSectionsProps {
     initialSections?: PageSection[];
 }
 
-export function PageSections({ pageSlug, initialSections = [] }: PageSectionsProps) {
-    const [sections, setSections] = useState(initialSections);
-    const [isLoading, setIsLoading] = useState(initialSections.length === 0);
+export async function PageSections({ pageSlug, initialSections }: PageSectionsProps) {
+    let sections = initialSections;
 
-    useEffect(() => {
-        if (initialSections.length === 0) {
-            getSections('', pageSlug).then(data => {
-                setSections(data || []);
-                setIsLoading(false);
-            });
-        }
-    }, [pageSlug, initialSections.length]);
+    if (!sections || sections.length === 0) {
+        sections = await getSections('', pageSlug).catch(() => []);
+    }
 
-    if (isLoading) return null;
-    if (sections.length === 0) return null;
+    if (!sections || sections.length === 0) return null;
 
-    // We can reuse HomeContent by passing it the sections
-    // but we need to satisfy other props too
     return (
-        <HomeContent
-            initialSections={sections}
-            initialStories={[]}
-            initialStartups={[]}
-            initialCities={[]}
-            initialCategories={[]}
-            initialTrending={[]}
+        <DynamicSections
+            sections={sections}
         />
     );
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StartupsContent } from "@/components/startups/StartupsContent";
-import { HomeContent } from "@/components/home/HomeContent";
-import { getSections, getPlatformStats, getStartupsPage, getPageBySlug, getSEOSettings } from "@/lib/api";
+import { DynamicSections } from "@/components/sections/DynamicSections";
+import { getSections, getStartupsPage, getPageBySlug, getSEOSettings } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 import { PageSection, PaginatedResponse, Startup } from "@/types";
 
@@ -59,23 +59,36 @@ export async function generateMetadata({
 export default async function StartupsPage() {
     let pageSections: PageSection[] = [];
     let startupsResponse: PaginatedResponse<Startup> = { count: 0, next: null, previous: null, results: [] };
-    let platformStats = { total_startups: 0, total_stories: 0 };
-    let hasError = false;
+
 
     try {
-        const [sectionsData, startupsData, statsData] = await Promise.all([
+        const [sectionsData, startupsData] = await Promise.all([
             getSections("startups").then(data =>
                 data.length > 0 ? (data as PageSection[]) : (getSections("", "startups") as Promise<PageSection[]>)
             ),
             getStartupsPage({ page_size: 15 }),
-            getPlatformStats().catch(() => null),
         ]);
 
         pageSections = sectionsData || [];
-        startupsResponse = startupsData;
-        if (statsData) platformStats = statsData;
+        startupsResponse = {
+            ...startupsData,
+            results: (startupsData.results || []).map((s: Startup) => ({
+                slug: s.slug || "",
+                name: s.name || "",
+                logo: s.logo || "",
+                tagline: s.tagline || "",
+                category_name: s.category_name || "",
+                city_name: s.city_name || "",
+                stage: s.stage || "",
+                is_featured: !!s.is_featured,
+                valuation: s.valuation || "",
+                category: s.category || "",
+                city: s.city || "",
+                description: s.description || ""
+            }))
+        };
     } catch {
-        hasError = true;
+        // error handling
     }
 
     // Extract header data from sections
@@ -89,11 +102,8 @@ export default async function StartupsPage() {
 
     return (
         <Layout>
-            <HomeContent
-                initialSections={pageSections.filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
-                initialStartups={startupsResponse.results || []}
-                initialPlatformStats={platformStats}
-                hasError={hasError}
+            <DynamicSections
+                sections={pageSections.filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
                 defaultView={
                     <StartupsContent
                         title={displayTitle}

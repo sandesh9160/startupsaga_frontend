@@ -84,14 +84,31 @@ async function HomeContent() {
     // 1. Fetch sections AND critical above-the-fold story data in parallel.
     // Pre-seeding stories bypasses the LatestStoriesWrapper Suspense waterfall,
     // so the LCP image appears in the initial HTML stream.
-    const [sectionsData, storiesData, trendingData] = await Promise.all([
+    const [sectionsData, storiesRaw, trendingRaw] = await Promise.all([
         getSections('homepage').catch(() => []),
         getStories({ page_size: 6 }).catch(() => []),
         getTrendingStories().catch(() => []),
     ]);
 
-    const latestStories = (storiesData || []) as Story[];
-    const trendingStories = (trendingData || []) as Story[];
+    const mapStory = (s: Story) => ({
+        slug: s.slug || "",
+        title: s.title || "",
+        thumbnail: s.thumbnail || "",
+        excerpt: s.excerpt || "",
+        category_name: s.category_name || "",
+        city_name: s.city_name || "",
+        author_name: s.author_name || "",
+        read_time: typeof s.read_time === 'number' ? s.read_time : 5,
+        publish_date: s.publish_date || "",
+        publishDate: s.publishDate || s.publish_date || "",
+        category: s.category || 0,
+        city: s.city || 0,
+        content: "",
+        author: ""
+    });
+
+    const latestStories = (storiesRaw || []).map(mapStory) as Story[];
+    const trendingStories = (trendingRaw || []).map(mapStory) as Story[];
     const pageSections = (sectionsData && sectionsData.length > 0
         ? sectionsData
         : await getSections('home').catch(() => [])) as PageSection[];
