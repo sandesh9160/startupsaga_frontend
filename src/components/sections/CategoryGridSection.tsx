@@ -2,7 +2,6 @@ import Link from "next/link";
 import { CategoryCard } from "@/components/cards/CategoryCard";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getIcon } from "@/lib/icons";
 import { Category } from "@/types";
 
 interface CategoryGridSectionProps {

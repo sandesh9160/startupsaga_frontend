@@ -38,7 +38,7 @@ export async function GET() {
                 'Cache-Control': 'public, max-age=3600, s-maxage=3600',
             },
         });
-    } catch (_error) {
+    } catch {
         // Fallback if API fails
         const fallback = [
             "User-agent: *",

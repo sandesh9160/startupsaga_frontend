@@ -59,6 +59,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 // ISR: city detail pages cached for 1 hour
+// Force dynamic to ensure notFound() returns a real 404 status in the network tab
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 export const revalidate = 3600;
 
 export default async function CityDetailPage({ params }: { params: Promise<{ slug: string }> }) {

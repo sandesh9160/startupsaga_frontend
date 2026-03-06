@@ -71,7 +71,7 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
       try {
         const errorData = await res.json();
         if (errorData?.error) message = errorData.error;
-      } catch (_e) {
+      } catch {
         // Fallback to default message
       }
       throw new Error(message);

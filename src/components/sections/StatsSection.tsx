@@ -1,4 +1,4 @@
-import { MapPin, TrendingUp, Building2, Sparkles, Briefcase, Store } from "lucide-react";
+import { MapPin, Building2, Sparkles, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface StatsSectionProps {
@@ -22,12 +22,10 @@ interface StatsSectionProps {
 export function StatsSection({
     id,
     index,
-    title,
     stats,
     settings = {}
 }: StatsSectionProps) {
     const bgColor = settings.backgroundColor || '#F2542D';
-    const textColor = settings.textColor || '#FFFFFF';
     const paddingY = settings.paddingY !== undefined ? settings.paddingY : 64;
     const paddingX = settings.paddingX !== undefined ? settings.paddingX : 0;
     const align = settings.align || 'center';

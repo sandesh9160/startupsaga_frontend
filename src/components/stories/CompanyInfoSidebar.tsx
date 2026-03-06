@@ -38,7 +38,7 @@ export function CompanyInfoSidebar({ company }: CompanyInfoSidebarProps) {
                                 src={company.logo}
                                 alt={company.name}
                                 fill
-                                className="object-cover"
+                                className="object-contain p-1"
                                 sizes="48px"
                             />
                         ) : (

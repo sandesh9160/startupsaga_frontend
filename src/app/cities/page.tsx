@@ -63,7 +63,7 @@ export default async function CitiesPage() {
         pageSections = sectionsData || [];
         cities = citiesData || [];
         if (statsData) platformStats = statsData;
-    } catch (_error) {
+    } catch {
     }
 
     // Extract header data from sections

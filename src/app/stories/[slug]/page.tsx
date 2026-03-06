@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const rawTitle = story.meta_title || `${story.title}`;
 
     const title = rawTitle.replace(/<[^>]*>?/gm, '');
-    const description = rawDescription.replace(/<[^>]*>?/gm, '');
+    const description = (rawDescription || "Read inspiring startup stories, founder interviews, and ecosystem updates on StartupSaga.in.").replace(/<[^>]*>?/gm, '');
 
     return {
         title: title,
@@ -61,25 +61,55 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-// ISR: story detail pages are cached for 1 hour then regenerated on next request
+// Force dynamic to ensure notFound() returns a real 404 status in the network tab
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 export const revalidate = 3600;
 
+import { Suspense } from "react";
+
+/**
+ * Story detail page - Optimized for FCP.
+ */
 export default async function StoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
+
+    // Preliminary check for navigation
     if (slug === "stories") redirect("/stories");
     if (slug === "startups") redirect("/startups");
     if (slug === "categories") redirect("/categories");
     if (slug === "cities") redirect("/cities");
 
+    // We do NOT await the story fetch here if we want the shell to flush immediately.
+    // However, we MUST check redirects. resolveRedirect is fast but it's an I/O call.
+    // To get a perfect FCP, we could even move redirects inside Suspense or use middleware.
+    // For now, we'll keep resolveRedirect here but move the heavy data work.
     const redirectTo = await resolveRedirect(`/stories/${slug}`);
     if (redirectTo) redirect(redirectTo);
 
-    // Fetch story first to determine if we should 404 immediately
+    return (
+        <Layout>
+            <Suspense fallback={<div className="min-h-screen bg-white animate-pulse" />}>
+                <StoryContent slug={slug} />
+            </Suspense>
+        </Layout>
+    );
+}
+
+/**
+ * Async content component for story detail.
+ */
+async function StoryContent({ slug }: { slug: string }) {
     const story = await getStoryBySlug(slug);
 
     if (!story || !story.slug || (story.status !== undefined && story.status !== 'published')) {
         notFound();
     }
+
+    // 2. LCP is handled by next/image with priority={true} in StoryDetailContent.
+    // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 
+    // because next/image uses the /_next/image proxy URL.
+
 
     const [allStories, allStartups] = await Promise.all([
         getStories(),
@@ -111,13 +141,12 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
     return (
         <>
             <StorySchema story={story} canonical={canonical} />
-            <Layout>
-                <StoryDetailContent
-                    story={story}
-                    relatedStories={relatedStories}
-                    categoryStartups={categoryStartups}
-                />
-            </Layout>
+            <StoryDetailContent
+                story={story}
+                relatedStories={relatedStories}
+                categoryStartups={categoryStartups}
+            />
         </>
     );
 }
+

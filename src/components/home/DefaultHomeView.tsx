@@ -8,10 +8,10 @@ import { CityCard } from "@/components/cards/CityCard";
 import { Newsletter } from "@/components/sections/Newsletter";
 import { getSafeImageSrc } from "@/lib/images";
 
-import { 
+import {
     getTrendingStories,
     getStories,
-    getStartups, 
+    getStartups,
     getCities
 } from "@/lib/api";
 
@@ -102,7 +102,7 @@ export async function DefaultHomeView({
             </section>
 
             {/* Featured Startups Section */}
-            <section className="bg-[#f8f9fb] py-16">
+            <section className="bg-[#f8f9fb] py-16 content-auto">
                 <div className="container-wide">
                     <div className="flex items-center justify-between mb-10">
                         <h2 className="text-3xl font-semibold text-[#0F172A] font-serif">Featured Startups</h2>
@@ -119,7 +119,7 @@ export async function DefaultHomeView({
             </section>
 
             {/* Top Cities Section */}
-            <section className="container-wide py-16 border-b border-zinc-200">
+            <section className="container-wide py-16 border-b border-zinc-200 content-auto">
                 <div className="flex items-center justify-between mb-10">
                     <h2 className="text-3xl font-semibold text-[#0F172A] font-serif">Explore by City</h2>
                     <Link href="/cities" className="text-orange-600 font-bold tracking-tight flex items-center gap-1.5 hover:gap-2 transition-all">
@@ -134,7 +134,7 @@ export async function DefaultHomeView({
             </section>
 
             {/* Rising Hubs */}
-            <section className="bg-white py-16 mb-8">
+            <section className="bg-white py-16 mb-8 content-auto">
                 <div className="container-wide">
                     <div className="flex flex-col mb-10">
                         <div className="flex items-baseline justify-between mb-2">
@@ -155,7 +155,7 @@ export async function DefaultHomeView({
 
             {/* Featured Startup of the Week */}
             {featuredStartups[0] && (
-                <section className="container-wide py-16 mb-12">
+                <section className="container-wide py-16 mb-12 content-auto">
                     <div className="flex items-center gap-3 mb-10">
                         <Sparkles className="h-8 w-8 text-orange-600 fill-orange-600" />
                         <h2 className="text-3xl font-semibold text-[#0F172A] font-serif">Featured Startup of the Week</h2>

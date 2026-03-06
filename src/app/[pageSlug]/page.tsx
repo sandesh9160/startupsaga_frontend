@@ -13,6 +13,7 @@ import { PageSection } from "@/types";
 // returns a 404 HTTP status for unknown slugs. ISR would cache the
 // fallback shell with a 200 status, breaking 404 detection.
 export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 const RESERVED_SLUGS = [
     "stories", "startups", "categories", "cities", "submit",
@@ -57,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ pageSlug:
     const rawDescription = page.meta_description || seo.default_meta_description || page.content?.replace(/<[^>]*>?/gm, '').slice(0, 160) || "";
 
     const title = rawTitle.replace(/<[^>]*>?/gm, '');
-    const description = rawDescription.replace(/<[^>]*>?/gm, '');
+    const description = (rawDescription || "Explore information, resources, and updates from StartupSaga, India's premier startup story platform.").replace(/<[^>]*>?/gm, '');
 
     return {
         title: title,

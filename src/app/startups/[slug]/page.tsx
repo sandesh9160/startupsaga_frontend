@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Layout } from "@/components/layout/Layout";
 import { StartupDetailContent } from "@/components/startups/StartupDetailContent";
-import { getStartupBySlug, getStories, getStartups, getSEOSettings } from "@/lib/api";
+import { getStartupBySlug, getStartups, getSEOSettings } from "@/lib/api";
 import { StartupPageSchema } from "@/components/seo/Schema/StartupPageSchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
     // Safety: strip accidental tags from CMS strings
     const title = (rawTitle || "").replace(/<[^>]*>?/gm, '');
-    const description = (rawDescription || "").replace(/<[^>]*>?/gm, '');
+    const description = (rawDescription || "Learn more about this innovative startup and its impact on the Indian ecosystem on StartupSaga.in.").replace(/<[^>]*>?/gm, '');
 
     return {
         title: title,
@@ -67,40 +67,28 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 // ISR: startup detail pages are cached for 1 hour then regenerated on next request
-export const revalidate = 3600;
 
-export default async function StartupDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
-
-    // Cleanup routing for common accidental paths
-    if (slug === 'startups') redirect('/startups');
-    if (slug === 'categories') redirect('/categories');
-    if (slug === 'cities') redirect('/cities');
-    if (slug === 'stories') redirect('/stories');
-
-    const redirectTo = await resolveRedirect(`/startups/${slug}`);
-    if (redirectTo) redirect(redirectTo);
-
-    // Fetch startup first to determine if we should 404 immediately
+/**
+ * Async content component for startup detail.
+ */
+async function StartupContent({ slug }: { slug: string }) {
     const startup = await getStartupBySlug(slug);
 
     if (!startup || !startup.slug || (startup.is_active !== undefined && !startup.is_active)) {
         notFound();
     }
 
-    const [allStories, allStartups] = await Promise.all([
-        getStories(),
+    // 2. LCP is handled by next/image with priority={true} in StartupDetailContent.
+    // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 
+    // because next/image uses the /_next/image proxy URL.
+
+
+    const [allStartups] = await Promise.all([
         getStartups()
     ]);
 
-    const stories = Array.isArray(allStories) ? allStories : [];
     const startups = Array.isArray(allStartups) ? allStartups : [];
 
-    const startupCategorySlug = startup.categorySlug || (typeof startup.category === 'object' ? startup.category?.slug : null);
-    const relatedStories = stories.filter((s: { categorySlug?: string; category?: { slug?: string } | string }) => {
-        const sCatSlug = s.categorySlug || (typeof s.category === 'object' ? (s.category as { slug?: string })?.slug : null);
-        return sCatSlug && sCatSlug === startupCategorySlug;
-    }).slice(0, 3);
     const currentCategorySlug = startup.categorySlug || (typeof startup.category === 'object' ? startup.category?.slug : null);
     const currentCitySlug = startup.citySlug || (typeof startup.city === 'object' ? startup.city?.slug : null);
 
@@ -146,13 +134,11 @@ export default async function StartupDetailPage({ params }: { params: Promise<{ 
     return (
         <>
             <StartupPageSchema startup={startup} canonical={canonical} />
-            <Layout>
-                <StartupDetailContent
-                    startup={{ ...startup, tagline: startup.tagline || startup.description?.slice(0, 140) }}
-                    relatedStories={relatedStories}
-                    similarStartups={similarStartups}
-                />
-            </Layout>
+            <StartupDetailContent
+                startup={{ ...startup, tagline: startup.tagline || startup.description?.slice(0, 140) }}
+                similarStartups={similarStartups}
+            />
         </>
     );
 }
+

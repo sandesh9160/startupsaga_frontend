@@ -35,8 +35,8 @@ export async function generateMetadata(
     `Explore top ${category.name} startups in India.`;
 
   // Safety: strip tags
-  const title = rawTitle.replace(/<[^>]*>?/gm, '');
-  const description = rawDescription.replace(/<[^>]*>?/gm, '');
+  const title = (rawTitle || "").replace(/<[^>]*>?/gm, '');
+  const description = (rawDescription || `Explore the top startups and success stories in the ${category.name} category across India on StartupSaga.in.`).replace(/<[^>]*>?/gm, '');
 
   // Respect canonical_override from CMS if set
   const canonical = category.canonical_override || `${SITE_URL}/categories/${slug}`;
@@ -72,12 +72,19 @@ export async function generateMetadata(
  * Category page
  */
 // ISR: category detail pages cached for 1 hour
+// Force dynamic to ensure notFound() returns a real 404 status in the network tab
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 export const revalidate = 3600;
 
-export default async function CategoryDetailPage(
-  { params }: { params: Promise<{ slug: string }> }
-) {
+import { Suspense } from "react";
+
+/**
+ * Category page - Optimized for FCP.
+ */
+export default async function CategoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+
   if (slug === "categories") redirect("/categories");
   if (slug === "startups") redirect("/startups");
   if (slug === "cities") redirect("/cities");
@@ -86,12 +93,29 @@ export default async function CategoryDetailPage(
   const redirectTo = await resolveRedirect(`/categories/${slug}`);
   if (redirectTo) redirect(redirectTo);
 
-  // Fetch category data first to determine if we should 404 immediately
+  return (
+    <Layout>
+      <Suspense fallback={<div className="min-h-screen bg-white animate-pulse" />}>
+        <CategoryContent slug={slug} />
+      </Suspense>
+    </Layout>
+  );
+}
+
+/**
+ * Async content component for category detail.
+ */
+async function CategoryContent({ slug }: { slug: string }) {
   const categoryData = await getCategoryBySlug(slug);
 
   if (!categoryData || !categoryData.slug) {
     notFound();
   }
+
+  // 2. LCP is handled by next/image with priority={true} in CategoryDetailContent.
+  // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 
+  // because next/image uses the /_next/image proxy URL.
+
 
   const [allCities] = await Promise.all([
     getCities(),
@@ -111,6 +135,7 @@ export default async function CategoryDetailPage(
   const categoryStories = categoryData.stories || [];
   const topCities = (Array.isArray(allCities) ? allCities : []).slice(0, 4);
   const canonical = `${SITE_URL}/categories/${slug}`;
+
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -124,14 +149,13 @@ export default async function CategoryDetailPage(
   return (
     <>
       <JsonLd data={breadcrumbSchema} />
-      <Layout>
-        <CategoryDetailContent
-          category={category}
-          categoryStartups={categoryStartups}
-          categoryStories={categoryStories}
-          topCities={topCities}
-        />
-      </Layout>
+      <CategoryDetailContent
+        category={category}
+        categoryStartups={categoryStartups}
+        categoryStories={categoryStories}
+        topCities={topCities}
+      />
     </>
   );
 }
+

@@ -71,7 +71,7 @@ export default async function StoriesPage() {
         pageSections = sectionsData || [];
         stories = storiesData || [];
         if (statsData) platformStats = statsData;
-    } catch (_error) {
+    } catch {
     }
 
     // Extract header data from sections

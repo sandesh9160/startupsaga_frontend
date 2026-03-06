@@ -60,6 +60,13 @@
 // export default nextConfig;
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable gzip compression to dramatically reduce HTML payload size
+  compress: true,
+  // Remove X-Powered-By header for security
+  poweredByHeader: false,
+  // React strict mode for catching bugs early
+  reactStrictMode: true,
+
   images: {
     remotePatterns: [
       {
@@ -80,6 +87,46 @@ const nextConfig = {
     // Tighter set of widths → fewer variants to generate, faster cache hits
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          // Enable keep-alive for faster subsequent requests
+          {
+            key: 'Connection',
+            value: 'keep-alive',
+          },
+          // Security: prevent MIME-type sniffing
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+      {
+        // Cache static assets aggressively
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Cache images aggressively
+        source: '/_next/image(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+    ];
   },
 
   async rewrites() {

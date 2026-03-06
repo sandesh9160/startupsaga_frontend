@@ -69,7 +69,7 @@ interface StartupData {
     [key: string]: unknown;
 }
 
-import type { Story, Startup, Category, City } from "@/types";
+import type { Category, City } from "@/types";
 
 export type SimilarStartup = {
     slug: string;
@@ -86,11 +86,10 @@ export type SimilarStartup = {
 
 interface StartupDetailContentProps {
     startup: StartupData;
-    relatedStories: Partial<Story>[];
     similarStartups: SimilarStartup[];
 }
 
-export function StartupDetailContent({ startup, relatedStories, similarStartups }: StartupDetailContentProps) {
+export function StartupDetailContent({ startup, similarStartups }: StartupDetailContentProps) {
     const logoSrc = getSafeImageSrc(startup.logo || startup.og_image);
     const isSvgLogo = logoSrc.toLowerCase().endsWith(".svg");
 
@@ -193,9 +192,9 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                         {/* Brand Info Wrapper */}
                         <div className="flex flex-col sm:flex-row items-start gap-6 flex-1 w-full">
                             {/* Logo */}
-                            <div className="w-24 h-24 rounded-[20px] border border-zinc-100 bg-white flex items-center justify-center p-4 shadow-sm shrink-0 overflow-hidden">
-                                <Image src={logoSrc} alt={startup.name} width={96} height={96}
-                                    className="object-contain w-full h-full" unoptimized={isSvgLogo} />
+                            <div className="w-24 h-24 rounded-[20px] border border-zinc-100 bg-white flex items-center justify-center shadow-sm shrink-0 overflow-hidden relative">
+                                <Image src={logoSrc} alt={startup.name} fill priority
+                                    className="object-contain p-4" sizes="96px" unoptimized={isSvgLogo} />
                             </div>
 
                             {/* Name + badges + founders */}
@@ -241,9 +240,9 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
                                         <div className="flex -space-x-2">
                                             {founders.map((f: FounderData, i: number) => (
                                                 <div key={i} title={f.name || ""}
-                                                    className="w-7 h-7 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center text-[10px] font-semibold text-zinc-600 overflow-hidden shadow-sm">
+                                                    className="w-7 h-7 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center text-[10px] font-semibold text-zinc-600 overflow-hidden shadow-sm relative">
                                                     {f.image
-                                                        ? <Image src={getSafeImageSrc(f.image)} alt={f.name || "Founder"} width={28} height={28} className="object-cover" />
+                                                        ? <Image src={getSafeImageSrc(f.image)} alt={f.name || "Founder"} fill className="object-cover" sizes="28px" />
                                                         : f.name?.[0]}
                                                 </div>
                                             ))}
@@ -422,9 +421,9 @@ export function StartupDetailContent({ startup, relatedStories, similarStartups 
 
                                 {/* Header - More compact */}
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-16 h-16 rounded-xl border border-zinc-100 bg-white shadow-inner flex items-center justify-center overflow-hidden shrink-0">
-                                        <Image src={logoSrc} alt={startup.name} width={64} height={64}
-                                            className="object-contain w-full h-full" unoptimized={isSvgLogo} />
+                                    <div className="w-16 h-16 rounded-xl border border-zinc-100 bg-white shadow-inner flex items-center justify-center overflow-hidden shrink-0 relative">
+                                        <Image src={logoSrc} alt={startup.name} fill
+                                            className="object-contain p-1" sizes="64px" unoptimized={isSvgLogo} />
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-[20px] font-serif font-bold text-zinc-900 leading-tight tracking-tight">{startup.name}</p>

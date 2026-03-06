@@ -72,7 +72,7 @@ export function StoriesContent({
                 ]);
                 setCategories(categoriesData);
                 setCities(citiesData);
-            } catch (err) {
+            } catch {
             }
         }
         loadFilters();
@@ -94,7 +94,7 @@ export function StoriesContent({
                 setStories(response.results || []);
                 setTotalCount(response.count || 0);
                 setTotalPages(response.total_pages || 1);
-            } catch (err) {
+            } catch {
                 setStories([]);
                 setTotalCount(0);
                 setTotalPages(1);

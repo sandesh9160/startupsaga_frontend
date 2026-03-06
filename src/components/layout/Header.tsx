@@ -103,7 +103,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
       .then(res => res.ok ? res.json() : null)
       .then(items => { if (items && Array.isArray(items)) setNavLinks(items.filter(Boolean)); })
       .catch(() => { });
-  }, [isMounted]);
+  }, [isMounted, initialNav.length]);
 
   const formatUrl = (url: string | null | undefined) => {
     if (!url) return "/";
@@ -208,7 +208,7 @@ export function Header({ initialNav = [], siteSettings }: HeaderProps) {
 
           {/* Desktop Right Side */}
           <div className="hidden md:flex items-center gap-6">
-            <button className="text-zinc-500 hover:text-orange-600 transition-colors">
+            <button className="text-zinc-500 hover:text-orange-600 transition-colors" aria-label="Search">
               <Search className="h-5 w-5" />
             </button>
             <Button size="lg" className="bg-orange-600 text-white hover:bg-orange-700 rounded-xl h-11 px-6 shadow-md shadow-orange-600/20 group" asChild suppressHydrationWarning>

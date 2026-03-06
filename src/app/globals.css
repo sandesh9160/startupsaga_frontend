@@ -120,6 +120,21 @@
     @apply bg-background text-zinc-600 font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900;
   }
 
+  /* Prevent images from being distorted — always maintain natural aspect ratio */
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Improve CLS by reserving space for images within aspect-ratio containers */
+  [style*="position: relative"]>img[data-nimg] {
+    /* Next.js fill images: let the container dictate sizing */
+    max-width: none;
+    height: 100%;
+    width: 100%;
+  }
+
   /* Admin theme: inherit variables for accents, radius, dropdowns */
   .theme-wrapper {
     min-height: 100%;
@@ -309,8 +324,25 @@
   }
 
   @keyframes loadingBar {
-    0%   { width: 0%;  margin-left: 0; }
-    50%  { width: 60%; margin-left: 20%; }
-    100% { width: 0%;  margin-left: 100%; }
+    0% {
+      width: 0%;
+      margin-left: 0;
+    }
+
+    50% {
+      width: 60%;
+      margin-left: 20%;
+    }
+
+    100% {
+      width: 0%;
+      margin-left: 100%;
+    }
+  }
+
+  /* Improve FCP/LCP: skip rendering off-screen sections until needed */
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 500px;
   }
 }

@@ -60,7 +60,7 @@ export function StartupsContent({
                     ]);
                     setCategories((categoriesData || []).filter(Boolean));
                     setCities((citiesData || []).filter(Boolean));
-                } catch (err) { }
+                } catch { }
             }
             loadFilters();
             return;
@@ -83,7 +83,7 @@ export function StartupsContent({
                 setStartups((startupsData || []).filter(Boolean));
                 setCategories((categoriesData || []).filter(Boolean));
                 setCities((citiesData || []).filter(Boolean));
-            } catch (err) {
+            } catch {
             } finally {
                 setIsLoading(false);
             }

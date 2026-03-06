@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
     // Strip any accidental HTML tags from CMS fields to avoid breaking the head
     const title = rawTitle.replace(/<[^>]*>?/gm, '');
-    const description = rawDescription.replace(/<[^>]*>?/gm, '');
+    const description = (rawDescription || "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.").replace(/<[^>]*>?/gm, '');
 
     return {
         metadataBase: new URL(SITE_URL),

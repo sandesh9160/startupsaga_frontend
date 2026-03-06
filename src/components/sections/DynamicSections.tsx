@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { cn } from "@/lib/utils";
 import { HeroSection } from "./HeroSection";
 import { StoriesGridSection } from "./StoriesGridSection";
 import { StartupsGridSection } from "./StartupsGridSection";
@@ -37,12 +38,12 @@ interface DynamicSectionsProps {
  * Wrappers for individual sections that fetch their own data
  */
 
-async function TrendingStoriesWrapper({ type: _, ...props }: PageSection & { index: number }) {
+async function TrendingStoriesWrapper({ ...props }: PageSection & { index: number }) {
     const data = await getTrendingStories().catch(() => []);
     return <StoriesGridSection {...props} stories={data} type="trending_stories" />;
 }
 
-async function LatestStoriesWrapper({ type: _, seededStories, seededTrending, ...props }: PageSection & { index: number; seededStories?: Story[]; seededTrending?: Story[] }) {
+async function LatestStoriesWrapper({ seededStories, seededTrending, ...props }: PageSection & { index: number; seededStories?: Story[]; seededTrending?: Story[] }) {
     // If stories were pre-fetched at the page level, skip fetch entirely (no Suspense waterfall)
     const [latest, trending] = seededStories && seededStories.length > 0
         ? [seededStories, seededTrending ?? []]
@@ -59,7 +60,7 @@ async function FeaturedStartupsWrapper(props: PageSection & { index: number }) {
     return <StartupsGridSection startups={data} {...props} />;
 }
 
-async function CitiesWrapper({ type: _, section_type, ...props }: PageSection & { index: number }) {
+async function CitiesWrapper({ section_type, ...props }: PageSection & { index: number }) {
     const data = await getCities().catch(() => []);
     const sectionType = (section_type === 'rising_hubs' ? 'rising_hubs' : 'city_grid') as 'city_grid' | 'rising_hubs';
     return <CityGridSection {...props} cities={data} type={sectionType} />;
@@ -111,110 +112,117 @@ export function DynamicSections({ sections, data = {} }: DynamicSectionsProps) {
             {faqItems.length > 0 && <FAQSchema items={faqItems} />}
             {sections.map((section, index) => {
                 const type = section.section_type || section.type;
-
+                const isBelowFold = index > 0;
 
                 const HeadingTag = (!h1Rendered) ? 'h1' : 'h2';
                 if (HeadingTag === 'h1') h1Rendered = true;
 
-                switch (type) {
-                    case 'hero':
-                        return (
-                            <HeroSection
-                                key={section.id || index}
-                                index={index}
-                                {...section}
-                                heroData={data?.heroData}
-                                HeadingTag={HeadingTag}
-                            />
-                        );
-
-                    case 'trending_stories':
-                        return (
-                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
-                                <TrendingStoriesWrapper index={index} {...section} />
-                            </Suspense>
-                        );
-
-                    case 'latest_stories':
-                    case 'featured_stories': {
-                        // When stories are pre-seeded, render directly (no Suspense)
-                        // so the LCP image is in the initial HTML stream.
-                        const hasSeeded = data?.latestStories && data.latestStories.length > 0;
-                        if (hasSeeded) {
+                // Wrap in a div to apply content-visibility: auto for below-fold sections.
+                // This significantly improves FCP by skipping initial rendering work.
+                const renderSection = () => {
+                    switch (type) {
+                        case 'hero':
                             return (
-                                <StoriesGridSection
+                                <HeroSection
                                     key={section.id || index}
                                     index={index}
                                     {...section}
-                                    stories={data.latestStories!}
-                                    trendingStories={data?.trendingStories ?? []}
-                                    type="latest_stories"
+                                    heroData={data?.heroData}
+                                    HeadingTag={HeadingTag}
                                 />
                             );
+
+                        case 'trending_stories':
+                            return (
+                                <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                    <TrendingStoriesWrapper index={index} {...section} />
+                                </Suspense>
+                            );
+
+                        case 'latest_stories':
+                        case 'featured_stories': {
+                            const hasSeeded = data?.latestStories && data.latestStories.length > 0;
+                            if (hasSeeded) {
+                                return (
+                                    <StoriesGridSection
+                                        key={section.id || index}
+                                        index={index}
+                                        {...section}
+                                        stories={data.latestStories!}
+                                        trendingStories={data?.trendingStories ?? []}
+                                        type="latest_stories"
+                                    />
+                                );
+                            }
+                            return (
+                                <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                    <LatestStoriesWrapper
+                                        index={index}
+                                        {...section}
+                                        seededStories={data?.latestStories}
+                                        seededTrending={data?.trendingStories}
+                                    />
+                                </Suspense>
+                            );
                         }
-                        // Fallback: fetch inside an async wrapper with Suspense
-                        return (
-                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
-                                <LatestStoriesWrapper
-                                    index={index}
-                                    {...section}
-                                    seededStories={data?.latestStories}
-                                    seededTrending={data?.trendingStories}
-                                />
-                            </Suspense>
-                        );
+
+                        case 'featured_startups':
+                            return (
+                                <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                    <FeaturedStartupsWrapper index={index} {...section} />
+                                </Suspense>
+                            );
+
+                        case 'city_grid':
+                        case 'rising_hubs':
+                            return (
+                                <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                    <CitiesWrapper index={index} {...section} />
+                                </Suspense>
+                            );
+
+                        case 'category_grid':
+                            return (
+                                <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
+                                    <CategoriesWrapper index={index} {...section} />
+                                </Suspense>
+                            );
+
+                        case 'stats':
+                            return (
+                                <Suspense key={section.id || index} fallback={<div className="h-40 bg-white" />}>
+                                    <StatsWrapper index={index} {...section} />
+                                </Suspense>
+                            );
+
+                        case 'cta':
+                        case 'banner':
+                            return <CtaSection key={section.id || index} index={index} {...section} />;
+
+                        case 'image':
+                            return <ImageSection key={section.id || index} index={index} {...section} />;
+
+                        case 'text':
+                        case 'custom_content':
+                            return <CtaSection key={section.id || index} index={index} {...section} />;
+
+                        case 'newsletter':
+                            return (
+                                <div key={section.id || index} className="py-12 bg-white">
+                                    <Newsletter />
+                                </div>
+                            );
+
+                        default:
+                            return null;
                     }
+                };
 
-                    case 'featured_startups':
-                        return (
-                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
-                                <FeaturedStartupsWrapper index={index} {...section} />
-                            </Suspense>
-                        );
-
-                    case 'city_grid':
-                    case 'rising_hubs':
-                        return (
-                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
-                                <CitiesWrapper index={index} {...section} />
-                            </Suspense>
-                        );
-
-                    case 'category_grid':
-                        return (
-                            <Suspense key={section.id || index} fallback={<SectionSkeleton />}>
-                                <CategoriesWrapper index={index} {...section} />
-                            </Suspense>
-                        );
-
-                    case 'stats':
-                        return (
-                            <Suspense key={section.id || index} fallback={<div className="h-40 bg-white" />}>
-                                <StatsWrapper index={index} {...section} />
-                            </Suspense>
-                        );
-
-                    case 'cta':
-                    case 'banner':
-                        return <CtaSection key={section.id || index} index={index} {...section} />;
-
-                    case 'image':
-                        return <ImageSection key={section.id || index} index={index} {...section} />;
-
-                    case 'text':
-                    case 'custom_content':
-                        return <CtaSection key={section.id || index} index={index} {...section} />;
-
-                    case 'newsletter':
-                        return (
-                            <div key={section.id || index} className="py-12 bg-white">
-                                <Newsletter />
-                            </div>
-                        );
-
-                    default:
-                        return null;
-                }
+                return (
+                    <div key={section.id || index} className={cn(isBelowFold ? "content-auto" : "")}>
+                        {renderSection()}
+                    </div>
+                );
             })}
         </div>
     );

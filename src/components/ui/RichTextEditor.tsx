@@ -13,7 +13,6 @@ import {
 interface RichTextEditorProps {
     value: string;
     onChange: (value: string) => void;
-    placeholder?: string;
     className?: string;
 }
 
@@ -118,7 +117,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
     );
 };
 
-export default function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
+export default function RichTextEditor({ value, onChange, className }: RichTextEditorProps) {
     const editor = useEditor({
         extensions: [
             StarterKit,

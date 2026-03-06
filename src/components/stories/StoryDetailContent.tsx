@@ -295,7 +295,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                             prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3 prose-h3:font-serif
                             prose-p:text-zinc-600 prose-p:mb-5 prose-p:text-[15px] prose-p:leading-relaxed prose-p:font-medium
                             prose-strong:text-[#0F172A] prose-strong:font-semibold
-                            prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8 prose-img:mx-auto prose-img:h-auto prose-img:object-contain
+                            prose-img:rounded-xl prose-img:shadow-sm prose-img:my-8 prose-img:mx-auto prose-img:h-auto prose-img:w-auto prose-img:max-w-full prose-img:object-contain
                             prose-table:text-[13px] prose-table:border-collapse prose-th:bg-zinc-50 prose-th:border prose-th:border-zinc-200 prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-zinc-200 prose-td:px-3 prose-td:py-2">
                             {story.content ? (
                                 <div dangerouslySetInnerHTML={{
@@ -418,7 +418,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                         </Button>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                        {relatedStories.map((s, idx) => (
+                                        {relatedStories.map((s) => (
                                             <StoryCard
                                                 key={s.slug}
                                                 slug={s.slug}
@@ -435,7 +435,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                                 read_time={s.read_time}
                                                 featured={false}
                                                 isFeatured={false}
-                                                priority={idx < 3}
+                                                priority={false}
                                             />
                                         ))}
                                     </div>
@@ -458,8 +458,8 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups }: 
                                         </Button>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        {categoryStartups.map((s, idx) => (
-                                            <StartupCard key={s.slug} {...s} priority={idx < 4} />
+                                        {categoryStartups.map((s) => (
+                                            <StartupCard key={s.slug} {...s} priority={false} />
                                         ))}
                                     </div>
                                 </div>

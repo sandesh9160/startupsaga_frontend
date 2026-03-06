@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { StoryCard } from "@/components/cards/StoryCard";
 import { StartupCard } from "@/components/cards/StartupCard";
@@ -52,9 +51,10 @@ export function CategoryDetailContent({ category, categoryStartups, categoryStor
                                 <Image
                                     src={category.icon.startsWith("http") ? category.icon : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000"}${category.icon}`}
                                     alt={category.name || "Category Icon"}
-                                    width={32}
-                                    height={32}
-                                    className="object-contain"
+                                    fill
+                                    priority
+                                    className="object-contain p-4"
+                                    sizes="32px"
                                 />
                             ) : <Sparkles className={cn("h-7 w-7", theme.icon)} />}
                         </div>

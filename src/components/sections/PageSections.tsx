@@ -21,7 +21,7 @@ export function PageSections({ pageSlug, initialSections = [] }: PageSectionsPro
                 setIsLoading(false);
             });
         }
-    }, [pageSlug]);
+    }, [pageSlug, initialSections.length]);
 
     if (isLoading) return null;
     if (sections.length === 0) return null;

@@ -127,14 +127,14 @@ export function Footer({ siteSettings }: { siteSettings?: FooterSiteSettings }) 
             </Link>
             <p className="text-zinc-400 text-sm leading-relaxed mb-6">{tagline}</p>
             <div className="flex items-center gap-4">
-              {socials.map((social: NavItem, i: number) => (
+              {socials.filter((s: NavItem) => !!s.platform).map((social: NavItem, i: number) => (
                 <a
                   key={i}
-                  href={social.url || undefined}
+                  href={social.url || "#"}
                   target={social.platform === "email" ? undefined : "_blank"}
                   rel="noopener noreferrer"
                   className="text-zinc-500 hover:text-accent transition-colors"
-                  aria-label={social.platform}
+                  aria-label={social.platform || "social link"}
                 >
                   {SOCIAL_ICON_MAP[social.platform ?? ''] || <Globe className="h-5 w-5" />}
                 </a>
@@ -168,7 +168,7 @@ export function Footer({ siteSettings }: { siteSettings?: FooterSiteSettings }) 
         <div className="pt-8 border-t border-zinc-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-zinc-500">{copyright}</p>
-            {/* <p className="text-sm text-zinc-500">Made with ❤️ for Indian Startups</p> */}
+            {/* <p className="text-sm text-zinc-500">Made with  for Indian Startups</p> */}
           </div>
         </div>
       </div>
