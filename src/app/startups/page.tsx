@@ -66,25 +66,30 @@ export default async function StartupsPage() {
             getSections("startups").then(data =>
                 data.length > 0 ? (data as PageSection[]) : (getSections("", "startups") as Promise<PageSection[]>)
             ),
-            getStartupsPage({ page_size: 15 }),
+            getStartupsPage({ page_size: 12 }),
         ]);
 
         pageSections = sectionsData || [];
+        // Strip startups to minimum fields for card rendering to reduce HTML payload.
+        const categoryName = (s: Startup) => s.category_name || (typeof s.category === 'string' ? s.category : "");
+        const cityName = (s: Startup) => s.city_name || (typeof s.city === 'string' ? s.city : "");
         startupsResponse = {
-            ...startupsData,
+            count: startupsData.count || 0,
+            next: startupsData.next || null,
+            previous: startupsData.previous || null,
             results: (startupsData.results || []).map((s: Startup) => ({
                 slug: s.slug || "",
                 name: s.name || "",
                 logo: s.logo || "",
-                tagline: s.tagline || "",
-                category_name: s.category_name || "",
-                city_name: s.city_name || "",
+                tagline: (s.tagline || "").slice(0, 120),
+                category_name: categoryName(s),
+                city_name: cityName(s),
                 stage: s.stage || "",
                 is_featured: !!s.is_featured,
                 valuation: s.valuation || "",
-                category: s.category || "",
-                city: s.city || "",
-                description: s.description || ""
+                category: categoryName(s),
+                city: cityName(s),
+                description: (s.description || "").slice(0, 120),
             }))
         };
     } catch {
@@ -100,10 +105,15 @@ export default async function StartupsPage() {
     const displaySubtitle = headerSection?.subtitle || "";
     const displayContent = (headerSection?.description || headerSection?.content) || "";
 
+    // Strip heavy "settings" and "data" fields from sections before passing to client.
+    const leanSections = pageSections
+        .filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)
+        .map((s) => ({ id: s.id, section_type: s.section_type, type: s.type, title: s.title, name: s.name, description: s.description, subtitle: s.subtitle, content: s.content, order: s.order, is_active: s.is_active, link_url: s.link_url, link_text: s.link_text, image: s.image }));
+
     return (
         <Layout>
             <DynamicSections
-                sections={pageSections.filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)}
+                sections={leanSections as PageSection[]}
                 defaultView={
                     <StartupsContent
                         title={displayTitle}

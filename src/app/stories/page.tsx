@@ -67,28 +67,38 @@ export default async function StoriesPage() {
             getSections("stories").then(data =>
                 data.length > 0 ? data : getSections("", "stories")
             ),
-            getStoriesPage({ page_size: 12 }),
+            getStoriesPage({ page_size: 8 }),
         ]);
 
         pageSections = sectionsData || [];
         if (response) {
+            // Strip stories to absolute minimum fields needed for card rendering.
+            // This dramatically reduces the serialized RSC payload (HTML size).
             initialData = {
-                results: (response.results || []).map((s: Story) => ({
-                    slug: s.slug || "",
-                    title: s.title || "",
-                    excerpt: typeof s.excerpt === 'string' ? s.excerpt.slice(0, 200) : (typeof s.content === 'string' ? s.content.slice(0, 200) : ""),
-                    content: "",
-                    thumbnail: s.thumbnail || s.og_image || "",
-                    category_name: s.category_name || (typeof s.category === 'object' && s.category !== null && 'name' in s.category ? String((s.category as { name: string }).name) : ""),
-                    city_name: s.city_name || (typeof s.city === 'object' && s.city !== null && 'name' in s.city ? String((s.city as { name: string }).name) : ""),
-                    publish_date: s.publish_date || s.publishDate || "",
-                    publishDate: s.publishDate || s.publish_date || "",
-                    author_name: s.author_name || (typeof s.author === 'string' ? s.author : ""),
-                    read_time: typeof s.read_time === 'number' ? s.read_time : 5,
-                    category: s.category || "",
-                    city: s.city || "",
-                    author: s.author || ""
-                })),
+                results: (response.results || []).map((s: Story) => {
+                    const categoryName = s.category_name || (typeof s.category === 'object' && s.category !== null && 'name' in s.category ? String((s.category as { name: string }).name) : "");
+                    const cityName = s.city_name || (typeof s.city === 'object' && s.city !== null && 'name' in s.city ? String((s.city as { name: string }).name) : "");
+                    const pubDate = s.publish_date || s.publishDate || "";
+                    const authorName = s.author_name || (typeof s.author === 'string' ? s.author : "");
+                    return {
+                        slug: s.slug || "",
+                        title: s.title || "",
+                        excerpt: typeof s.excerpt === 'string' ? s.excerpt.slice(0, 160) : (typeof s.content === 'string' ? s.content.slice(0, 160) : ""),
+                        content: "",
+                        thumbnail: s.thumbnail || s.og_image || "",
+                        category_name: categoryName,
+                        city_name: cityName,
+                        publish_date: pubDate,
+                        publishDate: pubDate,
+                        author_name: authorName,
+                        read_time: typeof s.read_time === 'number' ? s.read_time : 5,
+                        // Only pass resolved strings for category/city/author to avoid
+                        // serializing full nested objects into the HTML payload.
+                        category: categoryName,
+                        city: cityName,
+                        author: authorName,
+                    };
+                }),
                 count: response.count || 0,
                 total_pages: response.total_pages || 1
             };
@@ -108,12 +118,16 @@ export default async function StoriesPage() {
     const displaySubtitle = headerSection?.subtitle || "";
     const displayContent = (headerSection?.description || headerSection?.content) || "";
 
+    // Strip heavy "settings" and "data" fields from sections before passing to client.
+    // These can contain large JSON blobs that bloat the serialized HTML.
+    const leanSections = pageSections
+        .filter((s: PageSection) => s.id ? s.id !== headerSection?.id : s !== headerSection)
+        .map((s) => ({ id: s.id, section_type: s.section_type, type: s.type, title: s.title, name: s.name, description: s.description, subtitle: s.subtitle, content: s.content, order: s.order, is_active: s.is_active, link_url: s.link_url, link_text: s.link_text, image: s.image }));
+
     return (
         <Layout>
             <DynamicSections
-                sections={pageSections.filter((s: PageSection) =>
-                    s.id ? s.id !== headerSection?.id : s !== headerSection
-                )}
+                sections={leanSections as PageSection[]}
                 defaultView={
                     <Suspense fallback={<div className="min-h-screen bg-white animate-pulse" />}>
                         <StoriesContent
