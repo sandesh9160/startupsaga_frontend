@@ -51,6 +51,7 @@ export function StartupCard({
               alt={`${name} logo`}
               fill
               className="object-contain p-1.5 transition-all duration-300"
+              style={{ objectFit: 'contain' }}
               sizes="50px"
               priority={priority}
             />

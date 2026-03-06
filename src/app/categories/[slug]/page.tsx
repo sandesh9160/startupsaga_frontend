@@ -78,7 +78,6 @@ export const dynamicParams = true;
 export const revalidate = 3600;
 
 import { Suspense } from "react";
-import { preload } from "react-dom";
 
 /**
  * Category page - Optimized for FCP.
@@ -118,9 +117,9 @@ async function CategoryContent({ slug }: { slug: string }) {
     notFound();
   }
 
-  const categoryIcon = getAbsoluteImageUrl(categoryData.og_image || categoryData.icon);
-  // Preload category icon
-  preload(categoryIcon, { as: "image" });
+  // 1. LCP is handled by next/image with priority={true} in CategoryDetailContent.
+  // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 
+  // because next/image uses the /_next/image proxy URL.
 
   // 2. LCP is handled by next/image with priority={true} in CategoryDetailContent.
   // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 

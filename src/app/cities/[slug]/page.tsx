@@ -5,7 +5,6 @@ import { getCityBySlug, getCategories, getCities, resolveRedirect, getSEOSetting
 import { JsonLd } from "@/components/seo/Schema/JsonLd";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
-import { preload } from "react-dom";
 import { SITE_URL } from "@/config/site";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
 
@@ -102,10 +101,9 @@ async function CityContent({ slug }: { slug: string }) {
         notFound();
     }
 
-    const cityImage = getAbsoluteImageUrl(cityData.og_image || cityData.image);
-    // Preload city hero image
-    preload(cityImage, { as: "image" });
-
+    // 1. LCP is handled by next/image with priority={true} in CityDetailContent.
+    // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 
+    // because next/image uses the /_next/image proxy URL.
     const [allCategories, allCities] = await Promise.all([
         getCategories(),
         getCities()

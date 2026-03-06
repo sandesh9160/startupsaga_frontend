@@ -63,6 +63,7 @@ export function CityCard({
                 alt={name}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700"
+                style={{ objectFit: 'cover' }}
                 sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1400px) 33vw, 460px"
               />
             ) : (
@@ -131,6 +132,7 @@ export function CityCard({
             alt={name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
+            style={{ objectFit: 'cover' }}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
           />
         )}

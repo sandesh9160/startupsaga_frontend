@@ -54,6 +54,7 @@ export function StoryCard({
           fill
           priority={priority}
           className={`object-cover ${priority ? '' : 'transition-transform duration-700 group-hover:scale-110'}`}
+          style={{ objectFit: 'cover' }}
           sizes="(max-width: 1280px) 100vw, 1280px"
         />
         <div className="absolute inset-0 p-8 lg:p-10 flex flex-col justify-end bg-gradient-to-t from-[#0F172A]/95 via-[#0F172A]/40 to-transparent">
@@ -97,6 +98,7 @@ export function StoryCard({
           fill
           priority={priority}
           className={`object-cover ${priority ? '' : 'transition-transform duration-700 group-hover:scale-110'}`}
+          style={{ objectFit: 'cover' }}
           sizes={priority
             ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 320px'
             : '(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 300px'

@@ -7,7 +7,6 @@ import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
 import { Suspense } from "react";
-import { preload } from "react-dom";
 
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
@@ -112,9 +111,9 @@ async function StartupContent({ slug }: { slug: string }) {
         notFound();
     }
 
-    const logoSrc = getAbsoluteImageUrl(startup.og_image || startup.logo);
-    // Preload the hero image (logo) as early as possible
-    preload(logoSrc, { as: "image" });
+    // 1. LCP is handled by next/image with priority={true} in StartupDetailContent.
+    // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 
+    // because next/image uses the /_next/image proxy URL.
 
     const canonical = startup.canonical_override
         ? (startup.canonical_override.startsWith("http") ? startup.canonical_override : `${SITE_URL}${startup.canonical_override.startsWith("/") ? "" : "/"}${startup.canonical_override}`)
