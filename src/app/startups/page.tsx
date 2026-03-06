@@ -9,21 +9,14 @@ import { PageSection, PaginatedResponse, Startup } from "@/types";
 // ISR: serve cached page, regenerate every 120 seconds in the background
 export const revalidate = 120;
 
-export async function generateMetadata({
-    searchParams,
-}: {
-    searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}): Promise<Metadata> {
-    const resolved = searchParams ? await searchParams : undefined;
-    const hasQuery = !!(resolved && Object.keys(resolved).length > 0);
-
+export async function generateMetadata(): Promise<Metadata> {
     const [page, seo] = await Promise.all([
         getPageBySlug('startups').catch(() => null),
         getSEOSettings().catch(() => ({})),
     ]);
 
     const rawTitle = page?.meta_title || "Startups in India";
-    const rawDescription = page?.meta_description || seo.default_meta_description || "Explore India’s most innovative startups across fintech, edtech, healthtech, and more.";
+    const rawDescription = page?.meta_description || seo.default_meta_description || "Explore India's most innovative startups across fintech, edtech, healthtech, and more.";
 
     const title = rawTitle.replace(/<[^>]*>?/gm, '');
     const description = rawDescription.replace(/<[^>]*>?/gm, '');
@@ -52,7 +45,6 @@ export async function generateMetadata({
             description,
             images: [page?.og_image || "/og-image.jpg"],
         },
-        robots: hasQuery ? { index: false, follow: true } : undefined,
     };
 }
 

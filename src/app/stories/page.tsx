@@ -10,14 +10,7 @@ import { Suspense } from "react";
 // ISR: serve cached page, regenerate every 60 seconds in the background
 export const revalidate = 60;
 
-export async function generateMetadata({
-    searchParams,
-}: {
-    searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}): Promise<Metadata> {
-    const resolved = searchParams ? await searchParams : undefined;
-    const hasQuery = !!(resolved && Object.keys(resolved).length > 0);
-
+export async function generateMetadata(): Promise<Metadata> {
     const [page, seo] = await Promise.all([
         getPageBySlug('stories').catch(() => null),
         getSEOSettings().catch(() => ({})),
@@ -53,7 +46,6 @@ export async function generateMetadata({
             description,
             images: [page?.og_image || "/og-image.jpg"],
         },
-        robots: hasQuery ? { index: false, follow: true } : undefined,
     };
 }
 
