@@ -6,6 +6,7 @@ import { StartupPageSchema } from "@/components/seo/Schema/StartupPageSchema";
 import { notFound, redirect } from "next/navigation";
 import { resolveRedirect } from "@/lib/api";
 import { SITE_URL } from "@/config/site";
+import { Suspense } from "react";
 
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
@@ -67,6 +68,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 // ISR: startup detail pages are cached for 1 hour then regenerated on next request
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+export const revalidate = 3600;
+
+/**
+ * Startup detail page - Optimized for FCP.
+ */
+export default async function StartupDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+
+    // Preliminary check for navigation
+    if (slug === "stories") redirect("/stories");
+    if (slug === "startups") redirect("/startups");
+    if (slug === "categories") redirect("/categories");
+    if (slug === "cities") redirect("/cities");
+
+    const redirectTo = await resolveRedirect(`/startups/${slug}`);
+    if (redirectTo) redirect(redirectTo);
+
+    return (
+        <Layout>
+            <Suspense fallback={<div className="min-h-screen bg-white animate-pulse" />}>
+                <StartupContent slug={slug} />
+            </Suspense>
+        </Layout>
+    );
+}
 
 /**
  * Async content component for startup detail.
