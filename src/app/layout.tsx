@@ -138,7 +138,11 @@ export default function RootLayout({
                         --font-inter: 'Inter', sans-serif;
                         --font-playfair: 'Playfair Display', serif;
                     }
-                    body { background: #FFFFFF; font-family: sans-serif; }
+                    body { background: #FFFFFF; font-family: 'Inter', sans-serif; color: #0F172A; }
+                    .container-wide { width: 100%; max-width: 1440px; margin-left: auto; margin-right: auto; padding-left: 1.5rem; padding-right: 1.5rem; }
+                    h1 { font-family: 'Playfair Display', serif; line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; }
+                    @media (min-width: 768px) { h1 { font-size: 3rem; } .container-wide { padding-left: 2rem; padding-right: 2rem; } }
+                    @media (min-width: 1024px) { h1 { font-size: 4.5rem; } }
                 `}} />
 
                 {/* Preconnect to API origin so image/data requests don't pay TCP+TLS setup cost */}

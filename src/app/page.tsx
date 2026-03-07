@@ -47,16 +47,77 @@ export default function IndexPage() {
  * Wrapping this in Suspense allows the page shell to render immediately.
  */
 async function HomeContent() {
-    // 1. Fetch sections AND critical above-the-fold story data in parallel.
-    // Pre-seeding stories bypasses the LatestStoriesWrapper Suspense waterfall,
-    // so the LCP image appears in the initial HTML stream.
-    const [sectionsData, storiesRaw, trendingRaw] = await Promise.all([
-        getSections('homepage').catch(() => []),
+    // 1. Fetch sections first - this defines the page structure.
+    const sectionsData = await getSections('homepage').catch(() => []) as PageSection[];
+    const rawSections = sectionsData.length > 0 ? sectionsData : await getSections('home').catch(() => []) as PageSection[];
+
+    const pageSections = rawSections.map((s: PageSection) => ({
+        id: s.id,
+        section_type: s.section_type,
+        type: s.type,
+        title: s.title,
+        name: s.name,
+        description: s.description,
+        subtitle: s.subtitle,
+        content: s.content,
+        order: s.order,
+        is_active: s.is_active,
+        link_url: s.link_url,
+        link_text: s.link_text,
+        image: s.image,
+        settings: s.settings ? {
+            backgroundColor: (s.settings as Record<string, unknown>).backgroundColor,
+            textColor: (s.settings as Record<string, unknown>).textColor,
+            paddingY: (s.settings as Record<string, unknown>).paddingY,
+            paddingX: (s.settings as Record<string, unknown>).paddingX,
+            align: (s.settings as Record<string, unknown>).align,
+            buttonStyle: (s.settings as Record<string, unknown>).buttonStyle,
+            secondaryButtonText: (s.settings as Record<string, unknown>).secondaryButtonText,
+            secondaryButtonLink: (s.settings as Record<string, unknown>).secondaryButtonLink,
+            extraButtons: (s.settings as Record<string, unknown>).extraButtons,
+        } : undefined,
+    })) as PageSection[];
+
+    // 2. Identify Hero section to render it immediately
+    const heroSection = pageSections.find(s => (s.section_type || s.type) === 'hero');
+    const remainingSections = pageSections.filter(s => s !== heroSection);
+
+    return (
+        <div className="flex flex-col w-full">
+            {/* Render Hero immediately - this targets FCP and LCP */}
+            {heroSection && (
+                <DynamicSections
+                    sections={[heroSection]}
+                    data={{
+                        heroData: {
+                            title: heroSection.title || "StartupSaga.in | Startup Stories of India",
+                            content: heroSection.description || "Discover the most inspiring stories from the Indian startup ecosystem."
+                        }
+                    }}
+                />
+            )}
+
+            {/* Suspense the rest of the dynamic content (stories, etc) */}
+            <Suspense fallback={<RemainingContentSkeleton />}>
+                <DynamicContent
+                    sections={remainingSections}
+                    heroData={heroSection ? { title: heroSection.title || "", content: heroSection.description || "" } : undefined}
+                />
+            </Suspense>
+        </div>
+    );
+}
+
+/**
+ * Separate component to fetch stories and render remaining sections.
+ * This allows the Hero to be flushed to the browser first.
+ */
+async function DynamicContent({ sections, heroData }: { sections: PageSection[], heroData?: { title: string, content: string } }) {
+    const [storiesRaw, trendingRaw] = await Promise.all([
         getStories({ page_size: 4 }).catch(() => []),
         getTrendingStories().catch(() => []),
     ]);
 
-    // Strip stories to only fields needed for card rendering — reduces RSC payload.
     const mapStory = (s: Story) => ({
         slug: s.slug || "",
         title: s.title || "",
@@ -76,51 +137,15 @@ async function HomeContent() {
 
     const latestStories = (storiesRaw || []).map(mapStory) as Story[];
     const trendingStories = (trendingRaw || []).map(mapStory) as Story[];
-    const rawSections = (sectionsData && sectionsData.length > 0
-        ? sectionsData
-        : await getSections('home').catch(() => [])) as PageSection[];
 
-    // Strip heavy fields from sections before passing to client.
-    // settings.cards, settings.items, and data can contain massive JSON blobs that bloat HTML.
-    const pageSections = rawSections.map((s: PageSection) => ({
-        id: s.id,
-        section_type: s.section_type,
-        type: s.type,
-        title: s.title,
-        name: s.name,
-        description: s.description,
-        subtitle: s.subtitle,
-        content: s.content,
-        order: s.order,
-        is_active: s.is_active,
-        link_url: s.link_url,
-        link_text: s.link_text,
-        image: s.image,
-        // Keep only display-relevant settings
-        settings: s.settings ? {
-            backgroundColor: (s.settings as Record<string, unknown>).backgroundColor,
-            textColor: (s.settings as Record<string, unknown>).textColor,
-            paddingY: (s.settings as Record<string, unknown>).paddingY,
-            paddingX: (s.settings as Record<string, unknown>).paddingX,
-            align: (s.settings as Record<string, unknown>).align,
-            buttonStyle: (s.settings as Record<string, unknown>).buttonStyle,
-            secondaryButtonText: (s.settings as Record<string, unknown>).secondaryButtonText,
-            secondaryButtonLink: (s.settings as Record<string, unknown>).secondaryButtonLink,
-            extraButtons: (s.settings as Record<string, unknown>).extraButtons,
-        } : undefined,
-    })) as PageSection[];
-
-    if (pageSections && pageSections.length > 0) {
+    if (sections && sections.length > 0) {
         return (
             <DynamicSections
-                sections={pageSections}
+                sections={sections}
                 data={{
                     latestStories,
                     trendingStories,
-                    heroData: {
-                        title: (rawSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
-                        content: (rawSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
-                    },
+                    heroData
                 }}
             />
         );
@@ -133,6 +158,18 @@ async function HomeContent() {
             featuredStartups={[]}
             topCities={[]}
         />
+    );
+}
+
+function RemainingContentSkeleton() {
+    return (
+        <div className="container-wide py-12 animate-pulse">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="aspect-video bg-zinc-100 rounded-xl" />
+                ))}
+            </div>
+        </div>
     );
 }
 
