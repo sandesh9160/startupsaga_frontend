@@ -92,6 +92,16 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // HTML pages: cache on CDN, serve stale while revalidating
+        source: '/:path((?!_next|api|admin|static|media).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=60, stale-while-revalidate=120',
+          },
+        ],
+      },
+      {
         source: '/(.*)',
         headers: [
           // Enable keep-alive for faster subsequent requests

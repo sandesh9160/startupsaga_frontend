@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
 import { Twitter, Linkedin, Instagram, Mail, Globe } from "lucide-react";
-import { useEffect, useState } from "react";
-import { API_BASE_URL } from "@/lib/api";
 
 const SOCIAL_ICON_MAP: Record<string, React.ReactNode> = {
   twitter: <Twitter className="h-4 w-4" />,
@@ -66,48 +64,20 @@ interface FooterSiteSettings {
   [key: string]: unknown;
 }
 
-export function Footer({ siteSettings }: { siteSettings?: FooterSiteSettings }) {
-  const [columns, setColumns] = useState<NavItem[]>(DEFAULT_COLUMNS as NavItem[]);
-  const [socials, setSocials] = useState(siteSettings?.socials || DEFAULT_SOCIALS);
-  const [tagline, setTagline] = useState(siteSettings?.footer_tagline || "Discovering and celebrating the incredible startup journeys across India. Every founder has a story worth telling.");
-  const [copyright, setCopyright] = useState(siteSettings?.footer_copyright || "© 2026 StartupSaga.in. All rights reserved.");
-  const [bgColor, setBgColor] = useState(siteSettings?.footer_bg_color || "#09090b");
+interface FooterProps {
+  siteSettings?: FooterSiteSettings;
+  /** Pre-fetched footer nav columns from the server (avoids client-side API call) */
+  initialNav?: NavItem[];
+}
 
-
-  useEffect(() => {
-    // Fresh data (include footer_company and footer_links)
-    fetch(`${API_BASE_URL}/navigation/?position=footer,footer_company,footer_links&hierarchical=true`)
-      .then((r) => r.json())
-      .then((data: NavItem[]) => {
-        if (data && Array.isArray(data)) {
-          const cols = data
-            .filter(Boolean)
-            .filter((i) => !i.parent)
-            .sort((a, b) => (a.order || 0) - (b.order || 0))
-            .map((col) => ({
-              label: col.label,
-              url: col.url || null,
-              children: (col.children || []).sort((a: NavItem, b: NavItem) => (a.order || 0) - (b.order || 0)),
-            }));
-          if (cols.length > 0) setColumns(cols as NavItem[]);
-        }
-      })
-      .catch(() => { });
-
-    if (!siteSettings) {
-      fetch(`${API_BASE_URL}/layout-settings/`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.footer_tagline) setTagline(data.footer_tagline);
-          if (data.footer_copyright) setCopyright(data.footer_copyright);
-          if (data.footer_bg_color) setBgColor(data.footer_bg_color);
-          if (data.socials && Array.isArray(data.socials) && data.socials.length > 0) {
-            setSocials(data.socials);
-          }
-        })
-        .catch(() => { });
-    }
-  }, [siteSettings]);
+export function Footer({ siteSettings, initialNav }: FooterProps) {
+  // Use server-provided nav data if available, otherwise fall back to defaults.
+  // This eliminates the client-side fetch that was blocking rendering.
+  const columns = (initialNav && initialNav.length > 0) ? initialNav : DEFAULT_COLUMNS as NavItem[];
+  const socials = siteSettings?.socials || DEFAULT_SOCIALS;
+  const tagline = siteSettings?.footer_tagline || "Discovering and celebrating the incredible startup journeys across India. Every founder has a story worth telling.";
+  const copyright = siteSettings?.footer_copyright || "© 2026 StartupSaga.in. All rights reserved.";
+  const bgColor = siteSettings?.footer_bg_color || "#09090b";
 
   const formatUrl = (url: string | null | undefined) => {
     if (!url) return "/";

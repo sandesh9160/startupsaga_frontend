@@ -90,33 +90,59 @@ async function HomeContent() {
         getTrendingStories().catch(() => []),
     ]);
 
+    // Strip stories to only fields needed for card rendering — reduces RSC payload.
     const mapStory = (s: Story) => ({
         slug: s.slug || "",
         title: s.title || "",
         thumbnail: s.thumbnail || "",
-        excerpt: s.excerpt || "",
+        excerpt: (s.excerpt || "").slice(0, 160),
         category_name: s.category_name || "",
         city_name: s.city_name || "",
         author_name: s.author_name || "",
         read_time: typeof s.read_time === 'number' ? s.read_time : 5,
         publish_date: s.publish_date || "",
         publishDate: s.publishDate || s.publish_date || "",
-        category: s.category || 0,
-        city: s.city || 0,
+        category: s.category_name || "",
+        city: s.city_name || "",
         content: "",
         author: ""
     });
 
     const latestStories = (storiesRaw || []).map(mapStory) as Story[];
     const trendingStories = (trendingRaw || []).map(mapStory) as Story[];
-    const pageSections = (sectionsData && sectionsData.length > 0
+    const rawSections = (sectionsData && sectionsData.length > 0
         ? sectionsData
         : await getSections('home').catch(() => [])) as PageSection[];
 
-    // 2. LCP is handled by next/image with priority={true} in the rendered components.
-    // Manual preloading here using the raw API URL causes "preloaded but not used" warnings 
-    // because next/image uses the /_next/image proxy URL.
-
+    // Strip heavy fields from sections before passing to client.
+    // settings.cards, settings.items, and data can contain massive JSON blobs that bloat HTML.
+    const pageSections = rawSections.map((s: PageSection) => ({
+        id: s.id,
+        section_type: s.section_type,
+        type: s.type,
+        title: s.title,
+        name: s.name,
+        description: s.description,
+        subtitle: s.subtitle,
+        content: s.content,
+        order: s.order,
+        is_active: s.is_active,
+        link_url: s.link_url,
+        link_text: s.link_text,
+        image: s.image,
+        // Keep only display-relevant settings
+        settings: s.settings ? {
+            backgroundColor: (s.settings as Record<string, unknown>).backgroundColor,
+            textColor: (s.settings as Record<string, unknown>).textColor,
+            paddingY: (s.settings as Record<string, unknown>).paddingY,
+            paddingX: (s.settings as Record<string, unknown>).paddingX,
+            align: (s.settings as Record<string, unknown>).align,
+            buttonStyle: (s.settings as Record<string, unknown>).buttonStyle,
+            secondaryButtonText: (s.settings as Record<string, unknown>).secondaryButtonText,
+            secondaryButtonLink: (s.settings as Record<string, unknown>).secondaryButtonLink,
+            extraButtons: (s.settings as Record<string, unknown>).extraButtons,
+        } : undefined,
+    })) as PageSection[];
 
     if (pageSections && pageSections.length > 0) {
         return (
@@ -126,8 +152,8 @@ async function HomeContent() {
                     latestStories,
                     trendingStories,
                     heroData: {
-                        title: (pageSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
-                        content: (pageSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
+                        title: (rawSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.title || "StartupSaga.in | Startup Stories of India",
+                        content: (rawSections || []).find((s: PageSection) => (s.section_type || s.type) === 'hero')?.description || "Discover the most inspiring stories from the Indian startup ecosystem."
                     },
                 }}
             />

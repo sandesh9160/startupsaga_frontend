@@ -35,6 +35,46 @@ interface DynamicSectionsProps {
     defaultView?: ReactNode;
 }
 
+/**
+ * Strip heavy fields from a section object before passing it to child components.
+ * This prevents large JSON blobs (settings.cards, settings.items, data arrays, etc.)
+ * from being serialized into the RSC payload, dramatically reducing HTML size.
+ */
+function toLeanSection(s: PageSection): PageSection {
+    // Extract only the display-relevant fields from settings
+    const settings = s.settings as Record<string, unknown> | undefined;
+    const leanSettings = settings ? {
+        backgroundColor: settings.backgroundColor,
+        textColor: settings.textColor,
+        paddingY: settings.paddingY,
+        paddingX: settings.paddingX,
+        align: settings.align,
+        buttonStyle: settings.buttonStyle,
+        secondaryButtonText: settings.secondaryButtonText,
+        secondaryButtonLink: settings.secondaryButtonLink,
+        extraButtons: settings.extraButtons,
+        // Keep cards only for FAQ sections (needed for schema)
+        ...(((s.section_type || s.type) === 'faq') ? { cards: settings.cards } : {}),
+    } : undefined;
+
+    return {
+        id: s.id,
+        section_type: s.section_type,
+        type: s.type,
+        title: s.title,
+        name: s.name,
+        description: s.description,
+        subtitle: s.subtitle,
+        content: s.content,
+        order: s.order,
+        is_active: s.is_active,
+        link_url: s.link_url,
+        link_text: s.link_text,
+        image: s.image,
+        settings: leanSettings,
+    } as PageSection;
+}
+
 /** 
  * Wrappers for individual sections that fetch their own data
  */
@@ -98,7 +138,7 @@ export function DynamicSections({ sections, data = {}, defaultView }: DynamicSec
 
     let h1Rendered = false;
 
-    // Extract FAQ items for Schema integration
+    // Extract FAQ items for Schema integration (needs full settings.cards)
     const faqItems = (sections || [])
         .filter((s: PageSection) => (s.section_type || s.type) === 'faq')
         .flatMap((s: PageSection) => ((s.settings?.cards || []) as Array<{ question?: string; title?: string; answer?: string; description?: string }>))
@@ -111,7 +151,9 @@ export function DynamicSections({ sections, data = {}, defaultView }: DynamicSec
     return (
         <div className="flex flex-col w-full">
             {faqItems.length > 0 && <FAQSchema items={faqItems} />}
-            {sections.map((section, index) => {
+            {sections.map((rawSection, index) => {
+                // Strip heavy fields to reduce serialized HTML payload
+                const section = toLeanSection(rawSection);
                 const type = section.section_type || section.type;
                 const isDeeplyBelowFold = index > 2;
 

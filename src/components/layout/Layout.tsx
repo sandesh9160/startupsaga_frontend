@@ -10,6 +10,7 @@ import { FrontendBreadcrumbs } from "./FrontendBreadcrumbs";
 // This also piggybacks on the root layout's cache when possible.
 const getCachedLayoutSettings = cache(() => getLayoutSettings().catch(() => ({})));
 const getCachedNav = cache(() => getNav('header').catch(() => []));
+const getCachedFooterNav = cache(() => getNav('footer,footer_company,footer_links').catch(() => []));
 
 interface LayoutProps {
   children: ReactNode;
@@ -28,10 +29,24 @@ async function HeaderServer() {
 
 /**
  * Server component wrapper for Footer to allow async data fetching without blocking the layout.
+ * Fetches footer nav data on the server so the client Footer doesn't need to make API calls.
  */
 async function FooterServer() {
-  const layout = await getCachedLayoutSettings();
-  return <Footer siteSettings={layout} />;
+  const [layout, footerNav] = await Promise.all([
+    getCachedLayoutSettings(),
+    getCachedFooterNav(),
+  ]);
+  // Process nav into the column structure Footer expects
+  const columns = (Array.isArray(footerNav) ? footerNav : [])
+    .filter(Boolean)
+    .filter((i: { parent?: unknown }) => !i.parent)
+    .sort((a: { order?: number }, b: { order?: number }) => (a.order || 0) - (b.order || 0))
+    .map((col: { label?: string; url?: string | null; children?: Array<{ order?: number }> }) => ({
+      label: col.label,
+      url: col.url || null,
+      children: (col.children || []).sort((a: { order?: number }, b: { order?: number }) => (a.order || 0) - (b.order || 0)),
+    }));
+  return <Footer siteSettings={layout} initialNav={columns} />;
 }
 
 export function Layout({ children }: LayoutProps) {
