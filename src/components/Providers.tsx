@@ -2,10 +2,13 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
+
+// Lazy-load toasters — they're rarely needed on initial page load
+// and add unnecessary JS to the critical rendering path.
+const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
+const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient());
@@ -15,8 +18,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <TooltipProvider>
                 <ThemeProvider>
                     {children}
-                    <Toaster />
-                    <Sonner />
+                    <Suspense fallback={null}>
+                        <Toaster />
+                        <Sonner />
+                    </Suspense>
                 </ThemeProvider>
             </TooltipProvider>
         </QueryClientProvider>

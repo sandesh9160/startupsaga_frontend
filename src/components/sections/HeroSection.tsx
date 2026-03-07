@@ -79,14 +79,15 @@ export function HeroSection({
 
                 <div
                     className={cn(
-                        "text-base md:text-lg mb-8 max-w-2xl leading-relaxed prose prose-slate marker:text-zinc-500",
+                        "text-base md:text-lg mb-8 max-w-2xl leading-relaxed",
                         index === 0 ? "" : "animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150",
                         align === 'left' ? 'text-left mr-auto ml-0' : align === 'right' ? 'text-right ml-auto mr-0' : 'text-center mx-auto',
-                        (textColor === '#FFFFFF' || textColor === 'FFFFFF' || (textColor === '#0F172A' || textColor === '0F172A')) ? 'prose-invert' : 'prose-zinc'
                     )}
                     style={{ color: textColor.startsWith('#') ? textColor : '#' + textColor, opacity: 0.8 }}
-                    dangerouslySetInnerHTML={{ __html: displayContent }}
-                />
+                >
+                    {/* Strip HTML tags and limit length to reduce payload */}
+                    {(displayContent || '').replace(/<[^>]*>?/gm, '').slice(0, 300)}
+                </div>
                 <div className={cn(
                     "flex flex-col sm:flex-row items-center gap-5",
                     index === 0 ? "" : "animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300",

@@ -86,7 +86,7 @@ async function HomeContent() {
     // so the LCP image appears in the initial HTML stream.
     const [sectionsData, storiesRaw, trendingRaw] = await Promise.all([
         getSections('homepage').catch(() => []),
-        getStories({ page_size: 6 }).catch(() => []),
+        getStories({ page_size: 4 }).catch(() => []),
         getTrendingStories().catch(() => []),
     ]);
 

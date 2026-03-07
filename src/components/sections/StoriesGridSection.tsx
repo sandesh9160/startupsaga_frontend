@@ -91,7 +91,7 @@ export function StoriesGridSection({
                                     key={story.slug}
                                     {...story}
                                     variant="standard"
-                                    priority={!skipFirstPriority && (index < 2 && idx < 2)}
+                                    priority={!skipFirstPriority && index === 0 && idx === 0}
                                 />
                             ))}
                         </div>

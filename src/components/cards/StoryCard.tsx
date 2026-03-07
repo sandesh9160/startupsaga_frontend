@@ -100,8 +100,8 @@ export function StoryCard({
           className={`object-cover ${priority ? '' : 'transition-transform duration-700 group-hover:scale-110'}`}
           style={{ objectFit: 'cover' }}
           sizes={priority
-            ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 320px'
-            : '(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 300px'
+            ? '(max-width: 640px) 90vw, (max-width: 1024px) 45vw, (max-width: 1280px) 25vw, 300px'
+            : '(max-width: 640px) 90vw, (max-width: 1024px) 30vw, 280px'
           }
         />
       </Link>
