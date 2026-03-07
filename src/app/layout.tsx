@@ -127,6 +127,20 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${inter.variable}`}>
             <head>
+                {/* Critical CSS for FCP: ensuring basic theme tokens are present before CSS loads */}
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    :root {
+                        --background: 0 0% 100%;
+                        --foreground: 222.2 84% 4.9%;
+                        --primary: 221.2 83.2% 53.3%;
+                        --accent: 12 88% 59%;
+                        --font-inter: 'Inter', sans-serif;
+                        --font-playfair: 'Playfair Display', serif;
+                    }
+                    body { background: #FFFFFF; font-family: sans-serif; }
+                `}} />
+
                 {/* Preconnect to API origin so image/data requests don't pay TCP+TLS setup cost */}
                 <link rel="preconnect" href="https://api.startupsaga.in" crossOrigin="anonymous" />
                 <link rel="dns-prefetch" href="https://api.startupsaga.in" />

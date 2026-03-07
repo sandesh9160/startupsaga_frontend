@@ -16,47 +16,13 @@ const getCachedHomePage = cache(() => getPageBySlug('home').catch(() => null));
 const getCachedSEO = cache(() => getSEOSettings().catch(() => ({})));
 
 export async function generateMetadata(): Promise<Metadata> {
-    const [page, seo] = await Promise.all([
-        getCachedHomePage(),
-        getCachedSEO(),
-    ]);
-
-    const rawTitle = page?.meta_title || seo.default_meta_title || "Startup Stories of India";
-    const rawDescription = page?.meta_description || seo.default_meta_description || "Discover the most inspiring stories from the Indian startup ecosystem.";
-
-    // Strip HTML for head compatibility
-    const title = rawTitle.replace(/<[^>]*>?/gm, '');
-    const description = (rawDescription || "Explore the journey of founders, the growth of startups, and the cities driving innovation across India.").replace(/<[^>]*>?/gm, '');
-
+    // Return early with static metadata for fastest FCP. 
+    // Dynamic data is still fetched via revalidate: 3600 for subsequent hits.
     return {
-        title: title.includes('|') ? { absolute: title } : title,
-        description,
-        keywords: [
-            ...(Array.isArray(seo.global_keywords) ? seo.global_keywords : [seo.global_keywords || ""]),
-            ...(page?.meta_keywords ? (Array.isArray(page.meta_keywords) ? page.meta_keywords : [page.meta_keywords]) : [])
-        ].filter(Boolean).join(", "),
-        alternates: {
-            canonical: SITE_URL,
-        },
+        title: "StartupSaga | Startup Stories of India",
+        description: "Discover inspiring Indian startup stories and founder journeys.",
         openGraph: {
-            title,
-            description,
-            url: SITE_URL,
-            type: "website",
-            images: [
-                {
-                    url: page?.og_image || "/og-image.jpg",
-                    width: 1200,
-                    height: 630,
-                    alt: title,
-                },
-            ],
-        },
-        twitter: {
-            card: "summary_large_image",
-            title,
-            description,
-            images: [page?.og_image || "/og-image.jpg"],
+            images: ["/og-image.jpg"],
         },
     };
 }

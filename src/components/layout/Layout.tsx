@@ -71,21 +71,25 @@ async function FooterServer() {
 
 export function Layout({ children, pageKey, pageSlug, initialTheme }: LayoutProps) {
   return (
-    <Suspense fallback={children}>
-      <ThemeServer pageKey={pageKey} pageSlug={pageSlug} initialTheme={initialTheme}>
-        <div className="min-h-screen flex flex-col" suppressHydrationWarning>
-          <Suspense fallback={<div className="h-[72px] bg-white border-b border-zinc-200" />}>
-            <HeaderServer />
-          </Suspense>
-          <main className="flex-1 bg-white">
-            <FrontendBreadcrumbs />
+    <div className="min-h-screen flex flex-col" suppressHydrationWarning>
+      <Suspense fallback={<div className="h-[72px] bg-white border-b border-zinc-200" />}>
+        <HeaderServer />
+      </Suspense>
+
+      <main className="flex-1 bg-white">
+        <FrontendBreadcrumbs />
+        {/* Only wrap the content in ThemeServer if you need dynamic per-page overrides.
+            Otherwise, move it higher but ensures it doesn't block initial shell bytes. */}
+        <Suspense fallback={children}>
+          <ThemeServer pageKey={pageKey} pageSlug={pageSlug} initialTheme={initialTheme}>
             {children}
-          </main>
-          <Suspense fallback={<div className="h-[400px] bg-zinc-50" />}>
-            <FooterServer />
-          </Suspense>
-        </div>
-      </ThemeServer>
-    </Suspense>
+          </ThemeServer>
+        </Suspense>
+      </main>
+
+      <Suspense fallback={<div className="h-[400px] bg-zinc-50" />}>
+        <FooterServer />
+      </Suspense>
+    </div>
   );
 }
