@@ -63,6 +63,10 @@ export async function generateMetadata({ params }: { params: Promise<{ pageSlug:
     return {
         title: title,
         description,
+        keywords: [
+            ...(Array.isArray(seo.global_keywords) ? seo.global_keywords : [seo.global_keywords || ""]),
+            ...(typeof page.meta_keywords === 'string' ? [page.meta_keywords] : (Array.isArray(page.meta_keywords) ? page.meta_keywords : []))
+        ].filter(Boolean).join(", "),
         alternates: { canonical },
         ...(page.noindex ? { robots: { index: false, follow: false } } : {}),
         openGraph: {

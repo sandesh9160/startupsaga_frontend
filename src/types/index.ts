@@ -22,6 +22,8 @@ export interface Category {
     title?: string;
     /** legacy id field */
     id?: number | string;
+    canonical_override?: string;
+    noindex?: boolean;
 }
 
 export interface City {
@@ -51,6 +53,8 @@ export interface City {
     imageUrl?: string;
     /** @alias image */
     thumbnail?: string;
+    canonical_override?: string;
+    noindex?: boolean;
 }
 
 export interface Story {
@@ -128,6 +132,8 @@ export interface Startup {
     valuation?: string | number;
     category_name?: string;
     city_name?: string;
+    canonical_override?: string;
+    noindex?: boolean;
 }
 
 export interface PageSection {

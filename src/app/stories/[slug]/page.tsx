@@ -156,13 +156,34 @@ async function StoryRecommendationsSection({ story }: { story: Story }) {
     // Startups by category
     const categoryStartups = startups
         .filter((s: Startup) => s.categorySlug === story.categorySlug)
-        .slice(0, 4);
+        .slice(0, 4)
+        .map(s => ({
+            name: s.name,
+            slug: s.slug,
+            logo: s.logo,
+            tagline: s.tagline || s.description?.slice(0, 140),
+            category_name: s.category_name,
+            city_name: s.city_name
+        }));
+
+    // Lean map related stories
+    const leanRelated = relatedStories.map(s => ({
+        title: s.title,
+        slug: s.slug,
+        thumbnail: s.thumbnail || s.og_image,
+        excerpt: s.excerpt || s.content?.slice(0, 160),
+        category_name: s.category_name,
+        city_name: s.city_name,
+        publish_date: s.publish_date || s.publishDate,
+        author_name: s.author_name,
+        read_time: s.read_time
+    }));
 
     return (
         <StoryDetailContent
             story={story}
-            relatedStories={relatedStories}
-            categoryStartups={categoryStartups}
+            relatedStories={leanRelated as Story[]}
+            categoryStartups={categoryStartups as Startup[]}
             onlyRecommendations={true}
         />
     );

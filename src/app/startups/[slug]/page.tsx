@@ -147,12 +147,18 @@ async function SimilarStartupsSection({ startup }: { startup: any }) {
 
     type StartupItem = {
         slug: string;
+        name?: string;
+        logo?: string;
         categorySlug?: string;
         category?: { slug?: string } | string;
+        category_name?: string;
         citySlug?: string;
         city?: { slug?: string } | string;
+        city_name?: string;
         tagline?: string;
         description?: string;
+        stage?: string;
+        funding_stage?: string;
     };
 
     const similarStartups = (startups as StartupItem[])
@@ -177,7 +183,16 @@ async function SimilarStartupsSection({ startup }: { startup: any }) {
             return scoreB - scoreA;
         })
         .slice(0, 4)
-        .map((s: StartupItem) => ({ ...s, tagline: s.tagline || s.description?.slice(0, 140) }));
+        .map((s: StartupItem) => ({
+            name: s.name,
+            slug: s.slug,
+            logo: s.logo,
+            tagline: s.tagline || s.description?.slice(0, 140),
+            category_name: s.category_name,
+            city_name: s.city_name,
+            stage: s.stage,
+            funding_stage: s.funding_stage
+        }));
 
     return (
         <div className="container-wide">

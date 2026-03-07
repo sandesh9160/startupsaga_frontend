@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { cache, Suspense } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { getSections, getPageBySlug, getStories, getTrendingStories, getSEOSettings } from "@/lib/api";
-import { SITE_URL } from "@/config/site";
 
 import { DynamicSections } from "@/components/sections/DynamicSections";
 import { DefaultHomeView } from "@/components/home/DefaultHomeView";
@@ -13,17 +12,29 @@ export const revalidate = 60;
 
 // Deduplicate between generateMetadata and IndexPage
 const getCachedHomePage = cache(() => getPageBySlug('home').catch(() => null));
-const getCachedSEO = cache(() => getSEOSettings().catch(() => ({})));
 
 export async function generateMetadata(): Promise<Metadata> {
-    // Return early with static metadata for fastest FCP. 
-    // Dynamic data is still fetched via revalidate: 3600 for subsequent hits.
+    const page = await getCachedHomePage();
+
+    const title = page?.meta_title || "StartupSaga | Startup Stories of India";
+    const description = page?.meta_description || "Discover inspiring startup stories from India. Explore founder journeys, milestones, and lessons. Find startups by industry, city hubs, latest insights.";
+    const keywords = page?.meta_keywords || "startup stories India, Indian startups, Indian founders, startup journeys, startup insights, startup hubs India, featured startups, tier 2 cities startups, startup ecosystem";
+
     return {
-        title: "StartupSaga | Startup Stories of India",
-        description: "Discover inspiring Indian startup stories and founder journeys.",
+        title,
+        description,
+        keywords,
         openGraph: {
-            images: ["/og-image.jpg"],
+            title,
+            description,
+            images: [page?.og_image || "/og-image.jpg"],
         },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: [page?.og_image || "/og-image.jpg"],
+        }
     };
 }
 
