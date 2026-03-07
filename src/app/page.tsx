@@ -68,7 +68,7 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default function IndexPage() {
     return (
-        <Layout>
+        <Layout pageKey="homepage">
             <Suspense fallback={<HomeSkeleton />}>
                 <HomeContent />
             </Suspense>

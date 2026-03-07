@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
-import { cache } from "react";
+import { cache, Suspense } from "react";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { WebSiteSchema } from "@/components/seo/Schema/WebSiteSchema";
@@ -42,6 +42,8 @@ export async function generateMetadata(): Promise<Metadata> {
     const favicon = layout?.site_favicon || "/favicon.png";
 
     // Strip any accidental HTML tags from CMS fields to avoid breaking the head
+
+
     const title = (rawTitle || "").replace(/<[^>]*>?/gm, '') || siteName;
     const description = (rawDescription || "Discover inspiring Indian startup stories, founder journeys, and the companies reshaping the ecosystem.").replace(/<[^>]*>?/gm, '');
 
@@ -91,36 +93,50 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default async function RootLayout({
-    children,
-}: Readonly<{
-    children: React.ReactNode;
-}>) {
+/**
+ * Internal component to handle data-dependent head elements.
+ * Moving this out of RootLayout prevents the initial HTML shell from being blocked.
+ */
+async function HeadData() {
     const [layout, seo] = await Promise.all([
         getCachedLayout(),
         getCachedSEO(),
     ]);
 
     return (
-        <html lang="en" suppressHydrationWarning>
+        <>
+            <WebSiteSchema
+                name={layout?.site_name}
+                description={seo?.default_meta_description}
+                logoUrl={layout?.site_logo}
+            />
+
+            {/* Google Analytics - Injected once data resolves */}
+            {seo?.google_analytics_id && (
+                <GoogleAnalytics gaId={seo.google_analytics_id} />
+            )}
+        </>
+    );
+}
+
+export default function RootLayout({
+    children,
+}: Readonly<{
+    children: React.ReactNode;
+}>) {
+    return (
+        <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${inter.variable}`}>
             <head>
                 {/* Preconnect to API origin so image/data requests don't pay TCP+TLS setup cost */}
                 <link rel="preconnect" href="https://api.startupsaga.in" crossOrigin="anonymous" />
                 <link rel="dns-prefetch" href="https://api.startupsaga.in" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
-                <WebSiteSchema
-                    name={layout?.site_name}
-                    description={seo?.default_meta_description}
-                    logoUrl={layout?.site_logo}
-                />
-
-                {/* Google Analytics - Injected directly as a synchronous component to avoid Suspense markers in Head */}
-                {seo?.google_analytics_id && (
-                    <GoogleAnalytics gaId={seo.google_analytics_id} />
-                )}
+                <Suspense fallback={null}>
+                    <HeadData />
+                </Suspense>
             </head>
-            <body className={`${playfair.variable} ${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+            <body className="font-sans antialiased" suppressHydrationWarning>
                 <Providers>
                     {children}
                 </Providers>

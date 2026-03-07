@@ -12,8 +12,28 @@ const getCachedLayoutSettings = cache(() => getLayoutSettings().catch(() => ({})
 const getCachedNav = cache(() => getNav('header').catch(() => []));
 const getCachedFooterNav = cache(() => getNav('footer,footer_company,footer_links').catch(() => []));
 
+import { ThemeProvider, type ThemeSettings } from "../theme/ThemeProvider";
+import { getThemeSettings } from "@/lib/api";
+
+const getCachedTheme = cache((params: { pageKey?: string; pageSlug?: string }) => getThemeSettings(params).catch(() => ({})));
+
 interface LayoutProps {
   children: ReactNode;
+  pageKey?: string;
+  pageSlug?: string;
+  initialTheme?: ThemeSettings;
+}
+
+/**
+ * Server component wrapper for ThemeProvider to fetch theme data without blocking the layout shell.
+ */
+async function ThemeServer({ children, pageKey, pageSlug, initialTheme }: LayoutProps) {
+  const theme = initialTheme || await getCachedTheme({ pageKey, pageSlug });
+  return (
+    <ThemeProvider initialTheme={theme}>
+      {children}
+    </ThemeProvider>
+  );
 }
 
 /**
@@ -49,19 +69,23 @@ async function FooterServer() {
   return <Footer siteSettings={layout} initialNav={columns} />;
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, pageKey, pageSlug, initialTheme }: LayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col" suppressHydrationWarning>
-      <Suspense fallback={<div className="h-[72px] bg-white border-b border-zinc-200" />}>
-        <HeaderServer />
-      </Suspense>
-      <main className="flex-1 bg-white">
-        <FrontendBreadcrumbs />
-        {children}
-      </main>
-      <Suspense fallback={<div className="h-[400px] bg-zinc-50" />}>
-        <FooterServer />
-      </Suspense>
-    </div>
+    <Suspense fallback={children}>
+      <ThemeServer pageKey={pageKey} pageSlug={pageSlug} initialTheme={initialTheme}>
+        <div className="min-h-screen flex flex-col" suppressHydrationWarning>
+          <Suspense fallback={<div className="h-[72px] bg-white border-b border-zinc-200" />}>
+            <HeaderServer />
+          </Suspense>
+          <main className="flex-1 bg-white">
+            <FrontendBreadcrumbs />
+            {children}
+          </main>
+          <Suspense fallback={<div className="h-[400px] bg-zinc-50" />}>
+            <FooterServer />
+          </Suspense>
+        </div>
+      </ThemeServer>
+    </Suspense>
   );
 }

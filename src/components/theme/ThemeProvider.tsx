@@ -344,10 +344,8 @@ export function ThemeProvider({
      Avoid hydration mismatch
   ------------------------------ */
 
-  const [isMounted, setIsMounted] = useState(false);
-
   useEffect(() => {
-    setIsMounted(true);
+    // Component mounted transitions or logic if needed later
   }, []);
 
   const style = useMemo(
@@ -363,8 +361,8 @@ export function ThemeProvider({
   return (
     <ThemeContext.Provider value={theme}>
       <div
-        style={isMounted ? style : {}}
-        {...(isMounted ? dataAttrs : {})}
+        style={style}
+        {...dataAttrs}
         className="theme-wrapper min-h-full"
       >
         {children}
