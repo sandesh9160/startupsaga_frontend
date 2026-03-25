@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { API_BASE_URL } from "@/lib/api";
+import { getPublicOrigin } from "@/lib/request-origin";
 
 export async function GET(request: Request) {
     // Call backend to invalidate session
@@ -18,8 +19,10 @@ export async function GET(request: Request) {
         // Silently fail as we prioritize clearing local cookies anyway
     }
 
+    const baseUrl = getPublicOrigin(request);
+
     // Redirect to login page
-    const response = NextResponse.redirect(new URL("/admin", request.url));
+    const response = NextResponse.redirect(new URL("/admin", baseUrl));
 
     // Clear cookies
     response.cookies.delete("session");
