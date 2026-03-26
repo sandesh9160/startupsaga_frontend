@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/api";
-import Image from "next/image";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 interface LogoProps {
     className?: string;
@@ -36,13 +36,10 @@ export function Logo({ className, iconClassName, showText = true, variant = "def
                     "flex items-center justify-center w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-transparent relative",
                     iconClassName
                 )}>
-                    <Image
+                    <SmartImage
                         src={settings.site_logo}
                         alt={siteName}
-                        fill
-                        className="object-contain"
-                        sizes="40px"
-                        priority
+                        className="h-full w-full object-contain"
                     />
                 </div>
             ) : (

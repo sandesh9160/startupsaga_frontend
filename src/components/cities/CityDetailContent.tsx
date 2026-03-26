@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { StoryCard } from "@/components/cards/StoryCard";
 import { StartupCard } from "@/components/cards/StartupCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Building2, TrendingUp, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import { getSafeImageSrc } from "@/lib/images";
+import { SmartImage } from "@/components/ui/SmartImage";
 import {
     Select,
     SelectContent,
@@ -40,7 +40,7 @@ export function CityDetailContent({ city, cityStartups, cityStories, allCities =
             {/* Hero Section */}
             <section className="relative bg-[#0F172A] py-16 overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <Image
+                    <SmartImage
                         src={heroImage}
                         alt={`${city.name} skyline`}
                         fill

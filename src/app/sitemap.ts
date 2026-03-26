@@ -6,7 +6,7 @@ import { SITE_URL } from "@/config/site";
  * Used to fetch dynamic content (stories, startups, etc.)
  */
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.startupsaga.in/api";
 
 /**
  * Generic JSON fetch helper
@@ -15,9 +15,7 @@ const API_BASE_URL =
  * - Throws error if request fails
  */
 async function fetchJson<T>(url: string): Promise<T> {
-  const urlToUse = url.includes("localhost")
-    ? url.replace("localhost", "127.0.0.1")
-    : url;
+  const urlToUse = url;
 
   const res = await fetch(urlToUse, {
     next: { revalidate: 3600 }, // Revalidate every 1 hour

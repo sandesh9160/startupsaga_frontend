@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { TrendingUp } from "lucide-react";
 import { Story } from "@/lib/api";
 import { getSafeImageSrc } from "@/lib/images";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 interface TrendingStoriesProps {
     stories: Story[];
@@ -40,7 +40,7 @@ export function TrendingStories({ stories }: TrendingStoriesProps) {
                             </div>
 
                             <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-zinc-50 border border-zinc-300">
-                                <Image
+                                <SmartImage
                                     src={thumbnailSrc}
                                     alt={story.title}
                                     fill

@@ -27,10 +27,10 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getSafeImageSrc } from "@/lib/images";
 import { cn } from "@/lib/utils";
+import { SmartImage } from "@/components/ui/SmartImage";
 // import { API_BASE_URL } from "@/lib/api";
 // import dynamic from "next/dynamic";
 import { Story, Startup } from "@/types";
-import Image from "next/image";
 
 interface StoryDetailContentProps {
     story: Story;
@@ -306,7 +306,7 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups, on
                         {/* Featured Image */}
                         {(story.thumbnail || story.og_image) && (
                             <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-zinc-100 shadow-lg shadow-zinc-200/50 animate-in fade-in duration-1000">
-                                <Image
+                                <SmartImage
                                     src={getSafeImageSrc(story.thumbnail || story.og_image)}
                                     alt={story.image_alt || story.title}
                                     fill
@@ -428,11 +428,13 @@ export function StoryDetailContent({ story, relatedStories, categoryStartups, on
                                         founded: story.related_startup.founded_year,
                                         employees: story.related_startup.team_size,
                                         founders: story.related_startup.founders_data?.map((f: { name?: string }) => f.name || "") || [],
+                                        tags: story.related_startup.industry_tags || [],
                                         categories: [getDisplayName(story.related_startup.category)].filter(Boolean),
                                         website: story.related_startup.website_url,
                                         slug: story.related_startup.slug || "",
                                         stage: story.related_startup.funding_stage || story.related_startup.stage,
-                                        sector: getDisplayName(story.related_startup.category)
+                                        sector: getDisplayName(story.related_startup.category),
+                                        model: story.related_startup.business_model
                                     }}
                                 />
 

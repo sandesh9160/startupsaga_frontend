@@ -48,7 +48,7 @@ export function Banner({
                 {image && (
                     <div className="absolute inset-0 opacity-20 transition-transform duration-1000 group-hover:scale-105">
                         <Image
-                            src={image.startsWith('http') ? image : `${process.env.NEXT_PUBLIC_MEDIA_URL || 'http://localhost:8000'}${image}`}
+                            src={image.startsWith('http') ? image : `${process.env.NEXT_PUBLIC_MEDIA_URL || 'https://api.startupsaga.in'}${image}`}
                             alt={title || "StartupSaga Banner"}
                             fill
                             priority

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, TrendingUp } from "lucide-react";
 import { StoryCard } from "@/components/cards/StoryCard";
@@ -7,6 +6,7 @@ import { StartupCard } from "@/components/cards/StartupCard";
 import { CityCard } from "@/components/cards/CityCard";
 import { Newsletter } from "@/components/sections/Newsletter";
 import { getSafeImageSrc } from "@/lib/images";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 import {
     getTrendingStories,
@@ -165,7 +165,7 @@ export async function DefaultHomeView({
                             <div className="lg:col-span-4 bg-[#FFF5F1] p-10 flex flex-col items-center justify-center text-center border-r border-zinc-50">
                                 <div className="w-40 h-40 rounded-3xl bg-white shadow-md flex items-center justify-center p-8 mb-6 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
                                     {(featuredStartups[0].logo || featuredStartups[0].og_image) ? (
-                                        <Image
+                                        <SmartImage
                                             src={getSafeImageSrc(featuredStartups[0].logo || featuredStartups[0].og_image)}
                                             alt={featuredStartups[0].name}
                                             fill

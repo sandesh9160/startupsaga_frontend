@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import Image from "next/image";
 import { getSafeImageSrc } from "@/lib/images";
 import { cn } from "@/lib/utils";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 // Pastel background palette — cycles through colors per card (used as fallback/overlay text color)
 const CARD_PALETTES = [
@@ -50,6 +50,7 @@ export function CityCard({
   // Use sum of char codes to reliably pick a color based on city name
   const charSum = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const palette = CARD_PALETTES[charSum % CARD_PALETTES.length];
+  const imageSrc = image ? getSafeImageSrc(image) : "";
 
   if (variant === 'featured') {
     return (
@@ -58,8 +59,8 @@ export function CityCard({
           {/* Top Image Section */}
           <div className="relative h-48 md:h-56 w-full overflow-hidden">
             {image ? (
-              <Image
-                src={getSafeImageSrc(image)}
+              <SmartImage
+                src={imageSrc}
                 alt={name}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700"
@@ -127,8 +128,8 @@ export function CityCard({
       >
         {/* Full Background Image */}
         {image && (
-          <Image
-            src={getSafeImageSrc(image)}
+          <SmartImage
+            src={imageSrc}
             alt={name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"

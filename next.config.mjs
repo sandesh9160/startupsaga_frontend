@@ -74,6 +74,7 @@ function getBackendOrigin() {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  skipTrailingSlashRedirect: true,
   // Enable gzip compression to dramatically reduce HTML payload size
   compress: true,
   // Remove X-Powered-By header for security
@@ -149,28 +150,6 @@ const nextConfig = {
             value: 'public, max-age=86400, stale-while-revalidate=604800',
           },
         ],
-      },
-    ];
-  },
-
-  async rewrites() {
-    const origin = getBackendOrigin();
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${origin}/api/:path*`,
-      },
-      {
-        source: '/admin/:path*',
-        destination: `${origin}/admin/:path*`,
-      },
-      {
-        source: '/static/:path*',
-        destination: `${origin}/static/:path*`,
-      },
-      {
-        source: '/media/:path*',
-        destination: `${origin}/media/:path*`,
       },
     ];
   },

@@ -12,10 +12,11 @@ import { CategoryCard } from "@/components/cards/CategoryCard";
 import { Newsletter } from "@/components/sections/Newsletter";
 // import { Banner } from "@/components/sections/Banner";
 import { TrendingStories } from "@/components/stories/TrendingStories";
+import { SmartImage } from "@/components/ui/SmartImage";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { getTrendingStories, getSections, getStories, getStartups, getCities, getCategories, getPlatformStats } from "@/lib/api";
 import { getIcon } from "@/lib/icons";
-import { getSafeImageSrc } from "@/lib/images";
+import { getSafeImageSrc, isLocalImageUrl } from "@/lib/images";
 import { Story, Startup, Category, City, PageSection } from "@/types";
 
 interface HomeContentProps {
@@ -1469,9 +1470,9 @@ export function HomeContent({
                                     <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[300px]">
                                         {/* Left Side: Brand */}
                                         <div className="lg:col-span-4 bg-[#FFF5F1] p-8 flex flex-col items-center justify-center text-center border-r border-zinc-50">
-                                            <div className="w-32 h-32 rounded-3xl bg-white shadow-md flex items-center justify-center p-6 mb-6 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
+                                                <div className="w-32 h-32 rounded-3xl bg-white shadow-md flex items-center justify-center p-6 mb-6 group-hover:scale-105 transition-transform duration-500 overflow-hidden relative">
                                                 {(featuredStartups[0].logo || featuredStartups[0].og_image) ? (
-                                                    <Image
+                                                    <SmartImage
                                                         src={getSafeImageSrc(featuredStartups[0].logo || featuredStartups[0].og_image)}
                                                         alt={featuredStartups[0].name}
                                                         fill

@@ -24,7 +24,11 @@ export type {
   Page
 };
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+const envApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+export const API_BASE_URL =
+  (envApiUrl && envApiUrl.startsWith("http"))
+    ? envApiUrl
+    : "https://api.startupsaga.in/api";
 
 /**
  * Resolve redirect for a path (slug changes → 301). Call before showing 404.
@@ -57,13 +61,16 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
     // Respect caller-supplied `next` config (e.g. revalidate: 3600 for
     // layout/SEO settings) instead of always overriding with 60s.
     const callerNext = (options as Record<string, unknown>)?.next as Record<string, unknown> | undefined;
+    const nextOptions = options.cache === "no-store"
+      ? callerNext
+      : { revalidate: 60, ...callerNext };
     const res = await fetch(url, {
       ...options,
       headers: {
         "Content-Type": "application/json",
         ...((options.headers as Record<string, string>) || {}),
       },
-      next: { revalidate: 60, ...callerNext },
+      ...(nextOptions ? { next: nextOptions } : {}),
     });
 
     if (!res.ok) {
@@ -134,7 +141,7 @@ export const publicApi = {
   },
 
   /** Get startup detail */
-  getStartup: (slug: string) => fetchAPI(`/startups/${slug}/`),
+  getStartup: (slug: string) => fetchAPI(`/startups/${slug}/`, { cache: "no-store" }),
 
   /** Get hubs (cities) */
   getHubs: (): Promise<City[]> => fetchList<City>("/cities/"),

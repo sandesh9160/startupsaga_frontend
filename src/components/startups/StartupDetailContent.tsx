@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 // import { StoryCard } from "@/components/cards/StoryCard";
 import { StartupCard } from "@/components/cards/StartupCard";
 import {
@@ -29,6 +28,7 @@ import {
 import { getSafeImageSrc } from "@/lib/images";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 interface FounderData {
     name?: string;
@@ -184,8 +184,8 @@ export function StartupDetailContent({ startup, similarStartups, onlySimilar = f
 
     if (onlySimilar) {
         return (
-            <div id="similar-startups" className="mt-16">
-                <div className="flex items-center justify-between mb-8">
+            <div id="similar-startups" className="mt-12">
+                <div className="flex items-center justify-between mb-6">
                     <div className="space-y-1">
                         <h2 className="text-xl md:text-2xl font-serif font-semibold text-zinc-900 tracking-tight">
                             Discover Similar Startups
@@ -196,7 +196,7 @@ export function StartupDetailContent({ startup, similarStartups, onlySimilar = f
                         View Directory <ArrowRight className="h-2.5 w-2.5" />
                     </Link>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-stretch">
                     {similarStartups.map((s) => (
                         <StartupCard
                             key={s.slug || Math.random().toString()}
@@ -228,7 +228,7 @@ export function StartupDetailContent({ startup, similarStartups, onlySimilar = f
                         <div className="flex flex-col sm:flex-row items-start gap-6 flex-1 w-full">
                             {/* Logo */}
                             <div className="w-24 h-24 rounded-[20px] border border-zinc-100 bg-white flex items-center justify-center shadow-sm shrink-0 overflow-hidden relative">
-                                <Image src={logoSrc} alt={startup.name} fill priority
+                                <SmartImage src={logoSrc} alt={startup.name} fill priority
                                     className="object-contain p-4" sizes="96px" unoptimized={isSvgLogo} />
                             </div>
 
@@ -277,7 +277,7 @@ export function StartupDetailContent({ startup, similarStartups, onlySimilar = f
                                                 <div key={i} title={f.name || ""}
                                                     className="w-7 h-7 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center text-[10px] font-semibold text-zinc-600 overflow-hidden shadow-sm relative">
                                                     {f.image
-                                                        ? <Image src={getSafeImageSrc(f.image)} alt={f.name || "Founder"} fill className="object-cover" sizes="28px" />
+                                                        ? <SmartImage src={getSafeImageSrc(f.image)} alt={f.name || "Founder"} fill className="object-cover" sizes="28px" />
                                                         : f.name?.[0]}
                                                 </div>
                                             ))}
@@ -457,7 +457,7 @@ export function StartupDetailContent({ startup, similarStartups, onlySimilar = f
                                 {/* Header - More compact */}
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-16 h-16 rounded-xl border border-zinc-100 bg-white shadow-inner flex items-center justify-center overflow-hidden shrink-0 relative">
-                                        <Image src={logoSrc} alt={startup.name} fill
+                                        <SmartImage src={logoSrc} alt={startup.name} fill
                                             className="object-contain p-1" sizes="64px" unoptimized={isSvgLogo} />
                                     </div>
                                     <div className="min-w-0">

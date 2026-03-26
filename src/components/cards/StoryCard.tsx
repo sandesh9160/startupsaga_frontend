@@ -1,9 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getSafeImageSrc } from "@/lib/images";
 import { Clock, User } from "lucide-react";
-
 import { Category, City } from "@/types";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 interface StoryCardProps {
   slug: string;
@@ -48,7 +47,7 @@ export function StoryCard({
   if (isOverlay) {
     return (
       <article className="relative overflow-hidden aspect-[16/6] w-full group rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500">
-        <Image
+        <SmartImage
           src={thumbnailSrc}
           alt={title}
           fill
@@ -92,7 +91,7 @@ export function StoryCard({
     <article className="flex flex-col bg-white rounded-2xl border border-zinc-300 shadow-sm overflow-hidden hover:shadow-xl hover:shadow-zinc-300/50 hover:-translate-y-1 transition-all duration-300 group">
       {/* Thumbnail */}
       <Link href={`/stories/${slug}`} className="relative aspect-video w-full overflow-hidden bg-zinc-50 block flex-shrink-0">
-        <Image
+        <SmartImage
           src={thumbnailSrc}
           alt={title}
           fill

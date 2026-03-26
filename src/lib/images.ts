@@ -30,3 +30,7 @@ export function getSafeImageSrc(
 
   return `${normalizedBase}${normalizedSrc}`;
 }
+
+export function isLocalImageUrl(src: string): boolean {
+  return src.startsWith("http://127.0.0.1:") || src.startsWith("http://localhost:");
+}

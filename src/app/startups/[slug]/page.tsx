@@ -9,7 +9,9 @@ import { SITE_URL } from "@/config/site";
 import { Suspense } from "react";
 
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://127.0.0.1:8000";
+const API_BASE =
+    (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL)?.replace("/api", "") ||
+    "http://127.0.0.1:8000";
 
 function getAbsoluteImageUrl(url: string | null | undefined): string {
     if (!url) return `${SITE_URL}/og-image.jpg`;
@@ -70,7 +72,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 // ISR: startup detail pages are cached for 1 hour then regenerated on next request
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
-export const revalidate = 3600;
+export const revalidate = 0;
 
 /**
  * Startup detail page - Optimized for FCP.
@@ -195,7 +197,7 @@ async function SimilarStartupsSection({ startup }: { startup: any }) {
         }));
 
     return (
-        <div className="container-wide">
+        <div className="container-wide pb-20 md:pb-24">
             <StartupDetailContent
                 startup={startup}
                 similarStartups={similarStartups}

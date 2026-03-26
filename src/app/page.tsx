@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cache, Suspense } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { getSections, getPageBySlug, getStories, getTrendingStories, getSEOSettings } from "@/lib/api";
+import { getSections, getPageBySlug, getStories, getTrendingStories } from "@/lib/api";
 
 import { DynamicSections } from "@/components/sections/DynamicSections";
 import { DefaultHomeView } from "@/components/home/DefaultHomeView";
